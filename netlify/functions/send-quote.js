@@ -35,8 +35,8 @@ exports.handler = async (event) => {
             try {
                 // Replace the greeting with personalized name
                 const personalizedHtml = htmlBody.replace(
-                    /Good morning, <strong>.*?<\/strong>/,
-                    `Good morning, <strong>${recipient.name}</strong>`
+                    /Good morning, <strong[^>]*>.*?<\/strong>/,
+                    `Good morning, <strong style="color:#073015">${recipient.name}</strong>`
                 );
 
                 const res = await fetch('https://api.resend.com/emails', {

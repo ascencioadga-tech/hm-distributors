@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HM Distributors Inc | Fresh Produce Distribution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{font-family:'Montserrat',sans-serif;color:#1a2e1a;background:#faf9f6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+        a{text-decoration:none;color:inherit}img{max-width:100%;display:block}ul{list-style:none}
+
+        /* === ANIMATIONS === */
+        .reveal{opacity:0;transform:translateY(50px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+        .reveal.visible{opacity:1;transform:translateY(0)}
+        .reveal-left{opacity:0;transform:translateX(-60px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+        .reveal-left.visible{opacity:1;transform:translateX(0)}
+        .reveal-right{opacity:0;transform:translateX(60px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+        .reveal-right.visible{opacity:1;transform:translateX(0)}
+        .reveal-scale{opacity:0;transform:scale(.9);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+        .reveal-scale.visible{opacity:1;transform:scale(1)}
+        .s1{transition-delay:.1s}.s2{transition-delay:.2s}.s3{transition-delay:.3s}.s4{transition-delay:.4s}.s5{transition-delay:.5s}.s6{transition-delay:.6s}
+
+        /* === CURSOR === */
+        .cursor-glow{position:fixed;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(57,176,97,.04) 0%,transparent 70%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+
+        /* === NAVBAR === */
+        .navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;transition:all .5s cubic-bezier(.16,1,.3,1)}
+        .navbar.scrolled{background:rgba(250,249,246,.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 1px 0 rgba(0,0,0,.06)}
+        .navbar-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 64px}
+        .logo-img{height:52px;transition:all .4s}
+        .nav-links{display:flex;align-items:center;gap:40px}
+        .nav-links a{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:rgba(255,255,255,.8);transition:color .3s;position:relative}
+        .nav-links a::after{content:'';position:absolute;bottom:-6px;left:0;width:0;height:1.5px;background:#c4a265;transition:width .4s cubic-bezier(.16,1,.3,1)}
+        .nav-links a:hover::after{width:100%}
+        .navbar.scrolled .nav-links a{color:#555}
+        .nav-links a:hover{color:#fff}.navbar.scrolled .nav-links a:hover{color:#073015}
+        .nav-login{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:10px 24px;border-radius:50px;font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .3s;cursor:pointer}
+        .nav-login:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4)}
+        .nav-login::after{display:none}
+        .navbar.scrolled .nav-login{background:transparent;border:1px solid #ddd;color:#555}
+        .navbar.scrolled .nav-login:hover{border-color:#073015;color:#073015}
+        .nav-login svg{width:13px;height:13px;fill:currentColor}
+        .nav-cta{background:#073015!important;color:#fff!important;padding:12px 30px!important;border-radius:50px;font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .3s!important;border:none}
+        .nav-cta::after{display:none!important}
+        .nav-cta:hover{background:#0b5d1e!important;transform:translateY(-2px);box-shadow:0 12px 30px rgba(7,48,21,.25)}
+
+        /* === HERO === */
+        .hero{position:relative;height:100vh;min-height:750px;display:flex;align-items:center;overflow:hidden}
+        .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+        .hero-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(7,48,21,.85) 0%,rgba(7,48,21,.6) 40%,rgba(7,48,21,.75) 100%);z-index:1}
+        .hero-content{position:relative;z-index:3;max-width:1440px;margin:0 auto;padding:0 64px;width:100%}
+        .hero-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(196,162,101,.12);border:1px solid rgba(196,162,101,.3);padding:10px 24px;border-radius:50px;margin-bottom:36px;animation:fadeInUp 1s .3s both}
+        .hero-badge-dot{width:7px;height:7px;background:#c4a265;border-radius:50%;animation:pulse-dot 2s infinite}
+        @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+        .hero-badge span{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:3.5px;color:#c4a265}
+        .hero-text h1{font-family:'Playfair Display',serif;font-size:5.5rem;font-weight:800;line-height:1.05;color:#fff;margin-bottom:28px;max-width:750px;animation:fadeInUp 1s .5s both}
+        .hero-text h1 .accent{color:#c4a265;font-style:italic}
+        .hero-text p{font-size:1.1rem;line-height:1.9;color:rgba(255,255,255,.65);max-width:520px;margin-bottom:48px;font-weight:300;letter-spacing:.3px;animation:fadeInUp 1s .7s both}
+        .hero-buttons{display:flex;gap:16px;align-items:center;animation:fadeInUp 1s .9s both}
+        .btn-primary{display:inline-flex;align-items:center;gap:10px;background:#c4a265;color:#fff;padding:18px 42px;border-radius:50px;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;border:none;cursor:pointer;transition:all .3s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+        .btn-primary:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(196,162,101,.35);background:#b8963a}
+        .btn-primary svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .btn-secondary{display:inline-flex;align-items:center;gap:10px;background:transparent;color:#fff;padding:18px 42px;border-radius:50px;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;border:1px solid rgba(255,255,255,.2);cursor:pointer;transition:all .3s cubic-bezier(.16,1,.3,1)}
+        .btn-secondary:hover{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.05);transform:translateY(-3px)}
+        .hero-scroll{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;animation:fadeInUp 1s 1.2s both}
+        .hero-scroll span{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:4px;color:rgba(255,255,255,.35)}
+        .scroll-line{width:1px;height:48px;background:linear-gradient(to bottom,rgba(255,255,255,.3),transparent);position:relative;overflow:hidden}
+        .scroll-line::after{content:'';position:absolute;top:-48px;left:0;width:1px;height:48px;background:#c4a265;animation:scrollDown 2s infinite}
+        @keyframes scrollDown{0%{transform:translateY(0)}100%{transform:translateY(96px)}}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+
+        /* === DIVIDER === */
+        .divider{max-width:1440px;margin:0 auto;padding:0 64px}
+        .divider-line{height:1px;background:linear-gradient(to right,transparent,#ddd,transparent)}
+
+        /* === MARQUEE === */
+        .marquee-section{background:#073015;padding:20px 0;overflow:hidden}
+        .marquee-track{display:flex;animation:marquee 35s linear infinite;width:max-content}
+        .marquee-track:hover{animation-play-state:paused}
+        .marquee-item{display:flex;align-items:center;gap:24px;padding:0 44px;white-space:nowrap}
+        .marquee-item span{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:4px;color:rgba(255,255,255,.5)}
+        .marquee-diamond{width:5px;height:5px;background:#c4a265;transform:rotate(45deg)}
+        @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+        /* === SECTION UTILITIES === */
+        .section-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:5px;color:#c4a265;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+        .section-label::before{content:'';width:28px;height:1px;background:#c4a265}
+        .section-header{text-align:center;margin-bottom:80px}
+        .section-header .section-label{justify-content:center}
+        .section-header .section-label::before{display:none}
+        .section-header .section-label::after{content:'';width:28px;height:1px;background:#c4a265}
+        .section-header h2{font-family:'Playfair Display',serif;font-size:3.2rem;font-weight:800;color:#073015;margin-bottom:20px;line-height:1.2}
+        .section-header p{font-size:1.05rem;color:#888;max-width:520px;margin:0 auto;font-weight:400;line-height:1.8}
+
+        /* === ABOUT === */
+        .about{padding:160px 64px;max-width:1440px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
+        .about-image-container{position:relative}
+        .about-image{border-radius:20px;overflow:hidden;position:relative;aspect-ratio:4/3;box-shadow:0 30px 80px rgba(0,0,0,.08)}
+        .about-image img{width:100%;height:100%;object-fit:cover}
+        .about-float-card{position:absolute;bottom:-28px;right:-28px;background:#fff;padding:28px 34px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.1);z-index:2;border:1px solid rgba(0,0,0,.04)}
+        .about-float-card h4{font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;color:#073015;line-height:1}
+        .about-float-card p{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:#aaa;margin-top:4px}
+        .about-accent{position:absolute;top:-16px;left:-16px;width:70px;height:70px;border:2px solid #c4a265;border-radius:16px;z-index:-1;opacity:.5}
+        .about-text h2{font-family:'Playfair Display',serif;font-size:3rem;font-weight:800;line-height:1.2;color:#073015;margin-bottom:28px}
+        .about-text p{font-size:1rem;line-height:1.9;color:#666;margin-bottom:18px;font-weight:400}
+        .stat-row{display:flex;gap:48px;margin-top:48px;padding-top:48px;border-top:1px solid #e8e8e8}
+        .stat{text-align:center}
+        .stat h4{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;color:#073015;line-height:1}
+        .stat p{font-size:.65rem;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:2.5px;margin-top:8px}
+
+        /* === PRODUCTS === */
+        .products{padding:140px 64px 160px;position:relative;background:#fff}
+        .products-inner{max-width:1440px;margin:0 auto}
+
+        /* Brand Tabs */
+        .brand-tabs{display:flex;justify-content:center;gap:12px;margin-bottom:60px}
+        .brand-tab{display:flex;align-items:center;gap:16px;padding:16px 36px;border-radius:60px;border:2px solid rgba(0,0,0,.06);background:#faf9f6;cursor:pointer;transition:all .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+        .brand-tab::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#073015,#0b5d1e);opacity:0;transition:opacity .5s;border-radius:60px}
+        .brand-tab.active{border-color:transparent;box-shadow:0 12px 40px rgba(7,48,21,.18)}
+        .brand-tab.active::before{opacity:1}
+        .brand-tab:not(.active):hover{border-color:rgba(7,48,21,.15);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+        .brand-tab-logo{height:44px;width:auto;object-fit:contain;position:relative;z-index:1;transition:filter .5s;mix-blend-mode:multiply;border-radius:6px}
+        .brand-tab-logo.spv-paris{height:40px}
+        .brand-tab-logo.wolf-logo{height:48px}
+        .brand-tab-logo.mr-produce{height:44px}
+        .brand-tab.active .brand-tab-logo{mix-blend-mode:normal}
+        .brand-tab-info{position:relative;z-index:1}
+        .brand-tab-name{font-size:.8rem;font-weight:800;color:#073015;letter-spacing:-.2px;transition:color .5s}
+        .brand-tab.active .brand-tab-name{color:#fff}
+        .brand-tab-count{font-size:.6rem;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:1.5px;transition:color .5s}
+        .brand-tab.active .brand-tab-count{color:rgba(255,255,255,.6)}
+
+        /* Product Showcase */
+        .brand-panel{display:none;animation:panelIn .6s cubic-bezier(.16,1,.3,1) both}
+        .brand-panel.active{display:block}
+        @keyframes panelIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+        .product-showcase{display:grid;grid-template-columns:1fr 1fr;gap:0;background:#faf9f6;border-radius:28px;overflow:hidden;min-height:520px;border:1px solid rgba(0,0,0,.04);box-shadow:0 20px 80px rgba(0,0,0,.05)}
+        .showcase-image{position:relative;overflow:hidden;background:#fff}
+        .showcase-image img{width:100%;height:100%;object-fit:contain;padding:56px;transition:opacity .5s cubic-bezier(.16,1,.3,1),transform 6s cubic-bezier(.16,1,.3,1);will-change:transform}
+        .showcase-image img.ken-burns{transform:scale(1.08)}
+        .showcase-image::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 70%,rgba(0,0,0,.04) 100%);pointer-events:none}
+        .showcase-season-badge{position:absolute;top:28px;left:28px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);padding:10px 22px;border-radius:50px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:#073015;z-index:2;display:flex;align-items:center;gap:8px}
+        .showcase-season-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#2e7d32;animation:pulse-dot 2s infinite}
+
+        .showcase-details{padding:56px 52px;display:flex;flex-direction:column;justify-content:center}
+        .showcase-brand-tag{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:3.5px;color:#c4a265;margin-bottom:16px}
+        .showcase-title{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:800;color:#073015;line-height:1.15;margin-bottom:16px;transition:all .3s}
+        .showcase-desc{font-size:1rem;line-height:1.9;color:#888;font-weight:400;margin-bottom:36px}
+
+        /* Inline Availability Timeline */
+        .avail-timeline{margin-bottom:36px}
+        .avail-timeline-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#ccc;margin-bottom:14px}
+        .avail-bar{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+        .avail-bar-month{text-align:center;padding:10px 0;border-radius:8px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;transition:all .4s cubic-bezier(.16,1,.3,1);cursor:default;position:relative}
+        .avail-bar-month.unavailable{background:#f0efed;color:#ccc}
+        .avail-bar-month.available{background:#e8f5e9;color:#2e7d32}
+        .avail-bar-month.peak{background:#073015;color:#fff;box-shadow:0 4px 12px rgba(7,48,21,.2)}
+        .avail-bar-month.peak::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:#c4a265;border-radius:50%}
+        .avail-legend{display:flex;gap:20px;margin-top:14px}
+        .avail-legend-item{display:flex;align-items:center;gap:6px;font-size:.58rem;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:1px}
+        .avail-legend-dot{width:8px;height:8px;border-radius:4px}
+        .avail-legend-dot.peak{background:#073015}.avail-legend-dot.available{background:#e8f5e9;border:1px solid #c8e6c9}.avail-legend-dot.unavailable{background:#f0efed;border:1px solid #e5e5e3}
+
+        /* Product Thumbnails Strip */
+        .product-thumbs{display:flex;gap:16px;margin-top:40px;padding:0 4px}
+        .product-thumb{flex:0 0 auto;width:160px;background:#fff;border-radius:18px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .4s cubic-bezier(.16,1,.3,1);box-shadow:0 4px 16px rgba(0,0,0,.04)}
+        .product-thumb.active{border-color:#073015;box-shadow:0 8px 28px rgba(7,48,21,.12)}
+        .product-thumb:not(.active):hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.08)}
+        .product-thumb-img{height:100px;overflow:hidden;background:#fff}
+        .product-thumb-img img{width:100%;height:100%;object-fit:contain;padding:12px;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+        .product-thumb:hover .product-thumb-img img{transform:scale(1.08)}
+        .product-thumb-info{padding:12px 14px}
+        .product-thumb-name{font-size:.72rem;font-weight:700;color:#073015;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .product-thumb-season{font-size:.55rem;font-weight:600;color:#bbb;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+
+        /* Responsive products */
+        @media(max-width:1024px){.brand-tabs{flex-wrap:wrap}.product-showcase{grid-template-columns:1fr;min-height:auto}.showcase-image{height:360px}.showcase-details{padding:40px 36px}.showcase-title{font-size:2.2rem}.product-thumbs{overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;padding-bottom:8px}.product-thumb{scroll-snap-align:start}}
+        @media(max-width:768px){.products{padding:100px 24px 120px}.brand-tabs{gap:8px}.brand-tab{padding:12px 20px;gap:10px}.brand-tab-logo{height:32px}.brand-tab-logo.wolf-logo{height:36px}.brand-tab-info{display:none}.showcase-image{height:280px}.showcase-details{padding:32px 24px}.showcase-title{font-size:1.8rem}.avail-bar{grid-template-columns:repeat(6,1fr)}.product-thumb{width:130px}.product-thumb-img{height:80px}}
+        @media(max-width:480px){.brand-tab{padding:10px 16px}.brand-tab-logo{height:28px}.brand-tab-logo.wolf-logo{height:32px}.avail-bar{grid-template-columns:repeat(4,1fr)}.product-thumb{width:120px}}
+
+        /* === SERVICES === */
+        .services{padding:160px 64px;max-width:1440px;margin:0 auto}
+        .services-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;margin-top:80px}
+        .service-card{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:24px;padding:48px 40px;transition:all .5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden;display:flex;gap:32px;align-items:flex-start}
+        .service-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,rgba(7,48,21,.03) 0%,transparent 60%);opacity:0;transition:opacity .5s;pointer-events:none}
+        .service-card::after{content:'';position:absolute;bottom:0;left:40px;right:40px;height:3px;background:linear-gradient(to right,#c4a265,#073015);transform:scaleX(0);transition:transform .5s cubic-bezier(.16,1,.3,1);transform-origin:left;border-radius:3px;pointer-events:none}
+        .service-card:hover::before{opacity:1}
+        .service-card:hover::after{transform:scaleX(1)}
+        .service-card:hover{transform:translateY(-8px);box-shadow:0 24px 64px rgba(7,48,21,.1);border-color:transparent}
+        .service-card-left{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:16px}
+        .service-number{font-family:'Playfair Display',serif;font-size:4.5rem;font-weight:900;background:linear-gradient(180deg,rgba(7,48,21,.08) 0%,rgba(7,48,21,.02) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;transition:all .5s}
+        .service-card:hover .service-number{background:linear-gradient(180deg,rgba(196,162,101,.3) 0%,rgba(196,162,101,.05) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .service-icon{width:60px;height:60px;background:linear-gradient(135deg,#f4f1eb,#ebe6db);border-radius:16px;display:flex;align-items:center;justify-content:center;transition:all .5s cubic-bezier(.16,1,.3,1)}
+        .service-icon svg{width:26px;height:26px;stroke:#073015;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:all .5s}
+        .service-card:hover .service-icon{background:linear-gradient(135deg,#073015,#0a4a22);transform:scale(1.08);box-shadow:0 8px 24px rgba(7,48,21,.2)}
+        .service-card:hover .service-icon svg{stroke:#c4a265}
+        .service-card-content{flex:1}
+        .service-card h3{font-size:1.25rem;font-weight:800;color:#073015;margin-bottom:10px;letter-spacing:-.3px}
+        .service-card p{font-size:.9rem;line-height:1.9;color:#888}
+        .service-card .service-tag{display:inline-block;margin-top:16px;font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#c4a265;opacity:0;transform:translateY(8px);transition:all .4s .1s;cursor:pointer}
+        .service-card:hover .service-tag{opacity:1;transform:translateY(0)}
+
+        /* Service Modal */
+        .svc-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10000;opacity:0;visibility:hidden;transition:all .4s cubic-bezier(.16,1,.3,1);display:flex;align-items:center;justify-content:center}
+        .svc-modal-overlay.active{opacity:1;visibility:visible}
+        .svc-modal{width:720px;max-width:92vw;max-height:88vh;background:#fff;border-radius:28px;overflow:hidden;transform:translateY(40px) scale(.95);transition:all .5s cubic-bezier(.16,1,.3,1);box-shadow:0 40px 100px rgba(0,0,0,.3)}
+        .svc-modal-overlay.active .svc-modal{transform:translateY(0) scale(1)}
+        .svc-modal-hero{position:relative;height:220px;overflow:hidden;display:flex;align-items:flex-end}
+        .svc-modal-hero-bg{position:absolute;inset:0;z-index:0}
+        .svc-modal-hero-bg svg{width:100%;height:100%}
+        .svc-modal-hero-content{position:relative;z-index:2;padding:36px 44px;width:100%}
+        .svc-modal-hero-number{font-family:'Playfair Display',serif;font-size:5rem;font-weight:900;color:rgba(255,255,255,.15);position:absolute;top:20px;right:44px;z-index:1;line-height:1}
+        .svc-modal-hero-icon{width:56px;height:56px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;backdrop-filter:blur(8px)}
+        .svc-modal-hero-icon svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+        .svc-modal-hero h2{font-size:1.8rem;font-weight:800;color:#fff;margin:0;letter-spacing:-.5px}
+        .svc-modal-hero p{font-size:.85rem;color:rgba(255,255,255,.7);margin-top:4px}
+        .svc-modal-close{position:absolute;top:20px;right:20px;z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(8px)}
+        .svc-modal-close:hover{background:rgba(255,255,255,.3);transform:scale(1.1)}
+        .svc-modal-close svg{width:18px;height:18px;stroke:#fff;stroke-width:2;fill:none}
+        .svc-modal-body{padding:40px 44px;overflow-y:auto;max-height:calc(88vh - 220px)}
+        .svc-modal-body p.svc-lead{font-size:1rem;line-height:1.9;color:#555;margin-bottom:28px}
+        .svc-features{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+        .svc-feature{background:linear-gradient(135deg,#f8f7f4,#f1efe9);border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:all .3s}
+        .svc-feature:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(7,48,21,.08)}
+        .svc-feature::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(to bottom,#c4a265,#073015);border-radius:4px}
+        .svc-feature-icon{width:40px;height:40px;background:linear-gradient(135deg,#073015,#0a5a28);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+        .svc-feature-icon svg{width:20px;height:20px;stroke:#c4a265;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+        .svc-feature h4{font-size:.85rem;font-weight:700;color:#073015;margin-bottom:6px}
+        .svc-feature p{font-size:.78rem;line-height:1.7;color:#888;margin:0}
+        .svc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+        .svc-stat{text-align:center;padding:24px 16px;background:#073015;border-radius:16px;position:relative;overflow:hidden}
+        .svc-stat::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(196,162,101,.15),transparent);pointer-events:none}
+        .svc-stat-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:800;color:#c4a265;line-height:1}
+        .svc-stat-label{font-size:.7rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:8px}
+        .svc-cta{display:flex;align-items:center;gap:16px;padding:24px 28px;background:linear-gradient(135deg,#f8f7f4,#f1efe9);border-radius:16px;border:1px solid rgba(196,162,101,.2)}
+        .svc-cta-icon{width:48px;height:48px;background:linear-gradient(135deg,#c4a265,#d4b87a);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .svc-cta-icon svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .svc-cta-text h4{font-size:.9rem;font-weight:700;color:#073015;margin-bottom:2px}
+        .svc-cta-text p{font-size:.78rem;color:#888;margin:0}
+        @media(max-width:640px){.svc-features{grid-template-columns:1fr}.svc-stats{grid-template-columns:1fr}.svc-modal-hero{height:180px}.svc-modal-body{padding:28px 24px}.svc-modal-hero-content{padding:24px}}
+        .service-card.s1{grid-column:1}
+        .service-card.s2{grid-column:2;margin-top:40px}
+        .service-card.s3{grid-column:1;margin-top:-20px}
+        .service-card.s4{grid-column:2;margin-top:20px}
+
+        /* === PROMISE CTA === */
+        .story-cta{position:relative;padding:200px 64px;text-align:center;overflow:hidden}
+        .story-cta-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+        .story-cta-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(7,48,21,.9) 0%,rgba(7,48,21,.75) 100%);z-index:1}
+        .story-cta-inner{position:relative;z-index:3;max-width:800px;margin:0 auto}
+        .story-cta .section-label{color:#c4a265;justify-content:center}
+        .story-cta .section-label::before{background:#c4a265}
+        .story-cta .section-label::after{content:'';width:28px;height:1px;background:#c4a265}
+        .story-cta h2{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:800;color:#fff;margin-bottom:28px;line-height:1.2}
+        .story-cta p{font-size:1.1rem;color:rgba(255,255,255,.55);line-height:1.9;margin-bottom:48px;font-weight:300}
+        .story-cta .btn-primary{background:#c4a265;color:#fff}
+        .story-cta .btn-primary:hover{background:#b8963a}
+
+        /* === SOCIAL RESPONSIBILITY === */
+        .social-resp{padding:160px 64px;max-width:1440px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
+        .social-resp-image{border-radius:20px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 30px 80px rgba(0,0,0,.08);position:relative}
+        .social-resp-image img{width:100%;height:100%;object-fit:cover}
+        .social-resp-image::after{content:'';position:absolute;inset:0;border:1px solid rgba(255,255,255,.1);border-radius:20px;pointer-events:none}
+        .social-resp-text h2{font-family:'Playfair Display',serif;font-size:3rem;font-weight:800;line-height:1.2;color:#073015;margin-bottom:28px}
+        .social-resp-text p{font-size:1rem;line-height:1.9;color:#666;margin-bottom:18px}
+        .social-resp-values{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:40px}
+        .value-item{padding:24px;background:#fff;border-radius:16px;border:1px solid rgba(0,0,0,.04);transition:all .3s}
+        .value-item:hover{box-shadow:0 10px 30px rgba(0,0,0,.04);transform:translateY(-3px)}
+        .value-item h4{font-size:.85rem;font-weight:800;color:#073015;margin-bottom:6px}
+        .value-item p{font-size:.78rem;color:#999;line-height:1.6}
+
+        /* === CERTIFICATIONS === */
+        .certifications{padding:120px 64px;background:#fff}
+        .cert-inner{max-width:1440px;margin:0 auto;text-align:center}
+        .cert-logos{display:flex;justify-content:center;align-items:stretch;gap:28px;flex-wrap:wrap}
+        .cert-badge{background:#faf9f6;border:1px solid rgba(0,0,0,.04);border-radius:18px;padding:36px 44px;min-width:200px;transition:all .4s cubic-bezier(.16,1,.3,1)}
+        .cert-badge:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.05);border-color:#c4a265}
+        .cert-badge svg{width:44px;height:44px;margin:0 auto 14px}
+        .cert-badge img{max-width:160px;height:70px;object-fit:contain;margin:0 auto 18px;display:block;border-radius:10px}
+        .cert-badge h4{font-size:.9rem;font-weight:800;color:#073015;margin-bottom:4px}
+        .cert-badge p{font-size:.65rem;font-weight:500;color:#bbb;text-transform:uppercase;letter-spacing:1.5px}
+
+        /* === CONTACT === */
+        .contact{padding:160px 64px;max-width:1440px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:start}
+        .contact-info h2{font-family:'Playfair Display',serif;font-size:3rem;font-weight:800;color:#073015;margin-bottom:20px}
+        .contact-info>p{font-size:1rem;color:#888;line-height:1.9;margin-bottom:44px}
+        .contact-detail{display:flex;align-items:flex-start;gap:20px;margin-bottom:20px;padding:24px;border-radius:16px;transition:background .3s}
+        .contact-detail:hover{background:#fff}
+        .contact-detail-icon{width:50px;height:50px;background:#f4f1eb;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .contact-detail-icon svg{width:20px;height:20px;stroke:#073015;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+        .contact-detail h4{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:#ccc;margin-bottom:6px}
+        .contact-detail p{font-size:1rem;color:#444;margin:0;font-weight:500}
+        .contact-form{background:#fff;padding:56px;border-radius:24px;border:1px solid rgba(0,0,0,.04);box-shadow:0 20px 60px rgba(0,0,0,.04)}
+        .contact-form h3{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:800;color:#073015;margin-bottom:6px}
+        .contact-form .subtitle{font-size:.85rem;color:#bbb;margin-bottom:36px}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        .form-group{margin-bottom:20px}
+        .form-group label{display:block;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:#ccc;margin-bottom:10px}
+        .form-group input,.form-group textarea{width:100%;padding:16px 20px;border:1px solid #e8e8e5;border-radius:12px;font-family:'Montserrat',sans-serif;font-size:.9rem;font-weight:400;transition:all .3s;background:#faf9f6;color:#333}
+        .form-group input:focus,.form-group textarea:focus{outline:none;border-color:#073015;box-shadow:0 0 0 4px rgba(7,48,21,.04);background:#fff}
+        .form-group textarea{resize:vertical;min-height:120px}
+        .form-submit{width:100%;padding:18px;background:#073015;color:#fff;border:none;border-radius:12px;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;cursor:pointer;transition:all .3s cubic-bezier(.16,1,.3,1)}
+        .form-submit:hover{background:#0b5d1e;transform:translateY(-2px);box-shadow:0 12px 35px rgba(7,48,21,.2)}
+
+        /* === FOOTER === */
+        .footer{background:#051a0c;padding:80px 64px 40px}
+        .footer-inner{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;padding-bottom:60px;border-bottom:1px solid rgba(255,255,255,.05)}
+        .footer-brand .footer-logo img{height:48px;margin-bottom:16px}
+        .footer-brand p{font-size:.85rem;color:rgba(255,255,255,.3);line-height:1.8;max-width:280px}
+        .footer-col h4{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:rgba(255,255,255,.2);margin-bottom:24px}
+        .footer-col a{display:block;font-size:.85rem;font-weight:400;color:rgba(255,255,255,.45);margin-bottom:14px;transition:all .3s}
+        .footer-col a:hover{color:#c4a265;transform:translateX(4px)}
+        .footer-bottom{max-width:1440px;margin:0 auto;padding-top:30px;display:flex;justify-content:space-between;align-items:center;font-size:.7rem;color:rgba(255,255,255,.2);letter-spacing:1px}
+
+        /* === RESPONSIVE === */
+        @media(max-width:1200px){.hero-text h1{font-size:4rem}.about{gap:60px}.social-resp{gap:60px}}
+        @media(max-width:1024px){.hero-text h1{font-size:3.2rem}.about{grid-template-columns:1fr;padding:100px 40px}.about-float-card{bottom:16px;right:16px}.services-grid{grid-template-columns:1fr}.service-card.s2,.service-card.s3,.service-card.s4{margin-top:0}.contact{grid-template-columns:1fr;padding:100px 40px;gap:60px}.social-resp{grid-template-columns:1fr;padding:100px 40px}.footer-inner{grid-template-columns:1fr 1fr}}
+        @media(max-width:768px){.navbar-inner{padding:14px 24px}.nav-links .nav-link-item{display:none}.hero{min-height:600px}.hero-content{padding:0 24px}.hero-text h1{font-size:2.6rem}.hero-text p{font-size:.95rem}.services-grid{grid-template-columns:1fr}.section-header h2,.about-text h2,.contact-info h2,.social-resp-text h2{font-size:2.2rem}.story-cta h2{font-size:2.4rem}.story-cta{padding:100px 24px}.stat-row{gap:20px}.footer-inner{grid-template-columns:1fr;gap:36px}.footer-bottom{flex-direction:column;gap:12px;text-align:center}.contact-form{padding:32px 20px}.services{padding:100px 24px}.certifications{padding:80px 24px}.form-row{grid-template-columns:1fr}.social-resp-values{grid-template-columns:1fr}}
+        @media(max-width:480px){.hero-buttons{flex-direction:column;width:100%}.btn-primary,.btn-secondary{width:100%;justify-content:center}.cert-logos{flex-direction:column;align-items:stretch}}
+    </style>
+</head>
+<body>
+
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+    <div class="navbar-inner">
+        <a href="#"><img src="logo.avif" alt="HM Distributors" class="logo-img"></a>
+        <ul class="nav-links">
+            <li class="nav-link-item"><a href="#about">About</a></li>
+            <li class="nav-link-item"><a href="#products">Products</a></li>
+            <li class="nav-link-item"><a href="#services">Services</a></li>
+            <li class="nav-link-item"><a href="#responsibility">Responsibility</a></li>
+            <li><a href="login.html" class="nav-login"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Login</a></li>
+            <li><a href="#contact" class="nav-cta">Contact</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <video class="hero-video" src="hero-video.mp4" autoplay muted loop playsinline preload="metadata"></video>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-badge"><div class="hero-badge-dot"></div><span>Nogales, Arizona &mdash; Est. 1985</span></div>
+        <div class="hero-text">
+            <h1>Above and Over <span class="accent">For Our Customers</span></h1>
+            <p>A vibrant and dynamic company bringing the freshest and most nutritious produce from Mexico to tables across the United States.</p>
+            <div class="hero-buttons">
+                <a href="#contact" class="btn-primary">Get in Touch <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                <a href="#products" class="btn-secondary">Explore Products</a>
+            </div>
+        </div>
+    </div>
+    <div class="hero-scroll"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+    <div class="marquee-track">
+        <div class="marquee-item"><span>Quality Produce</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Family Owned</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>40+ Years</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Farm to Table</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Mexico to USA</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Certified Excellence</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Premier Service</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Cold Storage</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Quality Produce</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Family Owned</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>40+ Years</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Farm to Table</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Mexico to USA</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Certified Excellence</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Premier Service</span><div class="marquee-diamond"></div></div>
+        <div class="marquee-item"><span>Cold Storage</span><div class="marquee-diamond"></div></div>
+    </div>
+</div>
+
+<!-- PRODUCTS -->
+<section class="products" id="products">
+    <div class="products-inner">
+        <div class="section-header reveal">
+            <p class="section-label">What We Offer</p>
+            <h2>Our Products</h2>
+            <p>Carefully sourced and rigorously inspected to meet the highest standards of quality and consistency.</p>
+        </div>
+
+        <!-- Brand Tabs -->
+        <div class="brand-tabs reveal">
+            <div class="brand-tab active" data-brand="spv">
+                <img src="svp-paris.jpg" alt="SPV &amp; Paris" class="brand-tab-logo spv-paris">
+                <div class="brand-tab-info"><div class="brand-tab-name">SPV &amp; Paris</div><div class="brand-tab-count">6 Products</div></div>
+            </div>
+            <div class="brand-tab" data-brand="wolf">
+                <img src="wolf.jpg" alt="The Wolf" class="brand-tab-logo wolf-logo">
+                <div class="brand-tab-info"><div class="brand-tab-name">The Wolf</div><div class="brand-tab-count">4 Products</div></div>
+            </div>
+            <div class="brand-tab" data-brand="mr">
+                <img src="mrproduce.jpg" alt="Mr. Produce" class="brand-tab-logo mr-produce">
+                <div class="brand-tab-info"><div class="brand-tab-name">Mr. Produce</div><div class="brand-tab-count">6 Products</div></div>
+            </div>
+        </div>
+
+        <!-- SPV & PARIS Panel -->
+        <div class="brand-panel active" id="panel-spv">
+            <div class="product-showcase">
+                <div class="showcase-image"><img id="spv-img" src="eggplant.jpg" alt="Eggplant"><div class="showcase-season-badge" id="spv-badge">Nov &ndash; Apr</div></div>
+                <div class="showcase-details">
+                    <div class="showcase-brand-tag">SPV &amp; Paris</div>
+                    <h3 class="showcase-title" id="spv-title">Eggplant</h3>
+                    <p class="showcase-desc" id="spv-desc">Also known as aubergines, a versatile vegetable prized across cuisines worldwide for its rich texture.</p>
+                    <div class="avail-timeline">
+                        <div class="avail-timeline-label">2026 Availability</div>
+                        <div class="avail-bar" id="spv-avail"></div>
+                        <div class="avail-legend"><div class="avail-legend-item"><div class="avail-legend-dot peak"></div>Peak</div><div class="avail-legend-item"><div class="avail-legend-dot available"></div>Available</div><div class="avail-legend-item"><div class="avail-legend-dot unavailable"></div>Limited</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="product-thumbs" id="spv-thumbs"></div>
+        </div>
+
+        <!-- THE WOLF Panel -->
+        <div class="brand-panel" id="panel-wolf">
+            <div class="product-showcase">
+                <div class="showcase-image"><img id="wolf-img" src="green-beans.jpg" alt="Green Beans"><div class="showcase-season-badge" id="wolf-badge">Nov &ndash; Mar</div></div>
+                <div class="showcase-details">
+                    <div class="showcase-brand-tag">The Wolf</div>
+                    <h3 class="showcase-title" id="wolf-title">Green Beans</h3>
+                    <p class="showcase-desc" id="wolf-desc">Tender and crisp string beans, a kitchen staple prized for their fresh snap and vibrant color.</p>
+                    <div class="avail-timeline">
+                        <div class="avail-timeline-label">2026 Availability</div>
+                        <div class="avail-bar" id="wolf-avail"></div>
+                        <div class="avail-legend"><div class="avail-legend-item"><div class="avail-legend-dot peak"></div>Peak</div><div class="avail-legend-item"><div class="avail-legend-dot available"></div>Available</div><div class="avail-legend-item"><div class="avail-legend-dot unavailable"></div>Limited</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="product-thumbs" id="wolf-thumbs"></div>
+        </div>
+
+        <!-- MR. PRODUCE Panel -->
+        <div class="brand-panel" id="panel-mr">
+            <div class="product-showcase">
+                <div class="showcase-image"><img id="mr-img" src="jalapeno.jpg" alt="Jalapeño"><div class="showcase-season-badge" id="mr-badge">Dec &ndash; May</div></div>
+                <div class="showcase-details">
+                    <div class="showcase-brand-tag">Mr. Produce</div>
+                    <h3 class="showcase-title" id="mr-title">Jalape&ntilde;o</h3>
+                    <p class="showcase-desc" id="mr-desc">The most popular chili pepper, with medium heat and bold flavor. A staple in Mexican cuisine.</p>
+                    <div class="avail-timeline">
+                        <div class="avail-timeline-label">2026 Availability</div>
+                        <div class="avail-bar" id="mr-avail"></div>
+                        <div class="avail-legend"><div class="avail-legend-item"><div class="avail-legend-dot peak"></div>Peak</div><div class="avail-legend-item"><div class="avail-legend-dot available"></div>Available</div><div class="avail-legend-item"><div class="avail-legend-dot unavailable"></div>Limited</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="product-thumbs" id="mr-thumbs"></div>
+        </div>
+
+    </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- ABOUT / OUR STORY -->
+<section class="about" id="about">
+    <div class="about-image-container reveal-left">
+        <div class="about-accent"></div>
+        <div class="about-image">
+            <img src="family.jpg" alt="The Monteverde Family" loading="lazy">
+        </div>
+        <div class="about-float-card">
+            <h4 data-count="40">0</h4>
+            <p>Years of Excellence</p>
+        </div>
+    </div>
+    <div class="about-text reveal-right">
+        <p class="section-label">Our Story</p>
+        <h2>A Family Legacy of Fresh Produce</h2>
+        <p>HM Distributors was founded in 1985 in Nogales, Arizona, by Humberto Jose Monteverde and his sons &mdash; a team who saw an opportunity to bring the finest produce from Mexico to the U.S. market.</p>
+        <p>From humble beginnings, Humberto worked tirelessly to build a thriving business that prioritizes quality and customer service above all. His dedication to excellence established the foundation for what would become one of the region's most trusted distributors.</p>
+        <p>Today, HM Distributors is one of the leading produce distributors in the southwestern United States, and remains a proud family-owned and operated business.</p>
+        <div class="stat-row">
+            <div class="stat"><h4 data-count="40" data-suffix="+">0</h4><p>Years in Business</p></div>
+            <div class="stat"><h4>SW US</h4><p>Distribution</p></div>
+            <div class="stat"><h4 data-count="100" data-suffix="%">0</h4><p>Family Owned</p></div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+    <div class="section-header reveal">
+        <p class="section-label">How We Work</p>
+        <h2>Our Services</h2>
+        <p>A concierge-like experience &mdash; we treat our customers like family.</p>
+    </div>
+    <div class="services-grid">
+        <div class="service-card reveal s1" data-svc="0" style="cursor:pointer">
+            <div class="service-card-left">
+                <div class="service-number">01</div>
+                <div class="service-icon"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+            </div>
+            <div class="service-card-content">
+                <h3>Distribution</h3>
+                <p>Sourcing the freshest produce from Mexico and shipping across the country from our state-of-the-art facility.</p>
+                <span class="service-tag">Learn More →</span>
+            </div>
+        </div>
+        <div class="service-card reveal s2" data-svc="1" style="cursor:pointer">
+            <div class="service-card-left">
+                <div class="service-number">02</div>
+                <div class="service-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg></div>
+            </div>
+            <div class="service-card-content">
+                <h3>Brokerage</h3>
+                <p>Our team works with a vast network of growers to find the best products at competitive prices.</p>
+                <span class="service-tag">Learn More →</span>
+            </div>
+        </div>
+        <div class="service-card reveal s3" data-svc="2" style="cursor:pointer">
+            <div class="service-card-left">
+                <div class="service-number">03</div>
+                <div class="service-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg></div>
+            </div>
+            <div class="service-card-content">
+                <h3>Consolidation</h3>
+                <p>Best-in-class IN and OUT service with dry and cold storage options for optimal conditions.</p>
+                <span class="service-tag">Learn More →</span>
+            </div>
+        </div>
+        <div class="service-card reveal s4" data-svc="3" style="cursor:pointer">
+            <div class="service-card-left">
+                <div class="service-number">04</div>
+                <div class="service-icon"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+            </div>
+            <div class="service-card-content">
+                <h3>Premier Service</h3>
+                <p>Customer service that is second to none. We treat clients as family, always putting their needs first.</p>
+                <span class="service-tag">Learn More →</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PROMISE CTA -->
+<section class="story-cta">
+    <video class="story-cta-video" src="promise-video.mp4" autoplay muted loop playsinline preload="metadata"></video>
+    <div class="story-cta-overlay"></div>
+    <div class="story-cta-inner reveal-scale">
+        <p class="section-label">Our Promise</p>
+        <h2>Quality and Consistency Are Key</h2>
+        <p>At HM Distributors, we understand that quality and consistency are essential for wholesale produce. We work closely with our suppliers to ensure every product meets our high standards. Trust that you are receiving the highest quality produce available.</p>
+        <a href="#contact" class="btn-primary">Get in Touch <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
+</section>
+
+<!-- SOCIAL RESPONSIBILITY -->
+<section class="social-resp" id="responsibility">
+    <div class="social-resp-image reveal-left">
+        <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block">
+            <source src="roma-tomato-video.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="social-resp-text reveal-right">
+        <p class="section-label">Social Responsibility</p>
+        <h2>Growing a Better Future Together</h2>
+        <p>At HM Distributors, we believe in giving back to the communities that nurture our success. Our commitment extends beyond business &mdash; we invest in the well-being of workers, sustainable farming practices, and the local communities where we operate.</p>
+        <p>From supporting education initiatives to ensuring fair labor practices across our supply chain, we are dedicated to making a positive impact at every level.</p>
+        <div class="social-resp-values">
+            <div class="value-item"><h4>Sustainable Farming</h4><p>Partnering with growers who prioritize environmental stewardship.</p></div>
+            <div class="value-item"><h4>Fair Labor</h4><p>Ensuring ethical treatment and fair wages across our supply chain.</p></div>
+            <div class="value-item"><h4>Community Impact</h4><p>Supporting local education and nutrition programs in Nogales.</p></div>
+            <div class="value-item"><h4>Food Safety</h4><p>Rigorous standards to protect consumers and maintain trust.</p></div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"><div class="divider-line"></div></div>
+
+<!-- CERTIFICATIONS -->
+<section class="certifications">
+    <div class="cert-inner">
+        <div class="section-header reveal">
+            <p class="section-label">Trust &amp; Compliance</p>
+            <h2>Certifications</h2>
+        </div>
+        <div class="cert-logos">
+            <div class="cert-badge reveal s1">
+                <img src="globalgap.jpg" alt="GlobalG.A.P.">
+                <h4>GlobalG.A.P.</h4><p>Good Agricultural Practice</p>
+            </div>
+            <div class="cert-badge reveal s2">
+                <img src="primusgfs.jpg" alt="PrimusGFS">
+                <h4>PrimusGFS</h4><p>Food Safety Certification</p>
+            </div>
+            <div class="cert-badge reveal s3">
+                <img src="smeta.jpg" alt="SMETA">
+                <h4>SMETA</h4><p>Ethical Trade Audit</p>
+            </div>
+            <div class="cert-badge reveal s4">
+                <img src="ctpat.jpg" alt="C-TPAT">
+                <h4>C-TPAT</h4><p>Customs Trade Partnership</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+    <div class="contact-info reveal-left">
+        <p class="section-label">Get in Touch</p>
+        <h2>Let's Work Together</h2>
+        <p>Whether you need a quote, want to learn more about our products, or have any questions &mdash; our team is ready to help.</p>
+        <div class="contact-detail">
+            <div class="contact-detail-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+            <div><h4>Headquarters</h4><p>4 Avenida Acaponeta, Rio Rico, AZ 85648</p></div>
+        </div>
+        <div class="contact-detail">
+            <div class="contact-detail-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+            <div><h4>Phone</h4><p>+1 520-281-9534</p></div>
+        </div>
+        <div class="contact-detail">
+            <div class="contact-detail-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+            <div><h4>Business Hours</h4><p>Mon &ndash; Fri: 6:00 AM &ndash; 5:00 PM MST</p></div>
+        </div>
+    </div>
+    <div class="contact-form reveal-right">
+        <h3>Send a Message</h3>
+        <p class="subtitle">We'll respond within 24 hours.</p>
+        <form>
+            <div class="form-row">
+                <div class="form-group"><label>First Name</label><input type="text" placeholder="John"></div>
+                <div class="form-group"><label>Last Name</label><input type="text" placeholder="Smith"></div>
+            </div>
+            <div class="form-group"><label>Email</label><input type="email" placeholder="you@company.com"></div>
+            <div class="form-group"><label>Company</label><input type="text" placeholder="Your company name"></div>
+            <div class="form-group"><label>Message</label><textarea placeholder="Tell us about your produce needs..."></textarea></div>
+            <button type="submit" class="form-submit">Send Message</button>
+        </form>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="footer-logo"><img src="logo.avif" alt="HM Distributors"></div>
+            <p>Bringing the freshest produce from Mexico to the United States since 1985. Family-owned, quality-driven.</p>
+        </div>
+        <div class="footer-col"><h4>Navigation</h4><a href="#about">Our Story</a><a href="#products">Products</a><a href="#services">Services</a><a href="#contact">Contact</a></div>
+        <div class="footer-col"><h4>Services</h4><a href="#services">Distribution</a><a href="#services">Brokerage</a><a href="#services">Consolidation</a><a href="#services">Customer Service</a></div>
+        <div class="footer-col"><h4>Connect</h4><a href="#">Customer Portal</a><a href="#responsibility">Social Responsibility</a><a href="#">Careers</a></div>
+    </div>
+    <div class="footer-bottom">
+        <span>&copy; 2026 HM Distributors Inc. All rights reserved.</span>
+        <span>4 Avenida Acaponeta, Rio Rico, AZ 85648</span>
+    </div>
+</footer>
+
+<script>
+// Scroll reveal
+const obs=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible')})},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(el=>obs.observe(el));
+
+// Navbar
+const nav=document.getElementById('navbar');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>60));
+
+// Counters
+const cObs=new IntersectionObserver(e=>{e.forEach(entry=>{if(entry.isIntersecting){const el=entry.target,t=+el.dataset.count,s=el.dataset.suffix||'';let c=0;const inc=t/55;const timer=setInterval(()=>{c+=inc;if(c>=t){c=t;clearInterval(timer)}el.textContent=Math.floor(c)+s},25);cObs.unobserve(el)}})},{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>cObs.observe(el));
+
+// Cursor
+const glow=document.getElementById('cursorGlow');
+let gx=0,gy=0,cx=0,cy=0;
+document.addEventListener('mousemove',e=>{gx=e.clientX;gy=e.clientY});
+(function anim(){cx+=(gx-cx)*.07;cy+=(gy-cy)*.07;glow.style.left=cx+'px';glow.style.top=cy+'px';requestAnimationFrame(anim)})();
+
+// Product showcase system
+const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const productData={
+    spv:[
+        {name:'Eggplant',desc:'Also known as aubergines, a versatile vegetable prized across cuisines worldwide for its rich texture.',img:'eggplant.jpg',season:'Nov \u2013 Apr',months:[11,12,1,2,3,4],peak:[12,1,2,3]},
+        {name:'Roma Tomato',desc:'Dense and meaty plum tomatoes, perfect for sauces, soups, and stews with rich concentrated flavor.',img:'roma-tomato.jpg',season:'Nov \u2013 Apr',months:[11,12,1,2,3,4],peak:[11,12,1,2]},
+        {name:'Green Bell Pepper',desc:'Versatile and crisp, perfect for salads and stir-fries, adding crunch and fresh flavor to any dish.',img:'green-pepper.jpg',season:'Dec \u2013 Mar',months:[12,1,2,3],peak:[1,2,3]},
+        {name:'Hothouse Red Bell Pepper',desc:'Vibrant red bell peppers grown in controlled hothouse conditions for peak sweetness and quality.',img:'red-pepper.jpg',season:'Jan \u2013 Apr',months:[1,2,3,4],peak:[2,3]},
+        {name:'Yellow Bell Pepper',desc:'Sweet and bright with a mild flavor, perfect for fresh eating, grilling, and colorful presentations.',img:'yellow-pepper.jpg',season:'Jan \u2013 Apr',months:[1,2,3,4],peak:[2,3]},
+        {name:'Orange Bell Pepper',desc:'Fruity and tangy with a vibrant hue. A premium variety prized for its exceptional sweetness.',img:'orange-pepper.jpg',season:'Jan \u2013 Apr',months:[1,2,3,4],peak:[2,3]}
+    ],
+    wolf:[
+        {name:'Green Beans',desc:'Tender and crisp string beans, a kitchen staple prized for their fresh snap and vibrant color.',img:'green-beans.jpg',season:'Nov \u2013 Mar',months:[11,12,1,2,3],peak:[12,1,2]},
+        {name:'Italian Squash (Zucchini)',desc:'Versatile and mild-flavored, ideal for grilling, sauteing, and as a healthy addition to any meal.',img:'italian-squash.jpg',season:'Dec \u2013 Apr',months:[12,1,2,3,4],peak:[1,2,3]},
+        {name:'Yellow Straight Neck Squash',desc:'Mild and buttery with a tender texture. A summer squash variety perfect for roasting and sauteing.',img:'yellow-squash.jpg',season:'Dec \u2013 Apr',months:[12,1,2,3,4],peak:[1,2,3]},
+        {name:'Grey Squash (Calabacita)',desc:'A Mexican staple, tender and versatile with a delicate flavor. Perfect for traditional and modern dishes.',img:'grey-squash..jpg',season:'Jan \u2013 Mar',months:[1,2,3],peak:[2,3]}
+    ],
+    mr:[
+        {name:'Jalape\u00f1o',desc:'The most popular chili pepper, with medium heat and bold flavor. A staple in Mexican cuisine.',img:'jalapeno.jpg',season:'Dec \u2013 May',months:[12,1,2,3,4,5],peak:[1,2,3,4]},
+        {name:'Serrano',desc:'Hotter than jalape\u00f1os with a bright, biting heat. Essential for fresh salsas and authentic dishes.',img:'serrano.jpg',season:'Dec \u2013 May',months:[12,1,2,3,4,5],peak:[1,2,3,4]},
+        {name:'Poblano',desc:'Mild and earthy with rich flavor. The pepper of choice for chiles rellenos and mole sauces.',img:'poblano.jpg',season:'Dec \u2013 Apr',months:[12,1,2,3,4],peak:[1,2,3]},
+        {name:'Caribe',desc:'A yellow hot pepper with moderate heat and fruity undertones. Popular in salsas and pickled preparations.',img:'caribe.jpg',season:'Dec \u2013 Apr',months:[12,1,2,3,4],peak:[1,2,3]},
+        {name:'Anaheim',desc:'A long green chile with mild to moderate heat. Ideal for roasting, stuffing, and green chile stews.',img:'anaheim.jpg',season:'Dec \u2013 Apr',months:[12,1,2,3,4],peak:[1,2,3]},
+        {name:'Tomatillo',desc:'Tangy and citrusy with a papery husk. The foundation of salsa verde and countless Mexican dishes.',img:'tomatillo.jpg',season:'Nov \u2013 May',months:[11,12,1,2,3,4,5],peak:[12,1,2,3,4]}
+    ]
+};
+
+function buildAvailBar(months,peak){
+    let h='';
+    for(let i=1;i<=12;i++){const cls=peak.includes(i)?'peak':months.includes(i)?'available':'unavailable';h+='<div class="avail-bar-month '+cls+'">'+mn[i-1]+'</div>'}
+    return h;
+}
+
+function selectProduct(brand,idx){
+    const p=productData[brand][idx];
+    const img=document.getElementById(brand+'-img');
+    const title=document.getElementById(brand+'-title');
+    const desc=document.getElementById(brand+'-desc');
+    const badge=document.getElementById(brand+'-badge');
+    const avail=document.getElementById(brand+'-avail');
+    // Animate image
+    img.style.opacity='0';img.classList.remove('ken-burns');
+    setTimeout(()=>{img.src=p.img;img.alt=p.name;img.style.opacity='1';setTimeout(()=>img.classList.add('ken-burns'),50)},200);
+    title.textContent=p.name;
+    desc.textContent=p.desc;
+    badge.innerHTML=p.season;
+    avail.innerHTML=buildAvailBar(p.months,p.peak);
+    // Update active thumb
+    document.querySelectorAll('#'+brand+'-thumbs .product-thumb').forEach((t,i)=>{t.classList.toggle('active',i===idx)});
+}
+
+// Build thumbnails & init each brand
+['spv','wolf','mr'].forEach(brand=>{
+    const thumbs=document.getElementById(brand+'-thumbs');
+    const avail=document.getElementById(brand+'-avail');
+    const items=productData[brand];
+    // Build thumbs
+    let h='';
+    items.forEach((p,i)=>{
+        h+='<div class="product-thumb'+(i===0?' active':'')+'" data-idx="'+i+'"><div class="product-thumb-img"><img src="'+p.img+'" alt="'+p.name+'" loading="lazy"></div><div class="product-thumb-info"><div class="product-thumb-name">'+p.name+'</div><div class="product-thumb-season">'+p.season+'</div></div></div>';
+    });
+    thumbs.innerHTML=h;
+    // Init availability bar for first product
+    avail.innerHTML=buildAvailBar(items[0].months,items[0].peak);
+    // Click handlers
+    thumbs.querySelectorAll('.product-thumb').forEach(t=>{
+        t.addEventListener('click',()=>selectProduct(brand,+t.dataset.idx));
+    });
+    // Ken Burns init
+    setTimeout(()=>{const img=document.getElementById(brand+'-img');img.classList.add('ken-burns')},300);
+});
+
+// Brand tab switching
+document.querySelectorAll('.brand-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+        document.querySelectorAll('.brand-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.brand-panel').forEach(p=>p.classList.remove('active'));
+        tab.classList.add('active');
+        const panel=document.getElementById('panel-'+tab.dataset.brand);
+        panel.classList.add('active');
+        panel.style.animation='none';panel.offsetHeight;panel.style.animation='';
+    });
+});
+
+// Parallax
+window.addEventListener('scroll',()=>{const els=document.querySelectorAll('.story-cta-video');els.forEach(el=>{const r=el.parentElement.getBoundingClientRect();if(r.bottom>0&&r.top<innerHeight){const p=(r.top/innerHeight)*20;el.style.transform='translateY('+p+'px) scale(1.05)'}})});
+
+// Video fallback
+document.querySelectorAll('video').forEach(v=>v.addEventListener('error',()=>v.style.display='none'));
+
+// Service card click - event delegation for Safari compatibility
+document.querySelector('.services-grid').addEventListener('click',function(e){
+    var el=e.target;
+    while(el&&el!==this){
+        if(el.dataset&&el.dataset.svc!==undefined){
+            openServiceModal(parseInt(el.dataset.svc));
+            return;
+        }
+        el=el.parentElement;
+    }
+});
+
+// Service Modals
+const svcModalData = [
+    {
+        title: 'Distribution',
+        subtitle: 'Nationwide Fresh Produce Delivery',
+        number: '01',
+        icon: '<svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+        gradient: 'linear-gradient(135deg,#073015 0%,#0a5a28 40%,#0d6b30 100%)',
+        pattern: '<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dp1" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1.5" fill="rgba(196,162,101,.12)"/></pattern></defs><rect width="100%" height="100%" fill="url(#dp1)"/></svg>',
+        lead: 'Our distribution network spans the entire United States, connecting premium Mexican growers directly to your business with speed, reliability, and care.',
+        features: [
+            { icon: '<svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>', title: 'Same-Day Processing', desc: 'Orders received by morning are processed and shipped the same day from our Nogales facility.' },
+            { icon: '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>', title: 'Strategic Location', desc: 'Positioned at the US-Mexico border for fastest possible transit from farm to warehouse.' },
+            { icon: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', title: 'Cold Chain Integrity', desc: 'Temperature-controlled logistics from origin to destination, maintaining peak freshness.' },
+            { icon: '<svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>', title: 'Real-Time Tracking', desc: 'Full visibility on every shipment with live GPS tracking and estimated arrival updates.' }
+        ],
+        stats: [ { num: '48hr', label: 'Avg Delivery' }, { num: '99%', label: 'On-Time Rate' }, { num: '50+', label: 'Routes Daily' } ],
+        cta: { title: 'Ready to streamline your supply chain?', desc: 'Contact us to discuss distribution solutions tailored to your business.' }
+    },
+    {
+        title: 'Brokerage',
+        subtitle: 'Expert Market Connections',
+        number: '02',
+        icon: '<svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>',
+        gradient: 'linear-gradient(135deg,#1a3a2a 0%,#073015 40%,#0a4a22 100%)',
+        pattern: '<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dp2" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M30 0v60M0 30h60" stroke="rgba(196,162,101,.06)" stroke-width="1" fill="none"/></pattern></defs><rect width="100%" height="100%" fill="url(#dp2)"/></svg>',
+        lead: 'Our brokerage team leverages decades of relationships with trusted growers across Mexico to find exactly what you need at the most competitive prices.',
+        features: [
+            { icon: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>', title: 'Grower Network', desc: 'Access to 100+ vetted growers across all major growing regions in Mexico.' },
+            { icon: '<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>', title: 'Price Negotiation', desc: 'Expert negotiation to secure the best market pricing for every order you place.' },
+            { icon: '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>', title: 'Market Intelligence', desc: 'Daily market reports and pricing trends to help you make informed purchasing decisions.' },
+            { icon: '<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>', title: 'Quality Assurance', desc: 'Every broker-sourced product undergoes our rigorous inspection before shipping.' }
+        ],
+        stats: [ { num: '100+', label: 'Grower Partners' }, { num: '20+', label: 'Years Experience' }, { num: '3', label: 'Premium Brands' } ],
+        cta: { title: 'Looking for a reliable produce broker?', desc: 'Let our team find the perfect product match for your business needs.' }
+    },
+    {
+        title: 'Consolidation',
+        subtitle: 'Warehousing & Storage Solutions',
+        number: '03',
+        icon: '<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>',
+        gradient: 'linear-gradient(135deg,#0a2a1a 0%,#073015 50%,#1a5030 100%)',
+        pattern: '<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dp3" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse"><rect x="10" y="10" width="30" height="30" rx="4" stroke="rgba(196,162,101,.06)" stroke-width="1" fill="none"/></pattern></defs><rect width="100%" height="100%" fill="url(#dp3)"/></svg>',
+        lead: 'Our state-of-the-art facility in Nogales offers both dry and cold storage, allowing you to consolidate shipments and optimize your logistics.',
+        features: [
+            { icon: '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', title: 'Modern Facility', desc: 'Climate-controlled warehouse built to USDA standards with advanced monitoring systems.' },
+            { icon: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>', title: 'Flexible Storage', desc: 'Multiple temperature zones from ambient to cold storage, accommodating diverse produce needs.' },
+            { icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>', title: 'Rapid Turnaround', desc: 'Best-in-class IN and OUT service — your products move quickly through our system.' },
+            { icon: '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>', title: 'Inventory Management', desc: 'Complete tracking and reporting so you always know exactly what\'s in stock.' }
+        ],
+        stats: [ { num: '40K', label: 'Sq Ft Facility' }, { num: '24/7', label: 'Monitored' }, { num: '4', label: 'Temp Zones' } ],
+        cta: { title: 'Need reliable warehousing?', desc: 'Tour our facility and see how consolidation can streamline your operations.' }
+    },
+    {
+        title: 'Premier Service',
+        subtitle: 'White-Glove Client Experience',
+        number: '04',
+        icon: '<svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+        gradient: 'linear-gradient(135deg,#2a1a08 0%,#4a3018 40%,#6a4828 100%)',
+        pattern: '<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dp4" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M20 5l5 15H15z" stroke="rgba(196,162,101,.08)" stroke-width="1" fill="none"/></pattern></defs><rect width="100%" height="100%" fill="url(#dp4)"/></svg>',
+        lead: 'At HM Distributors, every client is family. Our dedicated team provides personalized attention, ensuring your experience is seamless from first call to final delivery.',
+        features: [
+            { icon: '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>', title: 'Dedicated Account Rep', desc: 'A personal representative who knows your business, preferences, and requirements inside out.' },
+            { icon: '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>', title: 'Instant Communication', desc: 'Reach your team directly — no call centers, no hold times, just real people who care.' },
+            { icon: '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>', title: 'Family Values', desc: 'Built on trust, integrity, and a genuine desire to see our partners succeed and grow.' },
+            { icon: '<svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>', title: 'Proactive Solutions', desc: 'We anticipate challenges and solve problems before they impact your business.' }
+        ],
+        stats: [ { num: '98%', label: 'Client Retention' }, { num: '5min', label: 'Avg Response' }, { num: '1985', label: 'Since' } ],
+        cta: { title: 'Experience the HM difference', desc: 'Join the family of businesses that trust us with their produce needs.' }
+    }
+];
+
+function openServiceModal(idx) {
+    const d = svcModalData[idx];
+    const overlay = document.getElementById('svcModalOverlay');
+    const modal = document.getElementById('svcModalContent');
+    modal.innerHTML = `
+        <div class="svc-modal-hero" style="background:${d.gradient}">
+            <div class="svc-modal-hero-bg" style="position:absolute;inset:0;opacity:.5">${d.pattern}</div>
+            <div class="svc-modal-hero-number">${d.number}</div>
+            <button class="svc-modal-close" onclick="closeServiceModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            <div class="svc-modal-hero-content">
+                <div class="svc-modal-hero-icon">${d.icon}</div>
+                <h2>${d.title}</h2>
+                <p>${d.subtitle}</p>
+            </div>
+        </div>
+        <div class="svc-modal-body">
+            <p class="svc-lead">${d.lead}</p>
+            <div class="svc-features">
+                ${d.features.map(f => `
+                    <div class="svc-feature">
+                        <div class="svc-feature-icon">${f.icon}</div>
+                        <h4>${f.title}</h4>
+                        <p>${f.desc}</p>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="svc-stats">
+                ${d.stats.map(s => `
+                    <div class="svc-stat">
+                        <div class="svc-stat-num">${s.num}</div>
+                        <div class="svc-stat-label">${s.label}</div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="svc-cta">
+                <div class="svc-cta-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div>
+                <div class="svc-cta-text">
+                    <h4>${d.cta.title}</h4>
+                    <p>${d.cta.desc}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    requestAnimationFrame(() => overlay.classList.add('active'));
+    document.body.style.overflow = 'hidden';
+}
+
+function closeServiceModal() {
+    const overlay = document.getElementById('svcModalOverlay');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+
+</script>
+
+<!-- Service Modal Overlay -->
+<div class="svc-modal-overlay" id="svcModalOverlay" onclick="if(event.target===this)closeServiceModal()">
+    <div class="svc-modal" id="svcModalContent"></div>
+</div>
+
+</body>
+</html>

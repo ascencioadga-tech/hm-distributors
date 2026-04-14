@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HM Distributors | Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    background:#f5f3ef;
+    overflow:hidden;
+}
+
+/* ── Left Panel — Video / Branding ── */
+.login-left{
+    flex:1;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    overflow:hidden;
+}
+.login-left video{
+    position:absolute;
+    top:0;left:0;
+    width:100%;height:100%;
+    object-fit:cover;
+    z-index:0;
+}
+.login-left::after{
+    content:'';
+    position:absolute;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:linear-gradient(180deg,rgba(4,15,7,.3) 0%,rgba(4,15,7,.65) 60%,rgba(4,15,7,.9) 100%);
+    z-index:1;
+}
+.login-left-content{
+    position:relative;
+    z-index:2;
+    padding:60px 64px;
+}
+.login-left-tagline{
+    font-family:'Playfair Display',serif;
+    font-size:2.8rem;
+    font-weight:800;
+    color:#fff;
+    line-height:1.2;
+    letter-spacing:-.5px;
+    margin-bottom:16px;
+    max-width:420px;
+}
+.login-left-sub{
+    font-size:.88rem;
+    color:rgba(255,255,255,.5);
+    line-height:1.8;
+    max-width:380px;
+}
+.login-left-accent{
+    width:40px;
+    height:3px;
+    background:linear-gradient(to right,#c4a265,rgba(196,162,101,.2));
+    border-radius:3px;
+    margin-bottom:24px;
+}
+
+/* Floating stats on left panel */
+.login-stats{
+    position:absolute;
+    top:48px;
+    left:64px;
+    z-index:2;
+    display:flex;
+    gap:24px;
+}
+.login-stat{
+    text-align:center;
+}
+.login-stat-value{
+    font-family:'Playfair Display',serif;
+    font-size:1.6rem;
+    font-weight:800;
+    color:#fff;
+}
+.login-stat-label{
+    font-size:.55rem;
+    font-weight:700;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.35);
+    margin-top:2px;
+}
+
+/* ── Right Panel — Login Form ── */
+.login-right{
+    width:520px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:60px 64px;
+    background:#fff;
+    position:relative;
+}
+.login-right::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;
+    width:1px;
+    height:100%;
+    background:linear-gradient(to bottom,transparent,rgba(0,0,0,.04),transparent);
+}
+
+.login-logo{
+    margin-bottom:48px;
+}
+.login-logo img{
+    height:56px;
+    display:block;
+}
+
+.login-welcome{
+    margin-bottom:8px;
+    font-family:'Playfair Display',serif;
+    font-size:1.8rem;
+    font-weight:800;
+    color:#073015;
+    letter-spacing:-.5px;
+}
+.login-subtitle{
+    font-size:.85rem;
+    color:#aaa;
+    margin-bottom:40px;
+}
+
+.login-form{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.form-group{
+    position:relative;
+}
+.form-group label{
+    display:block;
+    font-size:.65rem;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    color:#999;
+    margin-bottom:8px;
+}
+.form-group .input-wrap{
+    position:relative;
+}
+.form-group .input-icon{
+    position:absolute;
+    left:16px;
+    top:50%;
+    transform:translateY(-50%);
+    width:18px;
+    height:18px;
+    stroke:#bbb;
+    fill:none;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    transition:stroke .3s;
+}
+.form-group input{
+    width:100%;
+    padding:14px 16px 14px 48px;
+    border:1px solid rgba(0,0,0,.07);
+    border-radius:12px;
+    font-size:.88rem;
+    font-family:'Inter',sans-serif;
+    color:#333;
+    background:#faf9f6;
+    transition:all .3s;
+}
+.form-group input:focus{
+    outline:none;
+    border-color:#c4a265;
+    background:#fff;
+    box-shadow:0 0 0 3px rgba(196,162,101,.1);
+}
+.form-group input:focus ~ .input-icon,
+.form-group input:focus + .input-icon{
+    stroke:#c4a265;
+}
+.form-group input::placeholder{
+    color:#ccc;
+}
+
+.password-toggle{
+    position:absolute;
+    right:16px;
+    top:50%;
+    transform:translateY(-50%);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:4px;
+}
+.password-toggle svg{
+    width:18px;
+    height:18px;
+    stroke:#ccc;
+    fill:none;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    transition:stroke .2s;
+}
+.password-toggle:hover svg{
+    stroke:#999;
+}
+
+.form-options{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:-4px;
+}
+.remember-me{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    font-size:.78rem;
+    color:#888;
+}
+.remember-me input[type="checkbox"]{
+    width:16px;
+    height:16px;
+    border-radius:4px;
+    accent-color:#073015;
+    cursor:pointer;
+}
+.forgot-link{
+    font-size:.75rem;
+    color:#c4a265;
+    text-decoration:none;
+    font-weight:600;
+    transition:color .2s;
+}
+.forgot-link:hover{
+    color:#a88940;
+}
+
+.login-btn{
+    width:100%;
+    padding:16px;
+    background:linear-gradient(135deg,#073015,#0a4a22);
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    font-size:.85rem;
+    font-weight:700;
+    letter-spacing:.5px;
+    cursor:pointer;
+    transition:all .3s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin-top:8px;
+    position:relative;
+    overflow:hidden;
+}
+.login-btn::before{
+    content:'';
+    position:absolute;
+    top:0;left:-100%;
+    width:100%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
+    transition:left .5s;
+}
+.login-btn:hover::before{
+    left:100%;
+}
+.login-btn:hover{
+    transform:translateY(-1px);
+    box-shadow:0 8px 24px rgba(7,48,21,.25);
+}
+.login-btn:active{
+    transform:translateY(0);
+}
+.login-btn svg{
+    width:18px;
+    height:18px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+.login-divider{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin:8px 0;
+}
+.login-divider span{
+    font-size:.68rem;
+    color:#ccc;
+    font-weight:600;
+    letter-spacing:.5px;
+    white-space:nowrap;
+}
+.login-divider::before,.login-divider::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:rgba(0,0,0,.05);
+}
+
+.login-footer{
+    margin-top:auto;
+    padding-top:40px;
+    text-align:center;
+}
+.login-footer p{
+    font-size:.68rem;
+    color:#ccc;
+    line-height:1.8;
+}
+.login-footer a{
+    color:#c4a265;
+    text-decoration:none;
+}
+
+/* ── Toast / Error ── */
+.login-error{
+    display:none;
+    padding:12px 16px;
+    background:#fef2f2;
+    border:1px solid #fecaca;
+    border-radius:10px;
+    font-size:.78rem;
+    color:#dc2626;
+    font-weight:600;
+    align-items:center;
+    gap:8px;
+}
+.login-error.show{
+    display:flex;
+}
+.login-error svg{
+    width:16px;height:16px;
+    stroke:#dc2626;fill:none;
+    stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+    flex-shrink:0;
+}
+
+/* ── Loading animation ── */
+.login-btn.loading{
+    pointer-events:none;
+    opacity:.85;
+}
+.spinner{
+    display:none;
+    width:18px;height:18px;
+    border:2px solid rgba(255,255,255,.3);
+    border-top-color:#fff;
+    border-radius:50%;
+    animation:spin .6s linear infinite;
+}
+.login-btn.loading .spinner{display:block}
+.login-btn.loading .btn-text{display:none}
+.login-btn.loading .btn-arrow{display:none}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Responsive ── */
+@media(max-width:1024px){
+    .login-left{display:none}
+    .login-right{width:100%;max-width:480px;margin:0 auto;min-height:100vh}
+}
+@media(max-width:480px){
+    .login-right{padding:40px 28px}
+    .login-welcome{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Left Panel ── -->
+<div class="login-left">
+    <video autoplay muted loop playsinline>
+        <source src="hero-video.mp4" type="video/mp4">
+    </video>
+    <div class="login-stats">
+        <div class="login-stat">
+            <div class="login-stat-value">20+</div>
+            <div class="login-stat-label">Years</div>
+        </div>
+        <div class="login-stat">
+            <div class="login-stat-value">SW US</div>
+            <div class="login-stat-label">Distribution</div>
+        </div>
+        <div class="login-stat">
+            <div class="login-stat-value">3</div>
+            <div class="login-stat-label">Brands</div>
+        </div>
+    </div>
+    <div class="login-left-content">
+        <div class="login-left-accent"></div>
+        <h2 class="login-left-tagline">Fresh From the Field, Every Morning</h2>
+        <p class="login-left-sub">Access your daily quote system to manage pricing, send sheets, and keep your clients in the loop.</p>
+    </div>
+</div>
+
+<!-- ── Right Panel ── -->
+<div class="login-right">
+    <div class="login-logo">
+        <img src="logo.avif" alt="HM Distributors" onerror="this.outerHTML='<div style=\'font-family:Playfair Display,serif;font-size:1.6rem;font-weight:800;color:#073015\'>HM Distributors</div>'">
+    </div>
+
+    <h1 class="login-welcome">Welcome back</h1>
+    <p class="login-subtitle">Sign in to the Daily Quote System</p>
+
+    <div class="login-error" id="loginError">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="loginErrorMsg">Invalid email or password</span>
+    </div>
+
+    <form class="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+            <label>Username</label>
+            <div class="input-wrap">
+                <input type="text" id="loginUser" placeholder="Enter your username" required autocomplete="username">
+                <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <div class="input-wrap">
+                <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password">
+                <svg class="input-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <button type="button" class="password-toggle" onclick="togglePassword()">
+                    <svg id="eyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="form-options">
+            <label class="remember-me">
+                <input type="checkbox" checked> Remember me
+            </label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="login-btn" id="loginBtn">
+            <span class="btn-text">Sign In</span>
+            <svg class="btn-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <div class="spinner"></div>
+        </button>
+    </form>
+
+    <div class="login-footer">
+        <p>HM Distributors Inc. &middot; Nogales, Arizona<br>
+        <a href="index.html">Back to website</a></p>
+    </div>
+</div>
+
+<script>
+function togglePassword(){
+    const inp = document.getElementById('loginPassword');
+    const icon = document.getElementById('eyeIcon');
+    if(inp.type === 'password'){
+        inp.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    } else {
+        inp.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    }
+}
+
+const users = [
+    { username: 'Bert', password: 'Jerusalem', initials: 'BM' },
+    { username: 'Rene', password: 'Galilea', initials: 'RG' }
+];
+
+function handleLogin(e){
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('loginError');
+    const username = document.getElementById('loginUser').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    err.classList.remove('show');
+    btn.classList.add('loading');
+
+    setTimeout(() => {
+        const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+        if(user){
+            sessionStorage.setItem('hm_user', JSON.stringify(user));
+            window.location.href = 'quote-tool.html';
+        } else {
+            btn.classList.remove('loading');
+            document.getElementById('loginErrorMsg').textContent = 'Invalid username or password';
+            err.classList.add('show');
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginPassword').focus();
+        }
+    }, 1200);
+}
+</script>
+</body>
+</html>

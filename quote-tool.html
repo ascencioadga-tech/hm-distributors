@@ -156,6 +156,56 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
 .view{display:none}
 .view.active{display:block}
 
+/* ── Quote History View ── */
+.history-filters{display:flex;gap:12px;margin-bottom:24px;align-items:center}
+.history-search{flex:1;max-width:320px;padding:10px 16px 10px 40px;border:1.5px solid rgba(0,0,0,.08);border-radius:10px;font-size:.82rem;font-family:'Inter',sans-serif;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 14px center no-repeat;transition:all .2s}
+.history-search:focus{outline:none;border-color:#c4a265;box-shadow:0 0 0 3px rgba(196,162,101,.12)}
+.history-list{display:grid;gap:12px}
+.history-card{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:14px;padding:20px 28px;display:flex;align-items:center;gap:20px;transition:all .3s;cursor:pointer}
+.history-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.06);border-color:rgba(7,48,21,.1);transform:translateY(-1px)}
+.history-date-badge{min-width:64px;text-align:center;padding:12px 14px;background:linear-gradient(135deg,#073015,#0b5d1e);border-radius:12px;color:#fff}
+.history-date-badge .h-day{font-size:1.4rem;font-weight:800;line-height:1}
+.history-date-badge .h-month{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c4a265;margin-top:4px}
+.history-info{flex:1;min-width:0}
+.history-info h4{font-size:.9rem;font-weight:700;color:#073015;margin-bottom:4px}
+.history-info p{font-size:.72rem;color:#999;line-height:1.5}
+.history-meta{display:flex;gap:16px;flex-shrink:0;align-items:center}
+.history-stat{text-align:center}
+.history-stat .h-num{font-size:1.1rem;font-weight:800;color:#073015}
+.history-stat .h-label{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb}
+.history-badge{padding:5px 14px;border-radius:20px;font-size:.62rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.history-badge.sent{background:rgba(7,48,21,.06);color:#1a7a3a}
+.history-badge.draft{background:rgba(234,179,8,.08);color:#b8860b}
+.history-actions{display:flex;gap:8px;flex-shrink:0}
+.history-card-btn{width:34px;height:34px;border-radius:8px;border:1px solid rgba(0,0,0,.06);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.history-card-btn svg{width:15px;height:15px;stroke:#999;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.history-card-btn:hover{border-color:rgba(7,48,21,.15);background:#f5f3ef}
+.history-card-btn:hover svg{stroke:#073015}
+.history-empty{text-align:center;padding:80px 20px;color:#ccc}
+.history-empty svg{width:48px;height:48px;stroke:#ddd;fill:none;stroke-width:1.5;margin-bottom:16px}
+.history-empty p{font-size:.85rem;margin-bottom:4px}
+.history-empty span{font-size:.72rem;color:#bbb}
+
+/* ── Price Trends View ── */
+.trends-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.trend-card{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:16px;padding:24px 28px;transition:all .3s}
+.trend-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.04)}
+.trend-card h3{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#073015;margin-bottom:4px}
+.trend-card .trend-sub{font-size:.65rem;color:#bbb;margin-bottom:16px}
+.trend-bar-group{margin-bottom:12px}
+.trend-bar-label{display:flex;justify-content:space-between;margin-bottom:4px}
+.trend-bar-label span:first-child{font-size:.72rem;font-weight:600;color:#555}
+.trend-bar-label span:last-child{font-size:.72rem;font-weight:700;color:#073015}
+.trend-bar{height:8px;background:#f0ede6;border-radius:4px;overflow:hidden}
+.trend-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.trend-bar-fill.green{background:linear-gradient(135deg,#073015,#1a7a3a)}
+.trend-bar-fill.gold{background:linear-gradient(135deg,#c4a265,#d4b87a)}
+.trend-bar-fill.red{background:linear-gradient(135deg,#dc2626,#ef4444)}
+.trend-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.trend-summary-card{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:14px;padding:20px 24px;text-align:center}
+.trend-summary-card .ts-num{font-size:1.6rem;font-weight:800;color:#073015}
+.trend-summary-card .ts-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;margin-top:4px}
+
 /* ══════════════════════════════════════════
    PDF PREVIEW MODAL
    ══════════════════════════════════════════ */
@@ -391,15 +441,15 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
             <ul class="sidebar-nav">
                 <li><a onclick="switchView('quote')" class="active" data-view="quote"><span class="icon"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span> Today's Quote</a></li>
                 <li><a onclick="switchView('email')" data-view="email"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span> Email Templates</a></li>
-                <li><a data-view="history"><span class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span> Quote History</a></li>
-                <li><a data-view="trends"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span> Price Trends</a></li>
+                <li><a onclick="switchView('history')" data-view="history"><span class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span> Quote History</a></li>
+                <li><a onclick="switchView('trends')" data-view="trends"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span> Price Trends</a></li>
             </ul>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-label">Settings</div>
             <ul class="sidebar-nav">
                 <li><a onclick="switchView('products')" data-view="products"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span> Products</a></li>
-                <li><a data-view="prefs"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span> Preferences</a></li>
+                <li><a onclick="switchView('prefs')" data-view="prefs"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span> Preferences</a></li>
             </ul>
         </div>
         <div class="sidebar-spacer"></div>
@@ -524,6 +574,66 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
             </div>
         </div>
 
+        <!-- VIEW: QUOTE HISTORY -->
+        <div class="view" id="view-history">
+            <div class="page-header">
+                <div>
+                    <h1>Quote History</h1>
+                    <p>View and reload past quote sheets</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="clearHistory()">Clear History</button>
+                </div>
+            </div>
+            <div class="history-filters">
+                <input type="text" class="history-search" placeholder="Search by date or status..." oninput="filterHistory(this.value)">
+            </div>
+            <div id="historyList" class="history-list"></div>
+        </div>
+
+        <!-- VIEW: PRICE TRENDS -->
+        <div class="view" id="view-trends">
+            <div class="page-header">
+                <div>
+                    <h1>Price Trends</h1>
+                    <p>Track price changes across your product catalog</p>
+                </div>
+            </div>
+            <div class="trend-summary" id="trendSummary"></div>
+            <div class="trends-grid" id="trendsGrid"></div>
+        </div>
+
+        <!-- VIEW: PREFERENCES -->
+        <div class="view" id="view-prefs">
+            <div class="page-header">
+                <div>
+                    <h1>Preferences</h1>
+                    <p>Configure your quote system settings</p>
+                </div>
+            </div>
+            <div style="background:#fff;border-radius:16px;border:1px solid rgba(0,0,0,.04);padding:32px 36px;max-width:600px">
+                <div style="margin-bottom:24px">
+                    <label style="display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px">Company Name</label>
+                    <input type="text" id="prefCompany" value="HM Distributors Inc." style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,.08);border-radius:10px;font-size:.85rem;font-family:'Inter',sans-serif;background:#faf9f6" oninput="savePref()">
+                </div>
+                <div style="margin-bottom:24px">
+                    <label style="display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px">Default Email Subject</label>
+                    <input type="text" id="prefSubject" value="HM Distributors — Daily Quote Sheet" style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,.08);border-radius:10px;font-size:.85rem;font-family:'Inter',sans-serif;background:#faf9f6" oninput="savePref()">
+                </div>
+                <div style="margin-bottom:24px">
+                    <label style="display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px">Auto-save Drafts</label>
+                    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.82rem;color:#555"><input type="checkbox" id="prefAutosave" checked onchange="savePref()" style="width:18px;height:18px;accent-color:#073015"> Automatically save draft as you type</label>
+                </div>
+                <div style="margin-bottom:24px">
+                    <label style="display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px">FOB Location</label>
+                    <input type="text" id="prefFob" value="Nogales, AZ" style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,.08);border-radius:10px;font-size:.85rem;font-family:'Inter',sans-serif;background:#faf9f6" oninput="savePref()">
+                </div>
+                <div style="padding-top:16px;border-top:1px solid rgba(0,0,0,.06)">
+                    <button class="btn btn-outline" onclick="resetPrefs()" style="font-size:.75rem">Reset to Defaults</button>
+                </div>
+            </div>
+        </div>
+
         <div class="view" id="view-email">
             <div class="page-header">
                 <div>
@@ -606,8 +716,81 @@ function logout(){
     }
 }
 
-// ── Product Data — single price per size ──
-const productData = {
+// ══════════════════════════════════════════
+//  LOCAL STORAGE PERSISTENCE LAYER
+// ══════════════════════════════════════════
+
+const STORAGE_KEYS = {
+    products: 'hm_products',
+    clients: 'hm_clients',
+    draft: 'hm_draft',
+    lastSent: 'hm_last_sent',
+    history: 'hm_history',
+    prefs: 'hm_prefs'
+};
+
+function saveToStorage(key, data){
+    try { localStorage.setItem(key, JSON.stringify(data)); } catch(e){ console.warn('Storage save failed:', e); }
+}
+
+function loadFromStorage(key){
+    try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : null; } catch(e){ return null; }
+}
+
+function gatherFormData(){
+    const data = { prices: {}, labels: {}, numbers: {}, timestamp: Date.now(), date: getDateStr() };
+    document.querySelectorAll('.price-input').forEach(inp => {
+        if(inp.id) data.prices[inp.id] = inp.value;
+    });
+    document.querySelectorAll('.label-select').forEach(sel => {
+        if(sel.id) data.labels[sel.id] = sel.value;
+    });
+    document.querySelectorAll('.number-input').forEach(inp => {
+        if(inp.id) data.numbers[inp.id] = inp.value;
+    });
+    return data;
+}
+
+function restoreFormData(data){
+    if(!data) return;
+    if(data.prices){
+        Object.entries(data.prices).forEach(([id, val]) => {
+            const inp = document.getElementById(id);
+            if(inp){ inp.value = val; inp.classList.toggle('has-value', !!val); }
+        });
+    }
+    if(data.labels){
+        Object.entries(data.labels).forEach(([id, val]) => {
+            const sel = document.getElementById(id);
+            if(sel) sel.value = val;
+        });
+    }
+    if(data.numbers){
+        Object.entries(data.numbers).forEach(([id, val]) => {
+            const inp = document.getElementById(id);
+            if(inp){ inp.value = val; inp.classList.toggle('has-value', !!val); }
+        });
+    }
+    updateCount();
+}
+
+function autoSaveDraft(){
+    const prefs = loadFromStorage(STORAGE_KEYS.prefs);
+    if(prefs && prefs.autosave === false) return;
+    const data = gatherFormData();
+    data.type = 'draft';
+    saveToStorage(STORAGE_KEYS.draft, data);
+}
+
+// Debounced auto-save
+let autoSaveTimer = null;
+function scheduleAutoSave(){
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(autoSaveDraft, 1000);
+}
+
+// ── Product Data — with localStorage persistence ──
+const defaultProductData = {
     spv: [
         { name: 'GH Romas', theme: 'theme-red', capClass: 'cap-red',
           sizes: ['XXLGE','XLGE','LGE','MED','SML'] },
@@ -642,13 +825,21 @@ const productData = {
     ]
 };
 
+// Load products from localStorage or use defaults
+const productData = loadFromStorage(STORAGE_KEYS.products) || JSON.parse(JSON.stringify(defaultProductData));
+
+function saveProducts(){
+    saveToStorage(STORAGE_KEYS.products, productData);
+}
+
 const brandMeta = {
     spv: { name: 'SPV & Paris', logo: 'svp-paris.jpg', labels: ['SPV','Paris','Both'] },
     wolf: { name: 'The Wolf', logo: 'wolf.jpg', labels: ['Wolf'] },
     mr: { name: 'Mr. Produce', logo: 'mrproduce.jpg', labels: ['Mr. Produce'] }
 };
 
-const clients = [
+// Load clients from localStorage or use defaults
+const defaultClients = [
     { name: 'Albertsons', email: 'produce@albertsons.com', selected: true },
     { name: 'Whole Foods', email: 'sourcing@wholefoods.com', selected: true },
     { name: 'Sysco Foods', email: 'buyer@sysco.com', selected: false },
@@ -662,6 +853,12 @@ const clients = [
     { name: 'Publix Markets', email: 'produce@publix.com', selected: false },
     { name: 'Food Lion', email: 'buyer@foodlion.com', selected: false },
 ];
+
+const clients = loadFromStorage(STORAGE_KEYS.clients) || JSON.parse(JSON.stringify(defaultClients));
+
+function saveClients(){
+    saveToStorage(STORAGE_KEYS.clients, clients);
+}
 
 let totalInputs = 0;
 
@@ -699,11 +896,11 @@ function renderBrandProducts(brandKey){
         group.sizes.forEach(size => {
             const id = makeId(group.name, size);
             totalInputs++;
-            rows += `<div class="price-row"><div class="label">${size}</div><div class="label-select-wrap"><select class="label-select" id="lbl-${id}">`;
+            rows += `<div class="price-row"><div class="label">${size}</div><div class="label-select-wrap"><select class="label-select" id="lbl-${id}" onchange="scheduleAutoSave()">`;
             labels.forEach(l => {
                 rows += `<option value="${l}"${l===defaultLabel?' selected':''}>${l}</option>`;
             });
-            rows += `</select></div><div class="number-input-wrap"><input type="text" class="number-input" id="num-${id}" placeholder="#" oninput="this.classList.toggle('has-value',!!this.value)"></div><div class="price-input-wrap"><span class="dollar">$</span><input type="text" class="price-input" id="${id}" placeholder="0.00" oninput="updateCount()"></div></div>`;
+            rows += `</select></div><div class="number-input-wrap"><input type="text" class="number-input" id="num-${id}" placeholder="#" oninput="this.classList.toggle('has-value',!!this.value);scheduleAutoSave()"></div><div class="price-input-wrap"><span class="dollar">$</span><input type="text" class="price-input" id="${id}" placeholder="0.00" oninput="updateCount();scheduleAutoSave()"></div></div>`;
         });
         html += `<div class="product-group ${group.theme}">
             <div class="product-group-header"><h3>${group.name}</h3><span class="count">${group.sizes.length}</span></div>
@@ -733,33 +930,56 @@ function updateCount(){
 
 function clearAll(){
     document.querySelectorAll('.price-input').forEach(inp => { inp.value = ''; inp.classList.remove('has-value'); });
+    document.querySelectorAll('.number-input').forEach(inp => { inp.value = ''; inp.classList.remove('has-value'); });
     updateCount();
+    localStorage.removeItem(STORAGE_KEYS.draft);
     showToast(svgIcons.trash,'All prices cleared');
 }
 
 function loadLastPrices(){
-    const lp = {
-        'Eggplant_18s_1':'10.95','Eggplant_24s_1':'8.95',
-        'GreenBells_XXLGE_1':'18.95','GreenBells_XLGE_1':'18.95',
-        'GreenBells_LGE_1':'16.95','GreenBells_MED_1':'14.95',
-        'GreenBells_SML_1':'12.95','GreenBells_XSML_1':'10.95',
-        'RedBells_XLGE_1':'22.95','RedBells_LGE_1':'20.95',
-        'RedBells_MED_1':'18.95','RedBells_SML_1':'16.95',
-        'GreenBeans_XFancy_1':'20.95','GreenBeans_Fancy_1':'20.95',
-        'GreenBeans_Med_1':'20.95','GreenBeans_WB_1':'16.95',
-        'ItalianSquash_XFancy_1':'18.95','ItalianSquash_Fancy_1':'16.95',
-        'Serrano_XL_1':'22.00','Jalapeo_XL_1':'18.00',
-        'Tomatillo_Husk_1':'20.00','Tomatillo_Peeled_1':'22.00',
-    };
-    Object.entries(lp).forEach(([id,val]) => {
-        const inp = document.getElementById(id);
-        if(inp){ inp.value = val; inp.classList.add('has-value'); }
-    });
-    updateCount();
-    showToast(svgIcons.clipboard,'Last prices loaded');
+    // Try loading from last sent quote, then last draft
+    let data = loadFromStorage(STORAGE_KEYS.lastSent);
+    if(!data) data = loadFromStorage(STORAGE_KEYS.draft);
+    if(!data || !data.prices || Object.keys(data.prices).length === 0){
+        showToast(svgIcons.alert, 'No previous prices found');
+        return;
+    }
+    restoreFormData(data);
+    const source = data.type === 'sent' ? 'last sent quote' : 'last draft';
+    showToast(svgIcons.clipboard, `Loaded prices from ${source} (${data.date || 'unknown date'})`);
 }
 
-function saveDraft(){ showToast(svgIcons.save,'Draft saved successfully'); }
+function saveDraft(){
+    const data = gatherFormData();
+    data.type = 'draft';
+    saveToStorage(STORAGE_KEYS.draft, data);
+
+    // Also save to history
+    const history = loadFromStorage(STORAGE_KEYS.history) || [];
+    const filledCount = Object.values(data.prices).filter(v => v).length;
+    if(filledCount > 0){
+        // Check if there's already a draft for today — update it instead of adding new
+        const todayStr = data.date;
+        const existingIdx = history.findIndex(h => h.date === todayStr && h.type === 'draft');
+        const entry = {
+            id: existingIdx >= 0 ? history[existingIdx].id : Date.now(),
+            date: data.date,
+            timestamp: data.timestamp,
+            type: 'draft',
+            priceCount: filledCount,
+            totalProducts: Object.keys(data.prices).length,
+            data: data
+        };
+        if(existingIdx >= 0){
+            history[existingIdx] = entry;
+        } else {
+            history.unshift(entry);
+        }
+        saveToStorage(STORAGE_KEYS.history, history);
+    }
+
+    showToast(svgIcons.save,'Draft saved successfully');
+}
 
 // ══════════════════════════════════════════
 //  PDF PREVIEW
@@ -829,6 +1049,9 @@ function switchView(viewId){
     if(navLink) navLink.classList.add('active');
     if(viewId === 'email'){ refreshEmailPreview(); updateEmailSubject(); }
     if(viewId === 'products'){ renderProductsList(); }
+    if(viewId === 'history'){ renderHistory(); }
+    if(viewId === 'trends'){ renderTrends(); }
+    if(viewId === 'prefs'){ loadPrefsUI(); }
     window.scrollTo(0,0);
     document.querySelector('.main').scrollTop = 0;
 }
@@ -852,9 +1075,9 @@ function renderRecipients(){
     updateEmailToField();
 }
 
-function toggleRecipient(idx){ clients[idx].selected = !clients[idx].selected; renderRecipients(); }
-function selectAllRecipients(){ clients.forEach(c => c.selected = true); renderRecipients(); }
-function deselectAllRecipients(){ clients.forEach(c => c.selected = false); renderRecipients(); }
+function toggleRecipient(idx){ clients[idx].selected = !clients[idx].selected; saveClients(); renderRecipients(); }
+function selectAllRecipients(){ clients.forEach(c => c.selected = true); saveClients(); renderRecipients(); }
+function deselectAllRecipients(){ clients.forEach(c => c.selected = false); saveClients(); renderRecipients(); }
 function updateRecipientCount(){ document.getElementById('selectedCount').textContent = clients.filter(c => c.selected).length; }
 
 function updateEmailToField(){
@@ -949,6 +1172,37 @@ function sendEmails(){
     if(selected.length === 0){ showToast(svgIcons.alert,'Please select at least one recipient'); return; }
     const filled = document.querySelectorAll('.price-input.has-value').length;
     if(filled === 0){ showToast(svgIcons.alert,'No prices filled \u2014 go back and add prices first'); return; }
+
+    // Save as last sent quote
+    const data = gatherFormData();
+    data.type = 'sent';
+    data.recipients = selected.map(c => ({ name: c.name, email: c.email }));
+    saveToStorage(STORAGE_KEYS.lastSent, data);
+
+    // Save to history
+    const history = loadFromStorage(STORAGE_KEYS.history) || [];
+    const todayStr = data.date;
+    // Remove any draft for today (it's now sent)
+    const draftIdx = history.findIndex(h => h.date === todayStr && h.type === 'draft');
+    if(draftIdx >= 0) history.splice(draftIdx, 1);
+    history.unshift({
+        id: Date.now(),
+        date: data.date,
+        timestamp: data.timestamp,
+        type: 'sent',
+        priceCount: filled,
+        totalProducts: Object.keys(data.prices).length,
+        recipientCount: selected.length,
+        recipients: selected.map(c => c.name),
+        data: data
+    });
+    // Keep max 90 days of history
+    if(history.length > 90) history.length = 90;
+    saveToStorage(STORAGE_KEYS.history, history);
+
+    // Clear draft since it's been sent
+    localStorage.removeItem(STORAGE_KEYS.draft);
+
     showToast(svgIcons.mail, `Quote sent to ${selected.length} recipient${selected.length > 1 ? 's' : ''}!`);
     const pill = document.getElementById('sentStatus');
     pill.innerHTML = '<span class="status-dot"></span>Sent';
@@ -1042,6 +1296,7 @@ function deleteProduct(idx){
     const p = productData[pmActiveBrand][idx];
     if(!confirm(`Delete "${p.name}"?`)) return;
     productData[pmActiveBrand].splice(idx, 1);
+    saveProducts();
     renderProductsList();
     rebuildQuoteView();
     showToast(svgIcons.trash, `${p.name} removed`);
@@ -1104,6 +1359,7 @@ function savePmProduct(){
     }
 
     closePmModal();
+    saveProducts();
     renderProductsList();
     rebuildQuoteView();
 }
@@ -1117,11 +1373,233 @@ function rebuildQuoteView(){
     renderProducts();
 }
 
+// ══════════════════════════════════════════
+//  QUOTE HISTORY
+// ══════════════════════════════════════════
+
+function renderHistory(filter){
+    const container = document.getElementById('historyList');
+    let history = loadFromStorage(STORAGE_KEYS.history) || [];
+
+    if(filter){
+        const f = filter.toLowerCase();
+        history = history.filter(h =>
+            h.date.toLowerCase().includes(f) ||
+            h.type.toLowerCase().includes(f) ||
+            (h.recipients && h.recipients.some(r => r.toLowerCase().includes(f)))
+        );
+    }
+
+    if(history.length === 0){
+        container.innerHTML = `<div class="history-empty">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p>No quote history yet</p>
+            <span>Your sent quotes and saved drafts will appear here</span>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = history.map((h, i) => {
+        const d = new Date(h.timestamp);
+        const day = d.getDate();
+        const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        const month = months[d.getMonth()];
+        const recipientText = h.type === 'sent'
+            ? `Sent to ${h.recipientCount || 0} recipient${(h.recipientCount||0) !== 1 ? 's' : ''}${h.recipients ? ': ' + h.recipients.slice(0,3).join(', ') + (h.recipients.length > 3 ? '...' : '') : ''}`
+            : 'Saved as draft';
+
+        return `<div class="history-card" onclick="loadHistoryEntry(${i})">
+            <div class="history-date-badge">
+                <div class="h-day">${day}</div>
+                <div class="h-month">${month}</div>
+            </div>
+            <div class="history-info">
+                <h4>${h.date}</h4>
+                <p>${recipientText}</p>
+            </div>
+            <div class="history-meta">
+                <div class="history-stat">
+                    <div class="h-num">${h.priceCount || 0}</div>
+                    <div class="h-label">Prices</div>
+                </div>
+                <span class="history-badge ${h.type}">${h.type === 'sent' ? 'Sent' : 'Draft'}</span>
+            </div>
+            <div class="history-actions" onclick="event.stopPropagation()">
+                <button class="history-card-btn" onclick="loadHistoryEntry(${i})" title="Load this quote">
+                    <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                </button>
+                <button class="history-card-btn" onclick="deleteHistoryEntry(${i})" title="Delete">
+                    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function filterHistory(val){
+    renderHistory(val);
+}
+
+function loadHistoryEntry(idx){
+    const history = loadFromStorage(STORAGE_KEYS.history) || [];
+    const entry = history[idx];
+    if(!entry || !entry.data) return;
+
+    restoreFormData(entry.data);
+    switchView('quote');
+    showToast(svgIcons.clipboard, `Loaded quote from ${entry.date}`);
+}
+
+function deleteHistoryEntry(idx){
+    const history = loadFromStorage(STORAGE_KEYS.history) || [];
+    if(!confirm('Delete this history entry?')) return;
+    history.splice(idx, 1);
+    saveToStorage(STORAGE_KEYS.history, history);
+    renderHistory();
+    showToast(svgIcons.trash, 'History entry removed');
+}
+
+function clearHistory(){
+    if(!confirm('Clear all quote history? This cannot be undone.')) return;
+    localStorage.removeItem(STORAGE_KEYS.history);
+    renderHistory();
+    showToast(svgIcons.trash, 'History cleared');
+}
+
+// ══════════════════════════════════════════
+//  PRICE TRENDS
+// ══════════════════════════════════════════
+
+function renderTrends(){
+    const history = loadFromStorage(STORAGE_KEYS.history) || [];
+    const sentHistory = history.filter(h => h.type === 'sent').slice(0, 30);
+    const summaryEl = document.getElementById('trendSummary');
+    const gridEl = document.getElementById('trendsGrid');
+
+    // Summary cards
+    const totalSent = history.filter(h => h.type === 'sent').length;
+    const totalDrafts = history.filter(h => h.type === 'draft').length;
+    const avgPrices = sentHistory.length > 0
+        ? Math.round(sentHistory.reduce((sum, h) => sum + (h.priceCount || 0), 0) / sentHistory.length)
+        : 0;
+
+    summaryEl.innerHTML = `
+        <div class="trend-summary-card"><div class="ts-num">${totalSent}</div><div class="ts-label">Quotes Sent</div></div>
+        <div class="trend-summary-card"><div class="ts-num">${totalDrafts}</div><div class="ts-label">Drafts Saved</div></div>
+        <div class="trend-summary-card"><div class="ts-num">${avgPrices}</div><div class="ts-label">Avg Prices/Quote</div></div>
+    `;
+
+    if(sentHistory.length < 2){
+        gridEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#ccc">
+            <p style="font-size:.85rem;margin-bottom:4px">Not enough data yet</p>
+            <span style="font-size:.72rem;color:#bbb">Send at least 2 quotes to see price trends</span>
+        </div>`;
+        return;
+    }
+
+    // Build trend cards per brand
+    let html = '';
+    ['spv','wolf','mr'].forEach(brandKey => {
+        const brand = brandMeta[brandKey];
+        const products = productData[brandKey];
+        let productTrends = '';
+
+        products.forEach(group => {
+            group.sizes.forEach(size => {
+                const id = makeId(group.name, size);
+                // Get prices from recent history
+                const prices = sentHistory.slice(0, 7).reverse().map(h => {
+                    const val = h.data && h.data.prices && h.data.prices[id];
+                    return val && !isNaN(parseFloat(val)) ? parseFloat(val) : null;
+                }).filter(p => p !== null);
+
+                if(prices.length >= 2){
+                    const latest = prices[prices.length - 1];
+                    const previous = prices[prices.length - 2];
+                    const change = latest - previous;
+                    const pct = ((change / previous) * 100).toFixed(1);
+                    const maxPrice = Math.max(...prices, 1);
+                    const barWidth = Math.round((latest / maxPrice) * 100);
+                    const barColor = change > 0 ? 'red' : change < 0 ? 'green' : 'gold';
+
+                    productTrends += `<div class="trend-bar-group">
+                        <div class="trend-bar-label">
+                            <span>${group.name} (${size})</span>
+                            <span>$${latest.toFixed(2)} <span style="font-size:.6rem;color:${change > 0 ? '#dc2626' : change < 0 ? '#1a7a3a' : '#999'}">${change >= 0 ? '+' : ''}${pct}%</span></span>
+                        </div>
+                        <div class="trend-bar"><div class="trend-bar-fill ${barColor}" style="width:${barWidth}%"></div></div>
+                    </div>`;
+                }
+            });
+        });
+
+        if(productTrends){
+            html += `<div class="trend-card">
+                <h3>${brand.name}</h3>
+                <div class="trend-sub">Price changes from last ${Math.min(sentHistory.length, 7)} quotes</div>
+                ${productTrends}
+            </div>`;
+        }
+    });
+
+    gridEl.innerHTML = html || `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#ccc">
+        <p style="font-size:.85rem">No price changes detected</p>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+//  PREFERENCES
+// ══════════════════════════════════════════
+
+function loadPrefsUI(){
+    const prefs = loadFromStorage(STORAGE_KEYS.prefs) || {};
+    const compEl = document.getElementById('prefCompany');
+    const subjEl = document.getElementById('prefSubject');
+    const autoEl = document.getElementById('prefAutosave');
+    const fobEl = document.getElementById('prefFob');
+    if(prefs.company) compEl.value = prefs.company;
+    if(prefs.subject) subjEl.value = prefs.subject;
+    if(typeof prefs.autosave !== 'undefined') autoEl.checked = prefs.autosave;
+    if(prefs.fob) fobEl.value = prefs.fob;
+}
+
+function savePref(){
+    const prefs = {
+        company: document.getElementById('prefCompany').value,
+        subject: document.getElementById('prefSubject').value,
+        autosave: document.getElementById('prefAutosave').checked,
+        fob: document.getElementById('prefFob').value
+    };
+    saveToStorage(STORAGE_KEYS.prefs, prefs);
+}
+
+function resetPrefs(){
+    if(!confirm('Reset all preferences to defaults?')) return;
+    localStorage.removeItem(STORAGE_KEYS.prefs);
+    document.getElementById('prefCompany').value = 'HM Distributors Inc.';
+    document.getElementById('prefSubject').value = 'HM Distributors \u2014 Daily Quote Sheet';
+    document.getElementById('prefAutosave').checked = true;
+    document.getElementById('prefFob').value = 'Nogales, AZ';
+    showToast(svgIcons.check, 'Preferences reset to defaults');
+}
+
 // ── Init ──
 setDate();
 renderProducts();
 renderRecipients();
 renderProductsList();
+
+// Restore draft if one exists
+(function(){
+    const draft = loadFromStorage(STORAGE_KEYS.draft);
+    if(draft && draft.prices){
+        const filledCount = Object.values(draft.prices).filter(v => v).length;
+        if(filledCount > 0){
+            restoreFormData(draft);
+            showToast(svgIcons.save, `Draft restored (${filledCount} prices from ${draft.date || 'last session'})`);
+        }
+    }
+})();
 
 // Close PDF on Escape
 document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closePdf(); closePmModal(); } });

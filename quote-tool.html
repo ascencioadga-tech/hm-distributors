@@ -655,6 +655,31 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
                     <h3><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Recipients</h3>
                     <div id="recipientsList"></div>
                     <div class="recipients-count">Selected: <span id="selectedCount">0</span></div>
+                    <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06)">
+                        <button class="btn btn-outline" onclick="openAddRecipient()" style="width:100%;justify-content:center;font-size:.72rem;padding:8px 14px">
+                            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Recipient
+                        </button>
+                    </div>
+                    <!-- Add Recipient Form (hidden by default) -->
+                    <div id="addRecipientForm" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06)">
+                        <div style="margin-bottom:10px">
+                            <label style="display:block;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:5px">Name</label>
+                            <input type="text" id="newRecipientName" placeholder="e.g. John Smith" style="width:100%;padding:8px 12px;border:1.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:.78rem;font-family:'Inter',sans-serif;background:#faf9f6" onkeydown="if(event.key==='Enter')document.getElementById('newRecipientCompany').focus()">
+                        </div>
+                        <div style="margin-bottom:10px">
+                            <label style="display:block;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:5px">Company</label>
+                            <input type="text" id="newRecipientCompany" placeholder="e.g. Sysco Foods" style="width:100%;padding:8px 12px;border:1.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:.78rem;font-family:'Inter',sans-serif;background:#faf9f6" onkeydown="if(event.key==='Enter')document.getElementById('newRecipientEmail').focus()">
+                        </div>
+                        <div style="margin-bottom:12px">
+                            <label style="display:block;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:5px">Email</label>
+                            <input type="email" id="newRecipientEmail" placeholder="e.g. john@sysco.com" style="width:100%;padding:8px 12px;border:1.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:.78rem;font-family:'Inter',sans-serif;background:#faf9f6" onkeydown="if(event.key==='Enter')addRecipient()">
+                        </div>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn btn-green" onclick="addRecipient()" style="flex:1;justify-content:center;font-size:.72rem;padding:8px 14px">Add</button>
+                            <button class="btn btn-outline" onclick="closeAddRecipient()" style="font-size:.72rem;padding:8px 14px">Cancel</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="email-preview-card">
                     <div class="email-toolbar">
@@ -839,23 +864,8 @@ const brandMeta = {
     mr: { name: 'Mr. Produce', logo: 'mrproduce.jpg', labels: ['Mr. Produce'] }
 };
 
-// Load clients from localStorage or use defaults
-const defaultClients = [
-    { name: 'Albertsons', email: 'produce@albertsons.com', selected: true },
-    { name: 'Whole Foods', email: 'sourcing@wholefoods.com', selected: true },
-    { name: 'Sysco Foods', email: 'buyer@sysco.com', selected: false },
-    { name: 'US Foods', email: 'purchasing@usfoods.com', selected: false },
-    { name: 'Walmart Fresh', email: 'produce@walmart.com', selected: false },
-    { name: 'Kroger Co.', email: 'fresh@kroger.com', selected: false },
-    { name: 'Costco Wholesale', email: 'produce@costco.com', selected: false },
-    { name: 'H-E-B Grocery', email: 'produce@heb.com', selected: false },
-    { name: 'Safeway Inc.', email: 'fresh@safeway.com', selected: false },
-    { name: "Trader Joe's", email: 'buying@traderjoes.com', selected: false },
-    { name: 'Publix Markets', email: 'produce@publix.com', selected: false },
-    { name: 'Food Lion', email: 'buyer@foodlion.com', selected: false },
-];
-
-const clients = loadFromStorage(STORAGE_KEYS.clients) || JSON.parse(JSON.stringify(defaultClients));
+// Load clients from localStorage (starts empty — user adds their own)
+const clients = loadFromStorage(STORAGE_KEYS.clients) || [];
 
 function saveClients(){
     saveToStorage(STORAGE_KEYS.clients, clients);
@@ -1063,13 +1073,19 @@ function switchView(viewId){
 
 function renderRecipients(){
     const list = document.getElementById('recipientsList');
+    if(clients.length === 0){
+        list.innerHTML = '<div style="text-align:center;padding:24px 10px;color:#ccc;font-size:.78rem">No recipients yet.<br><span style="font-size:.68rem;color:#bbb">Click "Add Recipient" below.</span></div>';
+        updateRecipientCount();
+        updateEmailToField();
+        return;
+    }
     list.innerHTML = '';
     clients.forEach((c, i) => {
         const initials = c.name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
         const item = document.createElement('div');
         item.className = `recipient-item${c.selected ? ' selected' : ''}`;
-        item.onclick = () => toggleRecipient(i);
-        item.innerHTML = `<div class="recipient-check"></div><div class="recipient-avatar">${initials}</div><div class="recipient-details"><h4>${c.name}</h4><p>${c.email}</p></div>`;
+        item.onclick = (e) => { if(!e.target.closest('.recipient-delete')) toggleRecipient(i); };
+        item.innerHTML = `<div class="recipient-check"></div><div class="recipient-avatar">${initials}</div><div class="recipient-details"><h4>${c.name}</h4><p style="font-weight:600;color:#777;margin-bottom:1px">${c.company || ''}</p><p>${c.email}</p></div><button class="recipient-delete" onclick="event.stopPropagation();deleteRecipient(${i})" title="Remove" style="background:none;border:none;cursor:pointer;padding:4px;color:#ccc;font-size:1rem;line-height:1;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#dc2626';this.style.background='#fef2f2'" onmouseout="this.style.color='#ccc';this.style.background='none'">&times;</button>`;
         list.appendChild(item);
     });
     updateRecipientCount();
@@ -1079,6 +1095,48 @@ function renderRecipients(){
 function toggleRecipient(idx){ clients[idx].selected = !clients[idx].selected; saveClients(); renderRecipients(); }
 function selectAllRecipients(){ clients.forEach(c => c.selected = true); saveClients(); renderRecipients(); }
 function deselectAllRecipients(){ clients.forEach(c => c.selected = false); saveClients(); renderRecipients(); }
+
+function openAddRecipient(){
+    document.getElementById('addRecipientForm').style.display = 'block';
+    document.getElementById('newRecipientName').value = '';
+    document.getElementById('newRecipientCompany').value = '';
+    document.getElementById('newRecipientEmail').value = '';
+    document.getElementById('newRecipientName').focus();
+}
+
+function closeAddRecipient(){
+    document.getElementById('addRecipientForm').style.display = 'none';
+}
+
+function addRecipient(){
+    const name = document.getElementById('newRecipientName').value.trim();
+    const company = document.getElementById('newRecipientCompany').value.trim();
+    const email = document.getElementById('newRecipientEmail').value.trim();
+
+    if(!name){ showToast(svgIcons.alert, 'Please enter the recipient name'); return; }
+    if(!company){ showToast(svgIcons.alert, 'Please enter the company name'); return; }
+    if(!email || !email.includes('@')){ showToast(svgIcons.alert, 'Please enter a valid email address'); return; }
+
+    // Check for duplicate email
+    if(clients.some(c => c.email.toLowerCase() === email.toLowerCase())){
+        showToast(svgIcons.alert, 'This email is already in the list'); return;
+    }
+
+    clients.push({ name, company, email, selected: true });
+    saveClients();
+    renderRecipients();
+    closeAddRecipient();
+    showToast(svgIcons.check, `${name} added`);
+}
+
+function deleteRecipient(idx){
+    const c = clients[idx];
+    if(!confirm(`Remove ${c.name} (${c.email})?`)) return;
+    clients.splice(idx, 1);
+    saveClients();
+    renderRecipients();
+    showToast(svgIcons.trash, `${c.name} removed`);
+}
 function updateRecipientCount(){ document.getElementById('selectedCount').textContent = clients.filter(c => c.selected).length; }
 
 function updateEmailToField(){

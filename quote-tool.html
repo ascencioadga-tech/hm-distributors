@@ -1235,11 +1235,11 @@ function generateEmailHTML(recipientName){
     html += `<table role="presentation" width="680" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 30px rgba(0,0,0,0.1)">`;
 
     // Hero
-    html += `<tr><td style="background:linear-gradient(160deg,#041f0e 0%,#073015 40%,#0a4a22 100%);padding:52px 48px 44px;text-align:center">`;
+    html += `<tr><td bgcolor="#073015" style="background-color:#073015;padding:52px 48px 44px;text-align:center">`;
     html += `<img src="${baseUrl}/logo.avif" alt="HM Distributors" style="height:56px;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto">`;
     html += `<div style="font-size:12px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:#c4a265;margin-bottom:20px">DAILY PRICE SHEET</div>`;
-    html += `<div style="display:inline-block;padding:8px 24px;border:1px solid rgba(196,162,101,0.25);border-radius:24px;font-size:12px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.85)">${getShortDate()}</div>`;
-    html += `<div style="width:40px;height:2px;background:linear-gradient(to right,#c4a265,rgba(196,162,101,0.3));margin:16px auto 0;border-radius:2px"></div>`;
+    html += `<div style="display:inline-block;padding:8px 24px;border:1px solid #c4a265;border-radius:24px;font-size:12px;font-weight:700;letter-spacing:1.5px;color:#e8e4dd">${getShortDate()}</div>`;
+    html += `<div style="width:40px;height:2px;background-color:#c4a265;margin:16px auto 0"></div>`;
     html += `</td></tr>`;
 
     // Greeting
@@ -1337,7 +1337,7 @@ function generateEmailHTML(recipientName){
     // CTA
     html += `<tr><td style="padding:10px 36px 20px;text-align:center">`;
     html += `<p style="font-size:12px;color:#888;margin:0 0 10px">Ready to place your order?</p>`;
-    html += `<a href="tel:+15202819534" style="display:inline-block;padding:10px 32px;background:linear-gradient(135deg,#073015,#0a4a22);color:#ffffff;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:8px;text-decoration:none">Call Us &mdash; (520) 281-9534</a>`;
+    html += `<a href="tel:+15202819534" style="display:inline-block;padding:10px 32px;background-color:#073015;color:#ffffff;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:8px;text-decoration:none">Call Us &mdash; (520) 281-9534</a>`;
     html += `</td></tr>`;
 
     // Disclaimer
@@ -1346,12 +1346,12 @@ function generateEmailHTML(recipientName){
     html += `</td></tr>`;
 
     // Footer
-    html += `<tr><td style="background:linear-gradient(160deg,#041f0e,#073015);padding:28px 36px;text-align:center">`;
+    html += `<tr><td bgcolor="#073015" style="background-color:#073015;padding:28px 36px;text-align:center">`;
     html += `<p style="color:#c4a265;font-weight:700;font-size:14px;font-family:Georgia,'Times New Roman',serif;letter-spacing:0.5px;margin:0 0 4px">HM Distributors Inc.</p>`;
-    html += `<p style="color:rgba(255,255,255,0.4);font-size:11px;margin:0;line-height:1.9">305 W. Produce Row &middot; Nogales, Arizona 85621</p>`;
-    html += `<div style="width:40px;height:1px;background:rgba(196,162,101,0.25);margin:14px auto"></div>`;
-    html += `<p style="color:rgba(255,255,255,0.65);font-weight:600;font-size:11px;margin:0">(520) 281-9534</p>`;
-    html += `<p style="color:rgba(255,255,255,0.4);font-size:11px;margin:0">quotes@hmdistributors.com</p>`;
+    html += `<p style="color:#8a9e8f;font-size:11px;margin:0;line-height:1.9">305 W. Produce Row &middot; Nogales, Arizona 85621</p>`;
+    html += `<div style="width:40px;height:1px;background-color:#c4a265;margin:14px auto"></div>`;
+    html += `<p style="color:#b8ccbe;font-weight:600;font-size:11px;margin:0">(520) 281-9534</p>`;
+    html += `<p style="color:#8a9e8f;font-size:11px;margin:0">quotes@hmdistributors.com</p>`;
     html += `</td></tr>`;
 
     html += `</table></td></tr></table></body></html>`;

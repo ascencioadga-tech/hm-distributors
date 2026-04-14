@@ -49,6 +49,7 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
 .status-dot{width:6px;height:6px;border-radius:50%;background:#e4a30b;animation:pulse-dot 2s ease-in-out infinite}
 .status-pill.sent .status-dot{background:#1a7a3a;animation:none}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes spin{to{transform:rotate(360deg)}}
 .header-actions{display:flex;gap:12px}
 .btn{padding:10px 24px;border-radius:10px;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .3s;border:none;display:flex;align-items:center;gap:8px;letter-spacing:.3px}
 .btn-outline{background:transparent;border:2px solid rgba(0,0,0,.08);color:#666}
@@ -1167,46 +1168,92 @@ function refreshEmailPreview(){
     container.innerHTML = html;
 }
 
-function sendEmails(){
+async function sendEmails(){
     const selected = clients.filter(c => c.selected);
     if(selected.length === 0){ showToast(svgIcons.alert,'Please select at least one recipient'); return; }
     const filled = document.querySelectorAll('.price-input.has-value').length;
     if(filled === 0){ showToast(svgIcons.alert,'No prices filled \u2014 go back and add prices first'); return; }
 
-    // Save as last sent quote
-    const data = gatherFormData();
-    data.type = 'sent';
-    data.recipients = selected.map(c => ({ name: c.name, email: c.email }));
-    saveToStorage(STORAGE_KEYS.lastSent, data);
+    // Get the email HTML from the preview
+    const emailBody = document.getElementById('emailPreviewBody');
+    if(!emailBody || !emailBody.innerHTML.trim()){
+        refreshEmailPreview();
+    }
+    const htmlBody = document.getElementById('emailPreviewBody').innerHTML;
+    const subject = document.getElementById('emailSubject').value || `HM Distributors \u2014 Daily Quote Sheet \u2014 ${getDateStr()}`;
 
-    // Save to history
-    const history = loadFromStorage(STORAGE_KEYS.history) || [];
-    const todayStr = data.date;
-    // Remove any draft for today (it's now sent)
-    const draftIdx = history.findIndex(h => h.date === todayStr && h.type === 'draft');
-    if(draftIdx >= 0) history.splice(draftIdx, 1);
-    history.unshift({
-        id: Date.now(),
-        date: data.date,
-        timestamp: data.timestamp,
-        type: 'sent',
-        priceCount: filled,
-        totalProducts: Object.keys(data.prices).length,
-        recipientCount: selected.length,
-        recipients: selected.map(c => c.name),
-        data: data
-    });
-    // Keep max 90 days of history
-    if(history.length > 90) history.length = 90;
-    saveToStorage(STORAGE_KEYS.history, history);
+    // Show sending state
+    const sendBtn = document.querySelector('.btn-green[onclick="sendEmails()"]');
+    const originalBtnHtml = sendBtn ? sendBtn.innerHTML : '';
+    if(sendBtn){
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Sending...';
+    }
 
-    // Clear draft since it's been sent
-    localStorage.removeItem(STORAGE_KEYS.draft);
+    try {
+        const res = await fetch('/.netlify/functions/send-quote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                recipients: selected.map(c => ({ name: c.name, email: c.email })),
+                subject: subject,
+                htmlBody: htmlBody
+            })
+        });
 
-    showToast(svgIcons.mail, `Quote sent to ${selected.length} recipient${selected.length > 1 ? 's' : ''}!`);
-    const pill = document.getElementById('sentStatus');
-    pill.innerHTML = '<span class="status-dot"></span>Sent';
-    pill.classList.add('sent');
+        const result = await res.json();
+
+        if(res.ok && result.success){
+            // Save as last sent quote
+            const data = gatherFormData();
+            data.type = 'sent';
+            data.recipients = selected.map(c => ({ name: c.name, email: c.email }));
+            saveToStorage(STORAGE_KEYS.lastSent, data);
+
+            // Save to history
+            const history = loadFromStorage(STORAGE_KEYS.history) || [];
+            const todayStr = data.date;
+            const draftIdx = history.findIndex(h => h.date === todayStr && h.type === 'draft');
+            if(draftIdx >= 0) history.splice(draftIdx, 1);
+            history.unshift({
+                id: Date.now(),
+                date: data.date,
+                timestamp: data.timestamp,
+                type: 'sent',
+                priceCount: filled,
+                totalProducts: Object.keys(data.prices).length,
+                recipientCount: selected.length,
+                recipients: selected.map(c => c.name),
+                data: data
+            });
+            if(history.length > 90) history.length = 90;
+            saveToStorage(STORAGE_KEYS.history, history);
+            localStorage.removeItem(STORAGE_KEYS.draft);
+
+            // Update UI
+            const pill = document.getElementById('sentStatus');
+            pill.innerHTML = '<span class="status-dot"></span>Sent';
+            pill.classList.add('sent');
+
+            if(result.failed > 0){
+                showToast(svgIcons.alert, `Sent to ${result.sent}, failed ${result.failed}. Check console for details.`);
+                console.warn('Failed recipients:', result.errors);
+            } else {
+                showToast(svgIcons.mail, `Quote sent to ${result.sent} recipient${result.sent > 1 ? 's' : ''}!`);
+            }
+        } else {
+            showToast(svgIcons.alert, result.error || 'Failed to send emails. Please try again.');
+            console.error('Send error:', result);
+        }
+    } catch(err){
+        showToast(svgIcons.alert, 'Network error — check your connection and try again.');
+        console.error('Network error:', err);
+    } finally {
+        if(sendBtn){
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = originalBtnHtml;
+        }
+    }
 }
 
 // ══════════════════════════════════════════

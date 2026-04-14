@@ -47,7 +47,7 @@ exports.handler = async (event) => {
                     },
                     body: JSON.stringify({
                         from: 'HM Distributors <quotes@hmdistributors.com>',
-                        reply_to: 'renem@hmdistinc.com',
+                        reply_to: 'bertm@hmdistinc.com',
                         to: [recipient.email],
                         subject: subject,
                         html: personalizedHtml

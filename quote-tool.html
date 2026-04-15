@@ -1285,6 +1285,7 @@ td {font-family:Arial,sans-serif;}
 <![endif]-->
 <style type="text/css">
 @media print {
+  @page { margin:0.25cm; }
   body { background:#fff !important; }
   .outer-wrap { padding:0 !important; background:#fff !important; }
 }
@@ -1294,21 +1295,21 @@ td {font-family:Arial,sans-serif;}
 
     // Outer wrapper
     html += `<table border="0" cellpadding="0" cellspacing="0" width="100%" class="outer-wrap" style="background-color:#e8e4dd;">
-<tr><td align="center" style="padding:16px 0;">`;
+<tr><td align="center" style="padding:6px 0;">`;
 
     html += `<!--[if mso]><table border="0" cellpadding="0" cellspacing="0" width="680"><tr><td><![endif]-->`;
     html += `<table border="0" cellpadding="0" cellspacing="0" width="680" style="max-width:680px;width:100%;background-color:#ffffff;border:1px solid #e0e0e0;">`;
 
     // Hero — compact
-    html += `<tr><td bgcolor="#073015" align="center" style="background-color:#073015;padding:20px 24px 16px;">`;
-    html += `<img src="${baseUrl}/logo.png" alt="HM Distributors" width="40" height="40" style="display:block;margin:0 auto 8px;height:40px;width:auto;" />`;
-    html += `<p style="font-family:Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#c4a265;margin:0 0 8px;">DAILY PRICE SHEET</p>`;
-    html += `<table border="0" cellpadding="0" cellspacing="0" align="center"><tr><td style="border:1px solid #c4a265;padding:5px 16px;font-family:Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:1px;color:#e8e4dd;">${getShortDate()}</td></tr></table>`;
+    html += `<tr><td bgcolor="#073015" align="center" style="background-color:#073015;padding:10px 24px 8px;">`;
+    html += `<img src="${baseUrl}/logo.png" alt="HM Distributors" width="32" height="32" style="display:block;margin:0 auto 4px;height:32px;width:auto;" />`;
+    html += `<p style="font-family:Arial,sans-serif;font-size:9px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#c4a265;margin:0 0 4px;">DAILY PRICE SHEET</p>`;
+    html += `<table border="0" cellpadding="0" cellspacing="0" align="center"><tr><td style="border:1px solid #c4a265;padding:3px 12px;font-family:Arial,sans-serif;font-size:9px;font-weight:bold;letter-spacing:1px;color:#e8e4dd;">${getShortDate()}</td></tr></table>`;
     html += `</td></tr>`;
 
     // Greeting — compact
-    html += `<tr><td style="padding:12px 24px 8px;font-family:Arial,sans-serif;font-size:12px;color:#444444;line-height:18px;">`;
-    html += `<p style="margin:0;">Good morning, <strong style="color:#073015;">${recipientName}</strong>. Here are today&#8217;s prices for <strong style="color:#073015;">${getDateStr()}</strong>. All prices FOB Nogales, AZ. Call to confirm.</p>`;
+    html += `<tr><td style="padding:6px 24px 4px;font-family:Arial,sans-serif;font-size:10px;color:#444444;line-height:14px;">`;
+    html += `<p style="margin:0;">Good morning, <strong style="color:#073015;">${recipientName}</strong>. Today&#8217;s prices for <strong style="color:#073015;">${getDateStr()}</strong>. All prices FOB Nogales, AZ. Call to confirm.</p>`;
     html += `</td></tr>`;
 
     // Brand sections
@@ -1318,18 +1319,18 @@ td {font-family:Arial,sans-serif;}
         const isDual = brandKey === 'spv';
 
         // Brand header — compact
-        html += `<tr><td style="padding:10px 24px 4px;">`;
+        html += `<tr><td style="padding:5px 24px 2px;">`;
         html += `<table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#faf9f6" style="background-color:#faf9f6;border-left:3px solid #c4a265;">`;
-        html += `<tr><td style="padding:6px 12px;">`;
+        html += `<tr><td style="padding:3px 10px;">`;
         html += `<table border="0" cellpadding="0" cellspacing="0"><tr>`;
-        html += `<td valign="middle" style="padding-right:10px;"><img src="${baseUrl}/${brand.logo}" alt="${brand.name}" height="22" style="height:22px;width:auto;display:block;" /></td>`;
-        html += `<td valign="middle" style="font-family:Georgia,'Times New Roman',serif;font-size:13px;font-weight:bold;color:#073015;">${brand.name}</td>`;
+        html += `<td valign="middle" style="padding-right:8px;"><img src="${baseUrl}/${brand.logo}" alt="${brand.name}" height="18" style="height:18px;width:auto;display:block;" /></td>`;
+        html += `<td valign="middle" style="font-family:Georgia,'Times New Roman',serif;font-size:11px;font-weight:bold;color:#073015;">${brand.name}</td>`;
         html += `</tr></table></td></tr></table>`;
 
         // Products grid
         const cols = 3;
         for(let row = 0; row < Math.ceil(products.length / cols); row++){
-            html += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top:6px;"><tr>`;
+            html += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top:3px;"><tr>`;
             for(let col = 0; col < cols; col++){
                 const gi = row * cols + col;
                 if(gi < products.length){
@@ -1342,7 +1343,7 @@ td {font-family:Arial,sans-serif;}
                     html += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #dddddd;">`;
 
                     // Product label
-                    html += `<tr><td bgcolor="${capColor}" style="background-color:${capColor};padding:3px 6px;font-family:Arial,sans-serif;font-size:8px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#ffffff;">`;
+                    html += `<tr><td bgcolor="${capColor}" style="background-color:${capColor};padding:2px 5px;font-family:Arial,sans-serif;font-size:7px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#ffffff;">`;
                     html += `${group.name}</td></tr>`;
 
                     // Header row
@@ -1350,14 +1351,14 @@ td {font-family:Arial,sans-serif;}
                     html += `<table border="0" cellpadding="0" cellspacing="0" width="100%">`;
                     if(isDual){
                         html += `<tr>`;
-                        html += `<td width="40%" style="padding:2px 6px;font-family:Arial,sans-serif;font-size:7px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Size</td>`;
-                        html += `<td width="30%" align="right" style="padding:2px 6px;font-family:Arial,sans-serif;font-size:7px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">SPV</td>`;
-                        html += `<td width="30%" align="right" style="padding:2px 6px;font-family:Arial,sans-serif;font-size:7px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Paris</td>`;
+                        html += `<td width="40%" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Size</td>`;
+                        html += `<td width="30%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">SPV</td>`;
+                        html += `<td width="30%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Paris</td>`;
                         html += `</tr>`;
                     } else {
                         html += `<tr>`;
-                        html += `<td width="60%" style="padding:2px 6px;font-family:Arial,sans-serif;font-size:7px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Size</td>`;
-                        html += `<td width="40%" align="right" style="padding:2px 6px;font-family:Arial,sans-serif;font-size:7px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Price</td>`;
+                        html += `<td width="60%" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Size</td>`;
+                        html += `<td width="40%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Price</td>`;
                         html += `</tr>`;
                     }
 
@@ -1368,7 +1369,7 @@ td {font-family:Arial,sans-serif;}
                         const bb = isLast ? '' : 'border-bottom:1px solid #f0f0f0;';
 
                         html += `<tr>`;
-                        html += `<td style="padding:3px 6px;${bb}font-family:Arial,sans-serif;font-size:10px;color:#333333;">${size}</td>`;
+                        html += `<td style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#333333;">${size}</td>`;
 
                         if(isDual){
                             const spvInp = document.getElementById('spv-' + id);
@@ -1376,22 +1377,22 @@ td {font-family:Arial,sans-serif;}
                             const spvVal = spvInp && spvInp.value ? (spvInp.value.match(/^\d/) ? `$${parseFloat(spvInp.value).toFixed(2)}` : spvInp.value) : '';
                             const parisVal = parisInp && parisInp.value ? (parisInp.value.match(/^\d/) ? `$${parseFloat(parisInp.value).toFixed(2)}` : parisInp.value) : '';
                             if(spvVal){
-                                html += `<td align="right" style="padding:3px 6px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:11px;font-weight:bold;color:#073015;">${spvVal}</td>`;
+                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${spvVal}</td>`;
                             } else {
-                                html += `<td align="right" style="padding:3px 6px;${bb}font-family:Arial,sans-serif;font-size:10px;color:#d4d4d4;">&#8212;</td>`;
+                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#d4d4d4;">&#8212;</td>`;
                             }
                             if(parisVal){
-                                html += `<td align="right" style="padding:3px 6px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:11px;font-weight:bold;color:#073015;">${parisVal}</td>`;
+                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${parisVal}</td>`;
                             } else {
-                                html += `<td align="right" style="padding:3px 6px;${bb}font-family:Arial,sans-serif;font-size:10px;color:#d4d4d4;">&#8212;</td>`;
+                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#d4d4d4;">&#8212;</td>`;
                             }
                         } else {
                             const inp = document.getElementById(id);
                             const val = inp && inp.value ? (inp.value.match(/^\d/) ? `$${parseFloat(inp.value).toFixed(2)}` : inp.value) : '';
                             if(val){
-                                html += `<td align="right" style="padding:3px 6px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:11px;font-weight:bold;color:#073015;">${val}</td>`;
+                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${val}</td>`;
                             } else {
-                                html += `<td align="right" style="padding:3px 6px;${bb}font-family:Arial,sans-serif;font-size:10px;color:#d4d4d4;">&#8212;</td>`;
+                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#d4d4d4;">&#8212;</td>`;
                             }
                         }
                         html += `</tr>`;
@@ -1400,7 +1401,7 @@ td {font-family:Arial,sans-serif;}
                     html += `</table></td></tr>`;
 
                     if(note){
-                        html += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:2px 6px 4px;font-family:Arial,sans-serif;font-size:7px;color:#aaaaaa;border-top:1px solid #f0f0f0;">${note}</td></tr>`;
+                        html += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:1px 5px 2px;font-family:Arial,sans-serif;font-size:6px;color:#aaaaaa;border-top:1px solid #f0f0f0;">${note}</td></tr>`;
                     }
 
                     html += `</table></td>`;
@@ -1415,27 +1416,27 @@ td {font-family:Arial,sans-serif;}
 
         // Divider
         if(idx < 2){
-            html += `<tr><td style="padding:4px 24px;"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td height="1" style="background-color:#eeeeee;font-size:1px;line-height:1px;">&nbsp;</td></tr></table></td></tr>`;
+            html += `<tr><td style="padding:2px 24px;"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td height="1" style="background-color:#eeeeee;font-size:1px;line-height:1px;">&nbsp;</td></tr></table></td></tr>`;
         }
     });
 
     // CTA — compact
-    html += `<tr><td align="center" style="padding:10px 24px 12px;text-align:center;">`;
+    html += `<tr><td align="center" style="padding:5px 24px 6px;text-align:center;">`;
     html += `<table border="0" cellpadding="0" cellspacing="0" align="center"><tr>`;
-    html += `<td bgcolor="#073015" align="center" style="background-color:#073015;padding:8px 24px;">`;
-    html += `<a href="tel:+15202819534" style="font-family:Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none;">Call Us &#8212; (520) 281-9534</a>`;
+    html += `<td bgcolor="#073015" align="center" style="background-color:#073015;padding:5px 20px;">`;
+    html += `<a href="tel:+15202819534" style="font-family:Arial,sans-serif;font-size:9px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none;">Call Us &#8212; (520) 281-9534</a>`;
     html += `</td></tr></table>`;
     html += `</td></tr>`;
 
     // Disclaimer — compact
-    html += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:8px 24px;border-top:1px solid #eeeeee;">`;
-    html += `<p style="font-family:Arial,sans-serif;font-size:8px;color:#aaaaaa;line-height:13px;margin:0;"><strong style="color:#999999;">Disclaimer:</strong> All prices FOB Nogales, AZ, informational only, subject to change. Contact your sales rep to confirm pricing and availability.</p>`;
+    html += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:4px 24px;border-top:1px solid #eeeeee;">`;
+    html += `<p style="font-family:Arial,sans-serif;font-size:7px;color:#aaaaaa;line-height:10px;margin:0;"><strong style="color:#999999;">Disclaimer:</strong> All prices FOB Nogales, AZ, informational only, subject to change. Contact your sales rep to confirm.</p>`;
     html += `</td></tr>`;
 
     // Footer — compact
-    html += `<tr><td bgcolor="#073015" align="center" style="background-color:#073015;padding:14px 24px;text-align:center;">`;
-    html += `<p style="font-family:Georgia,'Times New Roman',serif;font-size:12px;font-weight:bold;color:#c4a265;margin:0;">HM Distributors Inc.</p>`;
-    html += `<p style="font-family:Arial,sans-serif;font-size:9px;color:#8a9e8f;line-height:16px;margin:2px 0 0;">305 W. Produce Row &#183; Nogales, AZ 85621 &#183; (520) 281-9534 &#183; quotes@hmdistributors.com</p>`;
+    html += `<tr><td bgcolor="#073015" align="center" style="background-color:#073015;padding:8px 24px;text-align:center;">`;
+    html += `<p style="font-family:Georgia,'Times New Roman',serif;font-size:10px;font-weight:bold;color:#c4a265;margin:0;">HM Distributors Inc.</p>`;
+    html += `<p style="font-family:Arial,sans-serif;font-size:8px;color:#8a9e8f;line-height:12px;margin:2px 0 0;">305 W. Produce Row &#183; Nogales, AZ 85621 &#183; (520) 281-9534 &#183; quotes@hmdistributors.com</p>`;
     html += `</td></tr>`;
 
     html += `</table>`;

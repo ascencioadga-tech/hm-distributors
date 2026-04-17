@@ -738,8 +738,7 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
 
 const SUPABASE_URL = 'https://dhnvrjoyqiwxirrztxxy.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_1TjB34lwvUnUF9NJinUYew_UXrlZmh2';
-// Supabase currently disabled — running in localStorage-only mode
-const CLOUD_SYNC_ENABLED = false;
+const CLOUD_SYNC_ENABLED = true;
 const sb = CLOUD_SYNC_ENABLED ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let currentUserId = null;
@@ -749,8 +748,23 @@ const hmUser = JSON.parse(sessionStorage.getItem('hm_user') || 'null');
 if(!hmUser) window.location.href = 'login.html';
 if(hmUser) document.getElementById('topbarUser').textContent = hmUser.initials;
 
-function logout(){
+// Resolve Supabase session and load cloud data
+(async function checkSession(){
+    if(!sb) return;
+    const { data: { session } } = await sb.auth.getSession();
+    if(!session){
+        sessionStorage.removeItem('hm_user');
+        window.location.href = 'login.html';
+        return;
+    }
+    currentUserId = session.user.id;
+    await migrateLocalToCloud();
+    await Sync.loadAll();
+})();
+
+async function logout(){
     if(!confirm('Sign out?')) return;
+    if(sb) await sb.auth.signOut();
     sessionStorage.removeItem('hm_user');
     window.location.href = 'login.html';
 }

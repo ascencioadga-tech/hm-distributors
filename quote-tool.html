@@ -1434,44 +1434,58 @@ function previewQuote(){
         <div class="pdf-date">${getShortDate()}</div>
     </div>`;
 
-    // Brand sections
+    // Brand sections — skip empty rows and empty groups
     ['spv','wolf','mr'].forEach(brandKey => {
         const brand = brandMeta[brandKey];
         const products = productData[brandKey];
         const isDual = brandKey === 'spv';
+
+        // Build filtered group blocks
+        let brandHtml = '';
+        products.forEach(group => {
+            const note = group.subheader || group.header || '';
+            let rowsHtml = '';
+            group.sizes.forEach(size => {
+                const id = makeId(group.name, size);
+                if(isDual){
+                    const spvInp = document.getElementById('spv-' + id);
+                    const parisInp = document.getElementById('paris-' + id);
+                    const spvRaw = spvInp && spvInp.value ? spvInp.value : '';
+                    const parisRaw = parisInp && parisInp.value ? parisInp.value : '';
+                    if(!spvRaw && !parisRaw) return;
+                    const spvVal = spvRaw ? (spvRaw.match(/^\d/) ? `$${parseFloat(spvRaw).toFixed(2)}` : spvRaw) : '';
+                    const parisVal = parisRaw ? (parisRaw.match(/^\d/) ? `$${parseFloat(parisRaw).toFixed(2)}` : parisRaw) : '';
+                    rowsHtml += `<tr><td>${size}</td>${spvVal ? `<td>${spvVal}</td>` : '<td class="no-price">\u2014</td>'}${parisVal ? `<td>${parisVal}</td>` : '<td class="no-price">\u2014</td>'}</tr>`;
+                } else {
+                    const inp = document.getElementById(id);
+                    const raw = inp && inp.value ? inp.value : '';
+                    if(!raw) return;
+                    const val = raw.match(/^\d/) ? `$${parseFloat(raw).toFixed(2)}` : raw;
+                    rowsHtml += `<tr><td>${size}</td><td>${val}</td></tr>`;
+                }
+            });
+
+            if(!rowsHtml) return; // skip empty group
+
+            if(isDual){
+                brandHtml += `<table class="pdf-table">
+                    <caption class="${group.capClass}">${group.name}</caption>
+                    <thead><tr><th>Size</th><th>SPV</th><th>Paris</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+            } else {
+                brandHtml += `<table class="pdf-table">
+                    <caption class="${group.capClass}">${group.name}</caption>
+                    <thead><tr><th>Size</th><th>Price</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+            }
+            if(note) brandHtml += `<div class="pdf-table-note">${note}</div>`;
+        });
+
+        if(!brandHtml) return; // skip empty brand
+
         html += `<div class="pdf-brand">
             <div class="pdf-brand-header">
                 <img src="${brand.logo}" alt="${brand.name}">
                 <h2>${brand.name}</h2>
-            </div>`;
-        products.forEach(group => {
-            const note = group.subheader || group.header || '';
-            if(isDual){
-                html += `<table class="pdf-table">
-                    <caption class="${group.capClass}">${group.name}</caption>
-                    <thead><tr><th>Size</th><th>SPV</th><th>Paris</th></tr></thead><tbody>`;
-                group.sizes.forEach(size => {
-                    const id = makeId(group.name, size);
-                    const spvInp = document.getElementById('spv-' + id);
-                    const parisInp = document.getElementById('paris-' + id);
-                    const spvVal = spvInp && spvInp.value ? (spvInp.value.match(/^\d/) ? `$${parseFloat(spvInp.value).toFixed(2)}` : spvInp.value) : '';
-                    const parisVal = parisInp && parisInp.value ? (parisInp.value.match(/^\d/) ? `$${parseFloat(parisInp.value).toFixed(2)}` : parisInp.value) : '';
-                    html += `<tr><td>${size}</td>${spvVal ? `<td>${spvVal}</td>` : '<td class="no-price">\u2014</td>'}${parisVal ? `<td>${parisVal}</td>` : '<td class="no-price">\u2014</td>'}</tr>`;
-                });
-            } else {
-                html += `<table class="pdf-table">
-                    <caption class="${group.capClass}">${group.name}</caption>
-                    <thead><tr><th>Size</th><th>Price</th></tr></thead><tbody>`;
-                group.sizes.forEach(size => {
-                    const inp = document.getElementById(makeId(group.name, size));
-                    const val = inp && inp.value ? (inp.value.match(/^\d/) ? `$${parseFloat(inp.value).toFixed(2)}` : inp.value) : '';
-                    html += `<tr><td>${size}</td>${val ? `<td>${val}</td>` : '<td class="no-price">\u2014</td>'}</tr>`;
-                });
-            }
-            html += `</tbody></table>`;
-            if(note) html += `<div class="pdf-table-note">${note}</div>`;
-        });
-        html += `</div>`;
+            </div>${brandHtml}</div>`;
     });
 
     // Disclaimer
@@ -1627,42 +1641,60 @@ function refreshEmailPreview(){
         Good morning, <strong>${recipientName}</strong>.<br><br>
         Here are today's prices for <strong>${getDateStr()}</strong>. All prices are FOB Nogales, AZ. Availability is subject to change — please call to confirm your order.</div>`;
 
-    // Brand sections
-    ['spv','wolf','mr'].forEach((brandKey, idx) => {
+    // Brand sections — only show products/sizes that have values
+    const brandOrder = ['spv','wolf','mr'];
+    const renderedBrands = [];
+    brandOrder.forEach((brandKey) => {
         const brand = brandMeta[brandKey];
         const products = productData[brandKey];
         const isDual = brandKey === 'spv';
-        html += `<div class="eml-brand-section"><div class="eml-brand-header"><img src="${brand.logo}" alt="${brand.name}"><h2>${brand.name}</h2></div>`;
-        html += `<div class="eml-products-grid">`;
+
+        // Build groups HTML, skipping empty rows and empty groups
+        let groupsHtml = '';
         products.forEach(group => {
             const note = group.subheader || group.header || '';
-            html += `<div class="eml-product-group">`;
-            html += `<div class="eml-product-label ${group.capClass}"><span class="eml-dot"></span>${group.name}</div>`;
-            if(isDual){
-                html += `<table class="eml-table"><thead><tr><th>Size</th><th>SPV</th><th>Paris</th></tr></thead><tbody>`;
-                group.sizes.forEach(size => {
-                    const id = makeId(group.name, size);
+            let rowsHtml = '';
+            group.sizes.forEach(size => {
+                const id = makeId(group.name, size);
+                if(isDual){
                     const spvInp = document.getElementById('spv-' + id);
                     const parisInp = document.getElementById('paris-' + id);
-                    const spvVal = spvInp && spvInp.value ? (spvInp.value.match(/^\d/) ? `$${parseFloat(spvInp.value).toFixed(2)}` : spvInp.value) : '';
-                    const parisVal = parisInp && parisInp.value ? (parisInp.value.match(/^\d/) ? `$${parseFloat(parisInp.value).toFixed(2)}` : parisInp.value) : '';
-                    html += `<tr><td>${size}</td>${spvVal ? `<td>${spvVal}</td>` : '<td class="no-price">\u2014</td>'}${parisVal ? `<td>${parisVal}</td>` : '<td class="no-price">\u2014</td>'}</tr>`;
-                });
-            } else {
-                html += `<table class="eml-table"><thead><tr><th>Size</th><th>Price</th></tr></thead><tbody>`;
-                group.sizes.forEach(size => {
-                    const id = makeId(group.name, size);
+                    const spvRaw = spvInp && spvInp.value ? spvInp.value : '';
+                    const parisRaw = parisInp && parisInp.value ? parisInp.value : '';
+                    if(!spvRaw && !parisRaw) return; // skip empty row
+                    const spvVal = spvRaw ? (spvRaw.match(/^\d/) ? `$${parseFloat(spvRaw).toFixed(2)}` : spvRaw) : '';
+                    const parisVal = parisRaw ? (parisRaw.match(/^\d/) ? `$${parseFloat(parisRaw).toFixed(2)}` : parisRaw) : '';
+                    rowsHtml += `<tr><td>${size}</td>${spvVal ? `<td>${spvVal}</td>` : '<td class="no-price">\u2014</td>'}${parisVal ? `<td>${parisVal}</td>` : '<td class="no-price">\u2014</td>'}</tr>`;
+                } else {
                     const inp = document.getElementById(id);
-                    const val = inp && inp.value ? (inp.value.match(/^\d/) ? `$${parseFloat(inp.value).toFixed(2)}` : inp.value) : '';
-                    html += `<tr><td>${size}</td>${val ? `<td>${val}</td>` : '<td class="no-price">\u2014</td>'}</tr>`;
-                });
+                    const raw = inp && inp.value ? inp.value : '';
+                    if(!raw) return; // skip empty row
+                    const val = raw.match(/^\d/) ? `$${parseFloat(raw).toFixed(2)}` : raw;
+                    rowsHtml += `<tr><td>${size}</td><td>${val}</td></tr>`;
+                }
+            });
+
+            if(!rowsHtml) return; // skip group with no rows
+
+            groupsHtml += `<div class="eml-product-group">`;
+            groupsHtml += `<div class="eml-product-label ${group.capClass}"><span class="eml-dot"></span>${group.name}</div>`;
+            if(isDual){
+                groupsHtml += `<table class="eml-table"><thead><tr><th>Size</th><th>SPV</th><th>Paris</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+            } else {
+                groupsHtml += `<table class="eml-table"><thead><tr><th>Size</th><th>Price</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
             }
-            html += `</tbody></table>`;
-            if(note) html += `<div class="eml-table-note">${note}</div>`;
-            html += `</div>`;
+            if(note) groupsHtml += `<div class="eml-table-note">${note}</div>`;
+            groupsHtml += `</div>`;
         });
-        html += `</div></div>`;
-        if(idx < 2) html += `<div class="eml-section-divider"></div>`;
+
+        if(!groupsHtml) return; // skip brand with no filled products
+
+        renderedBrands.push(`<div class="eml-brand-section"><div class="eml-brand-header"><img src="${brand.logo}" alt="${brand.name}"><h2>${brand.name}</h2></div><div class="eml-products-grid">${groupsHtml}</div></div>`);
+    });
+
+    renderedBrands.forEach((section, idx) => {
+        html += section;
+        if(idx < renderedBrands.length - 1) html += `<div class="eml-section-divider"></div>`;
     });
 
     // CTA
@@ -1729,110 +1761,133 @@ td {font-family:Arial,sans-serif;}
     html += `<p style="margin:0;">Good morning, <strong style="color:#073015;">${recipientName}</strong>. Today&#8217;s prices for <strong style="color:#073015;">${getDateStr()}</strong>. All prices FOB Nogales, AZ. Call to confirm.</p>`;
     html += `</td></tr>`;
 
-    // Brand sections
-    ['spv','wolf','mr'].forEach((brandKey, idx) => {
+    // Brand sections — only show products/sizes that have values
+    const renderedBrandSections = [];
+    ['spv','wolf','mr'].forEach((brandKey) => {
         const brand = brandMeta[brandKey];
         const products = productData[brandKey];
         const isDual = brandKey === 'spv';
 
-        // Brand header — compact
-        html += `<tr><td style="padding:5px 24px 2px;">`;
-        html += `<table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#faf9f6" style="background-color:#faf9f6;border-left:3px solid #c4a265;">`;
-        html += `<tr><td style="padding:3px 10px;">`;
-        html += `<table border="0" cellpadding="0" cellspacing="0"><tr>`;
-        html += `<td valign="middle" style="padding-right:8px;"><img src="${baseUrl}/${brand.logo}" alt="${brand.name}" height="18" style="height:18px;width:auto;display:block;" /></td>`;
-        html += `<td valign="middle" style="font-family:Georgia,'Times New Roman',serif;font-size:11px;font-weight:bold;color:#073015;">${brand.name}</td>`;
-        html += `</tr></table></td></tr></table>`;
+        // Build filtered groups: only include sizes with values, skip empty groups
+        const filledGroups = [];
+        products.forEach(group => {
+            const filledRows = [];
+            group.sizes.forEach(size => {
+                const id = makeId(group.name, size);
+                if(isDual){
+                    const spvInp = document.getElementById('spv-' + id);
+                    const parisInp = document.getElementById('paris-' + id);
+                    const spvRaw = spvInp && spvInp.value ? spvInp.value : '';
+                    const parisRaw = parisInp && parisInp.value ? parisInp.value : '';
+                    if(!spvRaw && !parisRaw) return;
+                    const spvVal = spvRaw ? (spvRaw.match(/^\d/) ? `$${parseFloat(spvRaw).toFixed(2)}` : spvRaw) : '';
+                    const parisVal = parisRaw ? (parisRaw.match(/^\d/) ? `$${parseFloat(parisRaw).toFixed(2)}` : parisRaw) : '';
+                    filledRows.push({ size, spvVal, parisVal });
+                } else {
+                    const inp = document.getElementById(id);
+                    const raw = inp && inp.value ? inp.value : '';
+                    if(!raw) return;
+                    const val = raw.match(/^\d/) ? `$${parseFloat(raw).toFixed(2)}` : raw;
+                    filledRows.push({ size, val });
+                }
+            });
+            if(filledRows.length > 0){
+                filledGroups.push({ group, filledRows });
+            }
+        });
 
-        // Products grid
+        if(filledGroups.length === 0) return; // skip entire brand
+
+        let brandHtml = '';
+
+        // Brand header
+        brandHtml += `<tr><td style="padding:5px 24px 2px;">`;
+        brandHtml += `<table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#faf9f6" style="background-color:#faf9f6;border-left:3px solid #c4a265;">`;
+        brandHtml += `<tr><td style="padding:3px 10px;">`;
+        brandHtml += `<table border="0" cellpadding="0" cellspacing="0"><tr>`;
+        brandHtml += `<td valign="middle" style="padding-right:8px;"><img src="${baseUrl}/${brand.logo}" alt="${brand.name}" height="18" style="height:18px;width:auto;display:block;" /></td>`;
+        brandHtml += `<td valign="middle" style="font-family:Georgia,'Times New Roman',serif;font-size:11px;font-weight:bold;color:#073015;">${brand.name}</td>`;
+        brandHtml += `</tr></table></td></tr></table>`;
+
+        // Products grid — only filled groups
         const cols = 3;
-        for(let row = 0; row < Math.ceil(products.length / cols); row++){
-            html += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top:3px;"><tr>`;
+        for(let row = 0; row < Math.ceil(filledGroups.length / cols); row++){
+            brandHtml += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top:3px;"><tr>`;
             for(let col = 0; col < cols; col++){
                 const gi = row * cols + col;
-                if(gi < products.length){
-                    const group = products[gi];
+                if(gi < filledGroups.length){
+                    const { group, filledRows } = filledGroups[gi];
                     const capColor = capColors[group.capClass] || '#073015';
                     const note = group.subheader || group.header || '';
                     const cellWidth = Math.floor(100 / cols);
 
-                    html += `<td valign="top" width="${cellWidth}%" style="padding:${col > 0 ? '0 0 0 4px' : '0 4px 0 0'};">`;
-                    html += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #dddddd;">`;
+                    brandHtml += `<td valign="top" width="${cellWidth}%" style="padding:${col > 0 ? '0 0 0 4px' : '0 4px 0 0'};">`;
+                    brandHtml += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #dddddd;">`;
 
                     // Product label
-                    html += `<tr><td bgcolor="${capColor}" style="background-color:${capColor};padding:2px 5px;font-family:Arial,sans-serif;font-size:7px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#ffffff;">`;
-                    html += `${group.name}</td></tr>`;
+                    brandHtml += `<tr><td bgcolor="${capColor}" style="background-color:${capColor};padding:2px 5px;font-family:Arial,sans-serif;font-size:7px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#ffffff;">`;
+                    brandHtml += `${group.name}</td></tr>`;
 
-                    // Header row
-                    html += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:0;">`;
-                    html += `<table border="0" cellpadding="0" cellspacing="0" width="100%">`;
+                    // Header row + rows
+                    brandHtml += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:0;">`;
+                    brandHtml += `<table border="0" cellpadding="0" cellspacing="0" width="100%">`;
                     if(isDual){
-                        html += `<tr>`;
-                        html += `<td width="40%" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Size</td>`;
-                        html += `<td width="30%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">SPV</td>`;
-                        html += `<td width="30%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Paris</td>`;
-                        html += `</tr>`;
+                        brandHtml += `<tr>`;
+                        brandHtml += `<td width="40%" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Size</td>`;
+                        brandHtml += `<td width="30%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">SPV</td>`;
+                        brandHtml += `<td width="30%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Paris</td>`;
+                        brandHtml += `</tr>`;
                     } else {
-                        html += `<tr>`;
-                        html += `<td width="60%" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Size</td>`;
-                        html += `<td width="40%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Price</td>`;
-                        html += `</tr>`;
+                        brandHtml += `<tr>`;
+                        brandHtml += `<td width="60%" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Size</td>`;
+                        brandHtml += `<td width="40%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Price</td>`;
+                        brandHtml += `</tr>`;
                     }
 
-                    // Data rows
-                    group.sizes.forEach((size, si) => {
-                        const id = makeId(group.name, size);
-                        const isLast = si === group.sizes.length - 1;
+                    filledRows.forEach((r, si) => {
+                        const isLast = si === filledRows.length - 1;
                         const bb = isLast ? '' : 'border-bottom:1px solid #f0f0f0;';
-
-                        html += `<tr>`;
-                        html += `<td style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#333333;">${size}</td>`;
-
+                        brandHtml += `<tr>`;
+                        brandHtml += `<td style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#333333;">${r.size}</td>`;
                         if(isDual){
-                            const spvInp = document.getElementById('spv-' + id);
-                            const parisInp = document.getElementById('paris-' + id);
-                            const spvVal = spvInp && spvInp.value ? (spvInp.value.match(/^\d/) ? `$${parseFloat(spvInp.value).toFixed(2)}` : spvInp.value) : '';
-                            const parisVal = parisInp && parisInp.value ? (parisInp.value.match(/^\d/) ? `$${parseFloat(parisInp.value).toFixed(2)}` : parisInp.value) : '';
-                            if(spvVal){
-                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${spvVal}</td>`;
+                            if(r.spvVal){
+                                brandHtml += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${r.spvVal}</td>`;
                             } else {
-                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#d4d4d4;">&#8212;</td>`;
+                                brandHtml += `<td align="right" style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#d4d4d4;">&#8212;</td>`;
                             }
-                            if(parisVal){
-                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${parisVal}</td>`;
+                            if(r.parisVal){
+                                brandHtml += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${r.parisVal}</td>`;
                             } else {
-                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#d4d4d4;">&#8212;</td>`;
+                                brandHtml += `<td align="right" style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#d4d4d4;">&#8212;</td>`;
                             }
                         } else {
-                            const inp = document.getElementById(id);
-                            const val = inp && inp.value ? (inp.value.match(/^\d/) ? `$${parseFloat(inp.value).toFixed(2)}` : inp.value) : '';
-                            if(val){
-                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${val}</td>`;
-                            } else {
-                                html += `<td align="right" style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#d4d4d4;">&#8212;</td>`;
-                            }
+                            brandHtml += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${r.val}</td>`;
                         }
-                        html += `</tr>`;
+                        brandHtml += `</tr>`;
                     });
 
-                    html += `</table></td></tr>`;
+                    brandHtml += `</table></td></tr>`;
 
                     if(note){
-                        html += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:1px 5px 2px;font-family:Arial,sans-serif;font-size:6px;color:#aaaaaa;border-top:1px solid #f0f0f0;">${note}</td></tr>`;
+                        brandHtml += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:1px 5px 2px;font-family:Arial,sans-serif;font-size:6px;color:#aaaaaa;border-top:1px solid #f0f0f0;">${note}</td></tr>`;
                     }
 
-                    html += `</table></td>`;
+                    brandHtml += `</table></td>`;
                 } else {
-                    html += `<td valign="top" width="${Math.floor(100/cols)}%"></td>`;
+                    brandHtml += `<td valign="top" width="${Math.floor(100/cols)}%"></td>`;
                 }
             }
-            html += `</tr></table>`;
+            brandHtml += `</tr></table>`;
         }
 
-        html += `</td></tr>`;
+        brandHtml += `</td></tr>`;
+        renderedBrandSections.push(brandHtml);
+    });
 
-        // Divider
-        if(idx < 2){
+    // Output brand sections with dividers only between them
+    renderedBrandSections.forEach((section, idx) => {
+        html += section;
+        if(idx < renderedBrandSections.length - 1){
             html += `<tr><td style="padding:2px 24px;"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td height="1" style="background-color:#eeeeee;font-size:1px;line-height:1px;">&nbsp;</td></tr></table></td></tr>`;
         }
     });

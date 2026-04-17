@@ -139,8 +139,8 @@
         @keyframes panelIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
         .product-showcase{display:grid;grid-template-columns:1fr 1fr;gap:0;background:#faf9f6;border-radius:28px;overflow:hidden;min-height:520px;border:1px solid rgba(0,0,0,.04);box-shadow:0 20px 80px rgba(0,0,0,.05)}
-        .showcase-image{position:relative;overflow:hidden;background:#fff}
-        .showcase-image img{width:100%;height:100%;object-fit:contain;padding:56px;transition:opacity .5s cubic-bezier(.16,1,.3,1),transform 6s cubic-bezier(.16,1,.3,1);will-change:transform}
+        .showcase-image{position:relative;overflow:hidden;background:#faf9f6;min-height:520px}
+        .showcase-image img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:opacity .5s cubic-bezier(.16,1,.3,1),transform 6s cubic-bezier(.16,1,.3,1);will-change:transform}
         .showcase-image img.ken-burns{transform:scale(1.08)}
         .showcase-image::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 70%,rgba(0,0,0,.04) 100%);pointer-events:none}
         .showcase-season-badge{position:absolute;top:28px;left:28px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);padding:10px 22px;border-radius:50px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:#073015;z-index:2;display:flex;align-items:center;gap:8px}
@@ -170,8 +170,8 @@
         .product-thumb{flex:0 0 auto;width:160px;background:#fff;border-radius:18px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .4s cubic-bezier(.16,1,.3,1);box-shadow:0 4px 16px rgba(0,0,0,.04)}
         .product-thumb.active{border-color:#073015;box-shadow:0 8px 28px rgba(7,48,21,.12)}
         .product-thumb:not(.active):hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.08)}
-        .product-thumb-img{height:100px;overflow:hidden;background:#fff}
-        .product-thumb-img img{width:100%;height:100%;object-fit:contain;padding:12px;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+        .product-thumb-img{height:110px;overflow:hidden;background:#faf9f6}
+        .product-thumb-img img{width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .5s cubic-bezier(.16,1,.3,1)}
         .product-thumb:hover .product-thumb-img img{transform:scale(1.08)}
         .product-thumb-info{padding:12px 14px}
         .product-thumb-name{font-size:.72rem;font-weight:700;color:#073015;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

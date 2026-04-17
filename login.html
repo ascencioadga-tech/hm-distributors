@@ -477,10 +477,17 @@ const SUPABASE_URL = 'https://dhnvrjoyqiwxirrztxxy.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_1TjB34lwvUnUF9NJinUYew_UXrlZmh2';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// If already logged in, redirect
+// If already logged in with a valid session, redirect
 (async function(){
-    const { data: { session } } = await sb.auth.getSession();
-    if(session) window.location.href = 'quote-tool.html';
+    try {
+        const { data: { session }, error } = await sb.auth.getSession();
+        if(error){ console.warn('Session check error:', error); return; }
+        if(session && session.user){
+            window.location.href = 'quote-tool.html';
+        }
+    } catch(e){
+        console.warn('Session check failed:', e);
+    }
 })();
 
 function togglePassword(){

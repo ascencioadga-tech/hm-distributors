@@ -4,3 +4,17 @@ server.py
 node_modules/
 *.mov
 Green Bell Pepper Hero.mov
+# Large image source files (compressed versions are committed)
+egg plant.jpg
+roma tomato.jpg
+green bell pepper.jpg
+red bell pepper.jpg
+yellow bell pepper.jpg
+orange bell pepper.jpg
+green beans.jpg
+jalapeno copy.jpg
+serrano pepper.jpg
+poblano pepper.jpg
+caribe copy.jpg
+anaheim pepper.jpg
+tomatillo copy.jpg

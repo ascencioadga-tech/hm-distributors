@@ -738,7 +738,9 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
 
 const SUPABASE_URL = 'https://dhnvrjoyqiwxirrztxxy.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_1TjB34lwvUnUF9NJinUYew_UXrlZmh2';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Supabase currently disabled — running in localStorage-only mode
+const CLOUD_SYNC_ENABLED = false;
+const sb = CLOUD_SYNC_ENABLED ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let currentUserId = null;
 
@@ -747,24 +749,8 @@ const hmUser = JSON.parse(sessionStorage.getItem('hm_user') || 'null');
 if(!hmUser) window.location.href = 'login.html';
 if(hmUser) document.getElementById('topbarUser').textContent = hmUser.initials;
 
-// Resolve Supabase session
-(async function checkSession(){
-    const { data: { session } } = await sb.auth.getSession();
-    if(!session){
-        sessionStorage.removeItem('hm_user');
-        window.location.href = 'login.html';
-        return;
-    }
-    currentUserId = session.user.id;
-
-    // Run one-time migration then load cloud data
-    await migrateLocalToCloud();
-    await Sync.loadAll();
-})();
-
-async function logout(){
+function logout(){
     if(!confirm('Sign out?')) return;
-    await sb.auth.signOut();
     sessionStorage.removeItem('hm_user');
     window.location.href = 'login.html';
 }
@@ -1895,11 +1881,9 @@ async function sendEmails(){
     }
 
     try {
-        const { data: { session: authSession } } = await sb.auth.getSession();
-        const authToken = authSession?.access_token || '';
         const res = await fetch('/.netlify/functions/send-quote', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 recipients: selected.map(c => ({ name: c.name, email: c.email })),
                 subject: subject,

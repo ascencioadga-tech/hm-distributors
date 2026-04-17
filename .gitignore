@@ -2,3 +2,5 @@
 server.py
 .claude/
 node_modules/
+*.mov
+Green Bell Pepper Hero.mov

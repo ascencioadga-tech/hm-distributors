@@ -730,21 +730,47 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
 <!-- TOAST -->
 <div class="toast" id="toast"><span class="toast-icon"></span><span class="toast-msg"></span></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// ── Auth Check ──
+// ══════════════════════════════════════════
+//  SUPABASE INIT & AUTH
+// ══════════════════════════════════════════
+
+const SUPABASE_URL = 'https://dhnvrjoyqiwxirrztxxy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_1TjB34lwvUnUF9NJinUYew_UXrlZmh2';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUserId = null;
+
+// Auth check — redirect if not logged in
 const hmUser = JSON.parse(sessionStorage.getItem('hm_user') || 'null');
 if(!hmUser) window.location.href = 'login.html';
 if(hmUser) document.getElementById('topbarUser').textContent = hmUser.initials;
 
-function logout(){
-    if(confirm('Sign out?')){
+// Resolve Supabase session
+(async function checkSession(){
+    const { data: { session } } = await sb.auth.getSession();
+    if(!session){
         sessionStorage.removeItem('hm_user');
         window.location.href = 'login.html';
+        return;
     }
+    currentUserId = session.user.id;
+
+    // Run one-time migration then load cloud data
+    await migrateLocalToCloud();
+    await Sync.loadAll();
+})();
+
+async function logout(){
+    if(!confirm('Sign out?')) return;
+    await sb.auth.signOut();
+    sessionStorage.removeItem('hm_user');
+    window.location.href = 'login.html';
 }
 
 // ══════════════════════════════════════════
-//  LOCAL STORAGE PERSISTENCE LAYER
+//  LOCAL STORAGE (offline fallback)
 // ══════════════════════════════════════════
 
 const STORAGE_KEYS = {
@@ -762,6 +788,411 @@ function saveToStorage(key, data){
 
 function loadFromStorage(key){
     try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : null; } catch(e){ return null; }
+}
+
+// ══════════════════════════════════════════
+//  SYNC MANAGER — Supabase + localStorage
+// ══════════════════════════════════════════
+
+const Sync = {
+    // ── Recipients ──
+    async saveRecipients(){
+        saveToStorage(STORAGE_KEYS.clients, clients);
+        if(!currentUserId) return;
+        try {
+            // Delete all then re-insert (simple full-replace sync)
+            await sb.from('recipients').delete().eq('user_id', currentUserId);
+            if(clients.length > 0){
+                const rows = clients.map(c => ({
+                    user_id: currentUserId,
+                    name: c.name,
+                    company: c.company || '',
+                    email: c.email,
+                    selected: c.selected
+                }));
+                await sb.from('recipients').insert(rows);
+            }
+        } catch(e){ console.warn('Sync recipients failed:', e); }
+    },
+
+    async loadRecipients(){
+        if(!currentUserId) return;
+        try {
+            const { data, error } = await sb.from('recipients').select('*').eq('user_id', currentUserId);
+            if(!error && data){
+                clients.length = 0;
+                data.forEach(r => clients.push({ name: r.name, company: r.company, email: r.email, selected: r.selected }));
+                saveToStorage(STORAGE_KEYS.clients, clients);
+                renderRecipients();
+            }
+        } catch(e){ console.warn('Load recipients failed:', e); }
+    },
+
+    // ── Products ──
+    async saveProducts(){
+        saveToStorage(STORAGE_KEYS.products, productData);
+        if(!currentUserId) return;
+        try {
+            await sb.from('products').delete().eq('user_id', currentUserId);
+            const rows = [];
+            ['spv','wolf','mr'].forEach(brandKey => {
+                (productData[brandKey] || []).forEach((p, idx) => {
+                    rows.push({
+                        user_id: currentUserId,
+                        brand_key: brandKey,
+                        name: p.name,
+                        theme: p.theme,
+                        cap_class: p.capClass,
+                        header: p.header || '',
+                        subheader: p.subheader || '',
+                        sizes: p.sizes,
+                        sort_order: idx
+                    });
+                });
+            });
+            if(rows.length > 0) await sb.from('products').insert(rows);
+        } catch(e){ console.warn('Sync products failed:', e); }
+    },
+
+    async loadProducts(){
+        if(!currentUserId) return;
+        try {
+            const { data, error } = await sb.from('products').select('*')
+                .eq('user_id', currentUserId).order('sort_order');
+            if(!error && data && data.length > 0){
+                productData.spv = [];
+                productData.wolf = [];
+                productData.mr = [];
+                data.forEach(p => {
+                    const group = {
+                        name: p.name,
+                        theme: p.theme,
+                        capClass: p.cap_class,
+                        sizes: p.sizes
+                    };
+                    if(p.header) group.header = p.header;
+                    if(p.subheader) group.subheader = p.subheader;
+                    if(productData[p.brand_key]) productData[p.brand_key].push(group);
+                });
+                saveToStorage(STORAGE_KEYS.products, productData);
+                rebuildQuoteView();
+                renderProductsList();
+            }
+        } catch(e){ console.warn('Load products failed:', e); }
+    },
+
+    // ── Draft ──
+    async saveDraft(data){
+        saveToStorage(STORAGE_KEYS.draft, data);
+        if(!currentUserId) return;
+        try {
+            await sb.from('current_draft').upsert({
+                user_id: currentUserId,
+                data: data,
+                updated_at: new Date().toISOString()
+            });
+        } catch(e){ console.warn('Sync draft failed:', e); }
+    },
+
+    async loadDraft(){
+        if(!currentUserId) return null;
+        try {
+            const { data, error } = await sb.from('current_draft').select('data')
+                .eq('user_id', currentUserId).single();
+            if(!error && data){
+                saveToStorage(STORAGE_KEYS.draft, data.data);
+                return data.data;
+            }
+        } catch(e){ console.warn('Load draft failed:', e); }
+        return loadFromStorage(STORAGE_KEYS.draft);
+    },
+
+    async deleteDraft(){
+        localStorage.removeItem(STORAGE_KEYS.draft);
+        if(!currentUserId) return;
+        try {
+            await sb.from('current_draft').delete().eq('user_id', currentUserId);
+        } catch(e){ console.warn('Delete draft failed:', e); }
+    },
+
+    // ── Last Sent ──
+    async saveLastSent(data){
+        saveToStorage(STORAGE_KEYS.lastSent, data);
+        if(!currentUserId) return;
+        try {
+            await sb.from('last_sent').upsert({
+                user_id: currentUserId,
+                data: data,
+                sent_at: new Date().toISOString()
+            });
+        } catch(e){ console.warn('Sync last_sent failed:', e); }
+    },
+
+    async loadLastSent(){
+        if(!currentUserId) return loadFromStorage(STORAGE_KEYS.lastSent);
+        try {
+            const { data, error } = await sb.from('last_sent').select('data')
+                .eq('user_id', currentUserId).single();
+            if(!error && data) return data.data;
+        } catch(e){ console.warn('Load last_sent failed:', e); }
+        return loadFromStorage(STORAGE_KEYS.lastSent);
+    },
+
+    // ── History (Quotes) ──
+    async saveQuote(entry){
+        const history = loadFromStorage(STORAGE_KEYS.history) || [];
+        // Update local
+        const todayStr = entry.date;
+        if(entry.type === 'draft'){
+            const existingIdx = history.findIndex(h => h.date === todayStr && h.type === 'draft');
+            if(existingIdx >= 0) history[existingIdx] = entry;
+            else history.unshift(entry);
+        } else {
+            const draftIdx = history.findIndex(h => h.date === todayStr && h.type === 'draft');
+            if(draftIdx >= 0) history.splice(draftIdx, 1);
+            history.unshift(entry);
+        }
+        if(history.length > 90) history.length = 90;
+        saveToStorage(STORAGE_KEYS.history, history);
+
+        // Sync to cloud
+        if(!currentUserId) return;
+        try {
+            if(entry.type === 'sent'){
+                // Remove today's draft from cloud
+                await sb.from('quotes').delete()
+                    .eq('user_id', currentUserId)
+                    .eq('date_label', todayStr)
+                    .eq('type', 'draft');
+            }
+
+            // Check if cloud draft exists for today
+            if(entry.type === 'draft'){
+                const { data: existing } = await sb.from('quotes').select('id')
+                    .eq('user_id', currentUserId)
+                    .eq('date_label', todayStr)
+                    .eq('type', 'draft')
+                    .single();
+                if(existing){
+                    await sb.from('quotes').update({
+                        price_count: entry.priceCount || 0,
+                        total_products: entry.totalProducts || 0,
+                        recipient_count: entry.recipientCount || 0,
+                        recipient_names: entry.recipients || [],
+                        data: entry.data || {}
+                    }).eq('id', existing.id);
+                    return;
+                }
+            }
+
+            await sb.from('quotes').insert({
+                user_id: currentUserId,
+                date_label: entry.date,
+                type: entry.type,
+                price_count: entry.priceCount || 0,
+                total_products: entry.totalProducts || 0,
+                recipient_count: entry.recipientCount || 0,
+                recipient_names: entry.recipients || [],
+                data: entry.data || {}
+            });
+        } catch(e){ console.warn('Sync quote failed:', e); }
+    },
+
+    async loadHistory(){
+        if(!currentUserId) return loadFromStorage(STORAGE_KEYS.history) || [];
+        try {
+            const { data, error } = await sb.from('quotes').select('*')
+                .eq('user_id', currentUserId)
+                .order('created_at', { ascending: false })
+                .limit(90);
+            if(!error && data){
+                const history = data.map(q => ({
+                    id: q.id,
+                    date: q.date_label,
+                    timestamp: new Date(q.created_at).getTime(),
+                    type: q.type,
+                    priceCount: q.price_count,
+                    totalProducts: q.total_products,
+                    recipientCount: q.recipient_count,
+                    recipients: q.recipient_names,
+                    data: q.data
+                }));
+                saveToStorage(STORAGE_KEYS.history, history);
+                return history;
+            }
+        } catch(e){ console.warn('Load history failed:', e); }
+        return loadFromStorage(STORAGE_KEYS.history) || [];
+    },
+
+    async deleteQuote(entry){
+        if(!currentUserId || !entry.id) return;
+        try {
+            await sb.from('quotes').delete().eq('id', entry.id).eq('user_id', currentUserId);
+        } catch(e){ console.warn('Delete quote failed:', e); }
+    },
+
+    async clearHistory(){
+        localStorage.removeItem(STORAGE_KEYS.history);
+        if(!currentUserId) return;
+        try {
+            await sb.from('quotes').delete().eq('user_id', currentUserId);
+        } catch(e){ console.warn('Clear history failed:', e); }
+    },
+
+    // ── Preferences ──
+    async savePrefs(prefs){
+        saveToStorage(STORAGE_KEYS.prefs, prefs);
+        if(!currentUserId) return;
+        try {
+            await sb.from('preferences').upsert({
+                user_id: currentUserId,
+                company: prefs.company,
+                subject: prefs.subject,
+                autosave: prefs.autosave,
+                fob: prefs.fob,
+                updated_at: new Date().toISOString()
+            });
+        } catch(e){ console.warn('Sync prefs failed:', e); }
+    },
+
+    async loadPrefs(){
+        if(!currentUserId) return loadFromStorage(STORAGE_KEYS.prefs) || {};
+        try {
+            const { data, error } = await sb.from('preferences').select('*')
+                .eq('user_id', currentUserId).single();
+            if(!error && data){
+                const prefs = { company: data.company, subject: data.subject, autosave: data.autosave, fob: data.fob };
+                saveToStorage(STORAGE_KEYS.prefs, prefs);
+                return prefs;
+            }
+        } catch(e){ console.warn('Load prefs failed:', e); }
+        return loadFromStorage(STORAGE_KEYS.prefs) || {};
+    },
+
+    async deletePrefs(){
+        localStorage.removeItem(STORAGE_KEYS.prefs);
+        if(!currentUserId) return;
+        try {
+            await sb.from('preferences').delete().eq('user_id', currentUserId);
+        } catch(e){ console.warn('Delete prefs failed:', e); }
+    },
+
+    // ── Load All (called after auth) ──
+    async loadAll(){
+        await Promise.all([
+            this.loadRecipients(),
+            this.loadProducts(),
+            this.loadPrefs()
+        ]);
+        // Load and restore draft
+        const draft = await this.loadDraft();
+        if(draft && draft.prices){
+            const filledCount = Object.values(draft.prices).filter(v => v).length;
+            if(filledCount > 0){
+                restoreFormData(draft);
+                showToast(svgIcons.save, `Draft restored (${filledCount} prices from ${draft.date || 'last session'})`);
+            }
+        }
+    }
+};
+
+// ── One-time migration from localStorage to Supabase ──
+async function migrateLocalToCloud(){
+    if(!currentUserId) return;
+    if(localStorage.getItem('hm_migrated')) return;
+
+    console.log('Migrating localStorage data to Supabase...');
+
+    try {
+        // Migrate recipients
+        const localClients = loadFromStorage(STORAGE_KEYS.clients);
+        if(localClients && localClients.length > 0){
+            const rows = localClients.map(c => ({
+                user_id: currentUserId,
+                name: c.name,
+                company: c.company || '',
+                email: c.email,
+                selected: c.selected !== false
+            }));
+            await sb.from('recipients').upsert(rows, { onConflict: 'user_id,email' });
+        }
+
+        // Migrate products
+        const localProducts = loadFromStorage(STORAGE_KEYS.products);
+        if(localProducts){
+            const rows = [];
+            ['spv','wolf','mr'].forEach(brandKey => {
+                (localProducts[brandKey] || []).forEach((p, idx) => {
+                    rows.push({
+                        user_id: currentUserId,
+                        brand_key: brandKey,
+                        name: p.name,
+                        theme: p.theme,
+                        cap_class: p.capClass,
+                        header: p.header || '',
+                        subheader: p.subheader || '',
+                        sizes: p.sizes,
+                        sort_order: idx
+                    });
+                });
+            });
+            if(rows.length > 0) await sb.from('products').insert(rows);
+        }
+
+        // Migrate draft
+        const localDraft = loadFromStorage(STORAGE_KEYS.draft);
+        if(localDraft){
+            await sb.from('current_draft').upsert({
+                user_id: currentUserId,
+                data: localDraft,
+                updated_at: new Date().toISOString()
+            });
+        }
+
+        // Migrate last sent
+        const localLastSent = loadFromStorage(STORAGE_KEYS.lastSent);
+        if(localLastSent){
+            await sb.from('last_sent').upsert({
+                user_id: currentUserId,
+                data: localLastSent,
+                sent_at: new Date().toISOString()
+            });
+        }
+
+        // Migrate history
+        const localHistory = loadFromStorage(STORAGE_KEYS.history);
+        if(localHistory && localHistory.length > 0){
+            const rows = localHistory.map(h => ({
+                user_id: currentUserId,
+                date_label: h.date,
+                type: h.type,
+                price_count: h.priceCount || 0,
+                total_products: h.totalProducts || 0,
+                recipient_count: h.recipientCount || 0,
+                recipient_names: h.recipients || [],
+                data: h.data || {}
+            }));
+            await sb.from('quotes').insert(rows);
+        }
+
+        // Migrate preferences
+        const localPrefs = loadFromStorage(STORAGE_KEYS.prefs);
+        if(localPrefs){
+            await sb.from('preferences').upsert({
+                user_id: currentUserId,
+                company: localPrefs.company || 'HM Distributors Inc.',
+                subject: localPrefs.subject || 'HM Distributors — Daily Quote Sheet',
+                autosave: localPrefs.autosave !== false,
+                fob: localPrefs.fob || 'Nogales, AZ',
+                updated_at: new Date().toISOString()
+            });
+        }
+
+        localStorage.setItem('hm_migrated', 'true');
+        console.log('Migration complete.');
+    } catch(e){
+        console.warn('Migration error (will retry next load):', e);
+    }
 }
 
 function gatherFormData(){
@@ -806,10 +1237,19 @@ function autoSaveDraft(){
     if(prefs && prefs.autosave === false) return;
     const data = gatherFormData();
     data.type = 'draft';
+    // Save locally immediately
     saveToStorage(STORAGE_KEYS.draft, data);
+    // Debounce cloud save to every 5 seconds
+    scheduleCloudDraftSave(data);
 }
 
-// Debounced auto-save
+let cloudDraftTimer = null;
+function scheduleCloudDraftSave(data){
+    clearTimeout(cloudDraftTimer);
+    cloudDraftTimer = setTimeout(() => { Sync.saveDraft(data); }, 5000);
+}
+
+// Debounced auto-save (local 1s)
 let autoSaveTimer = null;
 function scheduleAutoSave(){
     clearTimeout(autoSaveTimer);
@@ -856,7 +1296,7 @@ const defaultProductData = {
 const productData = loadFromStorage(STORAGE_KEYS.products) || JSON.parse(JSON.stringify(defaultProductData));
 
 function saveProducts(){
-    saveToStorage(STORAGE_KEYS.products, productData);
+    Sync.saveProducts();
 }
 
 const brandMeta = {
@@ -869,7 +1309,7 @@ const brandMeta = {
 const clients = loadFromStorage(STORAGE_KEYS.clients) || [];
 
 function saveClients(){
-    saveToStorage(STORAGE_KEYS.clients, clients);
+    Sync.saveRecipients();
 }
 
 let totalInputs = 0;
@@ -953,14 +1393,14 @@ function clearAll(){
     document.querySelectorAll('.price-input').forEach(inp => { inp.value = ''; inp.classList.remove('has-value'); });
     document.querySelectorAll('.number-input').forEach(inp => { inp.value = ''; inp.classList.remove('has-value'); });
     updateCount();
-    localStorage.removeItem(STORAGE_KEYS.draft);
+    Sync.deleteDraft();
     showToast(svgIcons.trash,'All prices cleared');
 }
 
-function loadLastPrices(){
+async function loadLastPrices(){
     // Try loading from last sent quote, then last draft
-    let data = loadFromStorage(STORAGE_KEYS.lastSent);
-    if(!data) data = loadFromStorage(STORAGE_KEYS.draft);
+    let data = await Sync.loadLastSent();
+    if(!data) data = await Sync.loadDraft();
     if(!data || !data.prices || Object.keys(data.prices).length === 0){
         showToast(svgIcons.alert, 'No previous prices found');
         return;
@@ -970,20 +1410,16 @@ function loadLastPrices(){
     showToast(svgIcons.clipboard, `Loaded prices from ${source} (${data.date || 'unknown date'})`);
 }
 
-function saveDraft(){
+async function saveDraft(){
     const data = gatherFormData();
     data.type = 'draft';
-    saveToStorage(STORAGE_KEYS.draft, data);
+    await Sync.saveDraft(data);
 
     // Also save to history
-    const history = loadFromStorage(STORAGE_KEYS.history) || [];
     const filledCount = Object.values(data.prices).filter(v => v).length;
     if(filledCount > 0){
-        // Check if there's already a draft for today — update it instead of adding new
-        const todayStr = data.date;
-        const existingIdx = history.findIndex(h => h.date === todayStr && h.type === 'draft');
         const entry = {
-            id: existingIdx >= 0 ? history[existingIdx].id : Date.now(),
+            id: Date.now(),
             date: data.date,
             timestamp: data.timestamp,
             type: 'draft',
@@ -991,12 +1427,7 @@ function saveDraft(){
             totalProducts: Object.keys(data.prices).length,
             data: data
         };
-        if(existingIdx >= 0){
-            history[existingIdx] = entry;
-        } else {
-            history.unshift(entry);
-        }
-        saveToStorage(STORAGE_KEYS.history, history);
+        await Sync.saveQuote(entry);
     }
 
     showToast(svgIcons.save,'Draft saved successfully');
@@ -1464,9 +1895,11 @@ async function sendEmails(){
     }
 
     try {
+        const { data: { session: authSession } } = await sb.auth.getSession();
+        const authToken = authSession?.access_token || '';
         const res = await fetch('/.netlify/functions/send-quote', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
             body: JSON.stringify({
                 recipients: selected.map(c => ({ name: c.name, email: c.email })),
                 subject: subject,
@@ -1481,14 +1914,10 @@ async function sendEmails(){
             const data = gatherFormData();
             data.type = 'sent';
             data.recipients = selected.map(c => ({ name: c.name, email: c.email }));
-            saveToStorage(STORAGE_KEYS.lastSent, data);
+            Sync.saveLastSent(data);
 
             // Save to history
-            const history = loadFromStorage(STORAGE_KEYS.history) || [];
-            const todayStr = data.date;
-            const draftIdx = history.findIndex(h => h.date === todayStr && h.type === 'draft');
-            if(draftIdx >= 0) history.splice(draftIdx, 1);
-            history.unshift({
+            const entry = {
                 id: Date.now(),
                 date: data.date,
                 timestamp: data.timestamp,
@@ -1498,10 +1927,9 @@ async function sendEmails(){
                 recipientCount: selected.length,
                 recipients: selected.map(c => c.name),
                 data: data
-            });
-            if(history.length > 90) history.length = 90;
-            saveToStorage(STORAGE_KEYS.history, history);
-            localStorage.removeItem(STORAGE_KEYS.draft);
+            };
+            Sync.saveQuote(entry);
+            Sync.deleteDraft();
 
             // Update UI
             const pill = document.getElementById('sentStatus');
@@ -1697,9 +2125,9 @@ function rebuildQuoteView(){
 //  QUOTE HISTORY
 // ══════════════════════════════════════════
 
-function renderHistory(filter){
+async function renderHistory(filter){
     const container = document.getElementById('historyList');
-    let history = loadFromStorage(STORAGE_KEYS.history) || [];
+    let history = await Sync.loadHistory();
 
     if(filter){
         const f = filter.toLowerCase();
@@ -1760,7 +2188,7 @@ function filterHistory(val){
     renderHistory(val);
 }
 
-function loadHistoryEntry(idx){
+async function loadHistoryEntry(idx){
     const history = loadFromStorage(STORAGE_KEYS.history) || [];
     const entry = history[idx];
     if(!entry || !entry.data) return;
@@ -1770,18 +2198,20 @@ function loadHistoryEntry(idx){
     showToast(svgIcons.clipboard, `Loaded quote from ${entry.date}`);
 }
 
-function deleteHistoryEntry(idx){
+async function deleteHistoryEntry(idx){
     const history = loadFromStorage(STORAGE_KEYS.history) || [];
     if(!confirm('Delete this history entry?')) return;
+    const entry = history[idx];
     history.splice(idx, 1);
     saveToStorage(STORAGE_KEYS.history, history);
+    if(entry) Sync.deleteQuote(entry);
     renderHistory();
     showToast(svgIcons.trash, 'History entry removed');
 }
 
-function clearHistory(){
+async function clearHistory(){
     if(!confirm('Clear all quote history? This cannot be undone.')) return;
-    localStorage.removeItem(STORAGE_KEYS.history);
+    await Sync.clearHistory();
     renderHistory();
     showToast(svgIcons.trash, 'History cleared');
 }
@@ -1790,8 +2220,8 @@ function clearHistory(){
 //  PRICE TRENDS
 // ══════════════════════════════════════════
 
-function renderTrends(){
-    const history = loadFromStorage(STORAGE_KEYS.history) || [];
+async function renderTrends(){
+    const history = await Sync.loadHistory();
     const sentHistory = history.filter(h => h.type === 'sent').slice(0, 30);
     const summaryEl = document.getElementById('trendSummary');
     const gridEl = document.getElementById('trendsGrid');
@@ -1871,8 +2301,8 @@ function renderTrends(){
 //  PREFERENCES
 // ══════════════════════════════════════════
 
-function loadPrefsUI(){
-    const prefs = loadFromStorage(STORAGE_KEYS.prefs) || {};
+async function loadPrefsUI(){
+    const prefs = await Sync.loadPrefs();
     const compEl = document.getElementById('prefCompany');
     const subjEl = document.getElementById('prefSubject');
     const autoEl = document.getElementById('prefAutosave');
@@ -1890,12 +2320,12 @@ function savePref(){
         autosave: document.getElementById('prefAutosave').checked,
         fob: document.getElementById('prefFob').value
     };
-    saveToStorage(STORAGE_KEYS.prefs, prefs);
+    Sync.savePrefs(prefs);
 }
 
-function resetPrefs(){
+async function resetPrefs(){
     if(!confirm('Reset all preferences to defaults?')) return;
-    localStorage.removeItem(STORAGE_KEYS.prefs);
+    await Sync.deletePrefs();
     document.getElementById('prefCompany').value = 'HM Distributors Inc.';
     document.getElementById('prefSubject').value = 'HM Distributors \u2014 Daily Quote Sheet';
     document.getElementById('prefAutosave').checked = true;
@@ -1909,14 +2339,14 @@ renderProducts();
 renderRecipients();
 renderProductsList();
 
-// Restore draft if one exists
+// Draft restore happens in Sync.loadAll() after auth resolves
+// Local fallback: restore from localStorage immediately (cloud overrides later)
 (function(){
     const draft = loadFromStorage(STORAGE_KEYS.draft);
     if(draft && draft.prices){
         const filledCount = Object.values(draft.prices).filter(v => v).length;
         if(filledCount > 0){
             restoreFormData(draft);
-            showToast(svgIcons.save, `Draft restored (${filledCount} prices from ${draft.date || 'last session'})`);
         }
     }
 })();

@@ -434,10 +434,10 @@ body{
 
     <form class="login-form" onsubmit="handleLogin(event)">
         <div class="form-group">
-            <label>Username</label>
+            <label>Email</label>
             <div class="input-wrap">
-                <input type="text" id="loginUser" placeholder="Enter your username" required autocomplete="username">
-                <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <input type="email" id="loginEmail" placeholder="Enter your email" required autocomplete="email">
+                <svg class="input-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             </div>
         </div>
         <div class="form-group">
@@ -471,7 +471,18 @@ body{
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+const SUPABASE_URL = 'https://dhnvrjoyqiwxirrztxxy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_1TjB34lwvUnUF9NJinUYew_UXrlZmh2';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// If already logged in, redirect
+(async function(){
+    const { data: { session } } = await sb.auth.getSession();
+    if(session) window.location.href = 'quote-tool.html';
+})();
+
 function togglePassword(){
     const inp = document.getElementById('loginPassword');
     const icon = document.getElementById('eyeIcon');
@@ -484,34 +495,39 @@ function togglePassword(){
     }
 }
 
-const users = [
-    { username: 'Bert', password: 'Jerusalem', initials: 'BM' },
-    { username: 'Rene', password: 'Galilea', initials: 'RG' }
-];
-
-function handleLogin(e){
+async function handleLogin(e){
     e.preventDefault();
     const btn = document.getElementById('loginBtn');
     const err = document.getElementById('loginError');
-    const username = document.getElementById('loginUser').value.trim();
+    const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
 
     err.classList.remove('show');
     btn.classList.add('loading');
 
-    setTimeout(() => {
-        const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
-        if(user){
-            sessionStorage.setItem('hm_user', JSON.stringify(user));
-            window.location.href = 'quote-tool.html';
-        } else {
+    try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+        if(error){
             btn.classList.remove('loading');
-            document.getElementById('loginErrorMsg').textContent = 'Invalid username or password';
+            document.getElementById('loginErrorMsg').textContent = error.message || 'Invalid email or password';
             err.classList.add('show');
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginPassword').focus();
+            return;
         }
-    }, 1200);
+
+        // Store display info for the top bar
+        const name = data.user.user_metadata?.name || email.split('@')[0];
+        const initials = name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+        sessionStorage.setItem('hm_user', JSON.stringify({ username: name, initials, email }));
+
+        window.location.href = 'quote-tool.html';
+    } catch(err2){
+        btn.classList.remove('loading');
+        document.getElementById('loginErrorMsg').textContent = 'Connection error. Please try again.';
+        document.getElementById('loginError').classList.add('show');
+    }
 }
 </script>
 </body>

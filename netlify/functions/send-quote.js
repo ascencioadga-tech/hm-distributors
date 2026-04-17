@@ -1,5 +1,18 @@
 // Netlify Serverless Function — Send Quote Emails via Resend
 exports.handler = async (event) => {
+    // Handle CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS'
+            },
+            body: ''
+        };
+    }
+
     // Only allow POST
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
@@ -8,9 +21,30 @@ exports.handler = async (event) => {
     // CORS headers
     const headers = {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Content-Type': 'application/json'
     };
+
+    // Verify Supabase auth token
+    const authHeader = event.headers.authorization || event.headers.Authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
+    }
+    const token = authHeader.replace('Bearer ', '');
+    try {
+        const SUPABASE_URL = process.env.SUPABASE_URL || 'https://dhnvrjoyqiwxirrztxxy.supabase.co';
+        const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+        if (SUPABASE_KEY) {
+            const verifyRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+                headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_KEY }
+            });
+            if (!verifyRes.ok) {
+                return { statusCode: 401, headers, body: JSON.stringify({ error: 'Invalid auth token' }) };
+            }
+        }
+    } catch (authErr) {
+        console.warn('Auth verification skipped:', authErr.message);
+    }
 
     try {
         const { recipients, subject, htmlBody } = JSON.parse(event.body);

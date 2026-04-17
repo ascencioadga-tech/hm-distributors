@@ -434,10 +434,10 @@ body{
 
     <form class="login-form" onsubmit="handleLogin(event)">
         <div class="form-group">
-            <label>Email</label>
+            <label>Username</label>
             <div class="input-wrap">
-                <input type="email" id="loginEmail" placeholder="Enter your email" required autocomplete="email">
-                <svg class="input-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <input type="text" id="loginEmail" placeholder="Enter your username" required autocomplete="username">
+                <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
         </div>
         <div class="form-group">
@@ -495,12 +495,18 @@ function togglePassword(){
     }
 }
 
+// Convert a username to the internal email Supabase uses
+function usernameToEmail(username){
+    return username.trim().toLowerCase() + '@hmdistributors.local';
+}
+
 async function handleLogin(e){
     e.preventDefault();
     const btn = document.getElementById('loginBtn');
     const err = document.getElementById('loginError');
-    const email = document.getElementById('loginEmail').value.trim();
+    const username = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
+    const email = usernameToEmail(username);
 
     err.classList.remove('show');
     btn.classList.add('loading');
@@ -510,7 +516,7 @@ async function handleLogin(e){
 
         if(error){
             btn.classList.remove('loading');
-            document.getElementById('loginErrorMsg').textContent = error.message || 'Invalid email or password';
+            document.getElementById('loginErrorMsg').textContent = 'Invalid username or password';
             err.classList.add('show');
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginPassword').focus();
@@ -518,7 +524,7 @@ async function handleLogin(e){
         }
 
         // Store display info for the top bar
-        const name = data.user.user_metadata?.name || email.split('@')[0];
+        const name = data.user.user_metadata?.name || username;
         const initials = name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
         sessionStorage.setItem('hm_user', JSON.stringify({ username: name, initials, email }));
 

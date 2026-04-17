@@ -4,6 +4,7 @@ server.py
 node_modules/
 *.mov
 Green Bell Pepper Hero.mov
+sustain.mov
 # Large image source files (compressed versions are committed)
 egg plant.jpg
 roma tomato.jpg

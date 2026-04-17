@@ -495,9 +495,15 @@ function togglePassword(){
     }
 }
 
-// Convert a username to the internal email Supabase uses
+// Map username to the email used in Supabase
+const USER_EMAIL_MAP = {
+    'bert': 'bert@hmdistinc.com'
+    // Add more users here: 'rene': 'rene@hmdistinc.com'
+};
+
 function usernameToEmail(username){
-    return username.trim().toLowerCase() + '@hmdistributors.local';
+    const key = username.trim().toLowerCase();
+    return USER_EMAIL_MAP[key] || (key + '@hmdistributors.local');
 }
 
 async function handleLogin(e){

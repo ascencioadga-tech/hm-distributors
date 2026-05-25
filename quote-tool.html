@@ -405,10 +405,18 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
 .eml-footer .eml-footer-phone{color:rgba(255,255,255,.65);font-weight:600}
 .eml-footer-divider{width:40px;height:1px;background:rgba(196,162,101,.25);margin:14px auto}
 
+/* ── Mobile bottom nav ── */
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:900;background:#fff;border-top:1px solid rgba(0,0,0,.08);box-shadow:0 -4px 20px rgba(0,0,0,.06);padding:6px 4px calc(6px + env(safe-area-inset-bottom));justify-content:space-around}
+.mobile-bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;flex:1;cursor:pointer;color:#999;text-decoration:none;transition:color .2s;min-width:0}
+.mobile-bottom-nav a svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mobile-bottom-nav a span{font-size:.58rem;font-weight:700;letter-spacing:.3px}
+.mobile-bottom-nav a.active{color:#073015}
+
 /* ── Responsive ── */
 @media(max-width:1200px){.brand-products{grid-template-columns:1fr 1fr}.email-layout{grid-template-columns:260px 1fr}}
-@media(max-width:1024px){.app-layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:24px}.email-layout{grid-template-columns:1fr}.recipients-panel{position:static}}
-@media(max-width:768px){.brand-products{grid-template-columns:1fr}.status-bar{flex-direction:column}.page-header{flex-direction:column;gap:16px}.header-actions{width:100%}.header-actions .btn{flex:1;justify-content:center}}
+@media(max-width:1024px){.app-layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:24px 24px 88px}.email-layout{grid-template-columns:1fr}.recipients-panel{position:static}.mobile-bottom-nav{display:flex}}
+@media(max-width:768px){.brand-products{grid-template-columns:1fr}.status-bar{flex-direction:column}.page-header{flex-direction:column;gap:16px}.header-actions{width:100%}.header-actions .btn{flex:1;justify-content:center}.main{padding:18px 16px 88px}.topbar{padding:12px 18px}.topbar-subtitle{font-size:.62rem}}
+@media(max-width:480px){.mobile-bottom-nav a span{font-size:.52rem}.mobile-bottom-nav a svg{width:18px;height:18px}.brand-products.two-col{grid-template-columns:1fr}.page-header h1{font-size:1.6rem}}
 
 @media print{
     .pdf-toolbar,.topbar,.sidebar,.pdf-overlay{background:none;box-shadow:none}
@@ -730,6 +738,16 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
         <div class="pdf-body" id="pdfBody"></div>
     </div>
 </div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav">
+    <a onclick="switchView('quote')" class="active" data-mview="quote"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span>Quote</span></a>
+    <a onclick="switchView('email')" data-mview="email"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>Email</span></a>
+    <a onclick="switchView('history')" data-mview="history"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>History</span></a>
+    <a onclick="switchView('trends')" data-mview="trends"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Trends</span></a>
+    <a onclick="switchView('products')" data-mview="products"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>Products</span></a>
+    <a onclick="switchView('prefs')" data-mview="prefs"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></a>
+</nav>
 
 <!-- TOAST -->
 <div class="toast" id="toast"><span class="toast-icon"></span><span class="toast-msg"></span></div>
@@ -1572,13 +1590,18 @@ function switchView(viewId){
     if(target) target.classList.add('active');
     const navLink = document.querySelector(`.sidebar-nav a[data-view="${viewId}"]`);
     if(navLink) navLink.classList.add('active');
+    // Sync mobile bottom nav active state
+    document.querySelectorAll('.mobile-bottom-nav a').forEach(a => a.classList.remove('active'));
+    const mNavLink = document.querySelector(`.mobile-bottom-nav a[data-mview="${viewId}"]`);
+    if(mNavLink) mNavLink.classList.add('active');
     if(viewId === 'email'){ refreshEmailPreview(); updateEmailSubject(); }
     if(viewId === 'products'){ renderProductsList(); }
     if(viewId === 'history'){ renderHistory(); }
     if(viewId === 'trends'){ renderTrends(); }
     if(viewId === 'prefs'){ loadPrefsUI(); }
     window.scrollTo(0,0);
-    document.querySelector('.main').scrollTop = 0;
+    const main = document.querySelector('.main');
+    if(main) main.scrollTop = 0;
 }
 
 // ══════════════════════════════════════════

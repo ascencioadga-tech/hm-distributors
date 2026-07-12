@@ -1,0 +1,7 @@
+{
+  "name": "hm-distributors",
+  "private": true,
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.63.0"
+  }
+}

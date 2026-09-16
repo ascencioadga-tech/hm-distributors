@@ -758,8 +758,8 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
 //  SUPABASE INIT & AUTH
 // ══════════════════════════════════════════
 
-const SUPABASE_URL = 'https://dhnvrjoyqiwxirrztxxy.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_1TjB34lwvUnUF9NJinUYew_UXrlZmh2';
+const SUPABASE_URL = 'https://ubdvcjrrbvyibrnvsswo.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_8QQJe8SM62Tc-9TKFCqOGg_TCa72cvE';
 const CLOUD_SYNC_ENABLED = true;
 const sb = CLOUD_SYNC_ENABLED ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -797,8 +797,10 @@ if(cachedUser && cachedUser.initials){
         document.getElementById('topbarUser').textContent = initials;
     }
 
-    await migrateLocalToCloud();
-    await Sync.loadAll();
+    // Never pull cloud data over this device's local copy until it has been uploaded
+    if(await migrateLocalToCloud()){
+        await Sync.loadAll();
+    }
 })();
 
 async function logout(){
@@ -1136,9 +1138,19 @@ const Sync = {
 };
 
 // ── One-time migration from localStorage to Supabase ──
+// Keyed per Supabase project so a new project receives each device's local data
+const MIGRATED_KEY = 'hm_migrated:' + SUPABASE_URL;
+
+async function cloudIsEmpty(table){
+    const { count, error } = await sb.from(table).select('*', { count: 'exact', head: true })
+        .eq('user_id', currentUserId);
+    if(error) throw error;
+    return !count;
+}
+
 async function migrateLocalToCloud(){
-    if(!currentUserId) return;
-    if(localStorage.getItem('hm_migrated')) return;
+    if(!currentUserId) return false;
+    if(localStorage.getItem(MIGRATED_KEY)) return true;
 
     console.log('Migrating localStorage data to Supabase...');
 
@@ -1153,12 +1165,13 @@ async function migrateLocalToCloud(){
                 email: c.email,
                 selected: c.selected !== false
             }));
-            await sb.from('recipients').upsert(rows, { onConflict: 'user_id,email' });
+            const { error } = await sb.from('recipients').upsert(rows, { onConflict: 'user_id,email' });
+            if(error) throw error;
         }
 
         // Migrate products
         const localProducts = loadFromStorage(STORAGE_KEYS.products);
-        if(localProducts){
+        if(localProducts && await cloudIsEmpty('products')){
             const rows = [];
             ['spv','wolf','mr'].forEach(brandKey => {
                 (localProducts[brandKey] || []).forEach((p, idx) => {
@@ -1175,12 +1188,15 @@ async function migrateLocalToCloud(){
                     });
                 });
             });
-            if(rows.length > 0) await sb.from('products').insert(rows);
+            if(rows.length > 0){
+                const { error } = await sb.from('products').insert(rows);
+                if(error) throw error;
+            }
         }
 
         // Migrate draft
         const localDraft = loadFromStorage(STORAGE_KEYS.draft);
-        if(localDraft){
+        if(localDraft && await cloudIsEmpty('current_draft')){
             await sb.from('current_draft').upsert({
                 user_id: currentUserId,
                 data: localDraft,
@@ -1190,7 +1206,7 @@ async function migrateLocalToCloud(){
 
         // Migrate last sent
         const localLastSent = loadFromStorage(STORAGE_KEYS.lastSent);
-        if(localLastSent){
+        if(localLastSent && await cloudIsEmpty('last_sent')){
             await sb.from('last_sent').upsert({
                 user_id: currentUserId,
                 data: localLastSent,
@@ -1200,7 +1216,7 @@ async function migrateLocalToCloud(){
 
         // Migrate history
         const localHistory = loadFromStorage(STORAGE_KEYS.history);
-        if(localHistory && localHistory.length > 0){
+        if(localHistory && localHistory.length > 0 && await cloudIsEmpty('quotes')){
             const rows = localHistory.map(h => ({
                 user_id: currentUserId,
                 date_label: h.date,
@@ -1216,7 +1232,7 @@ async function migrateLocalToCloud(){
 
         // Migrate preferences
         const localPrefs = loadFromStorage(STORAGE_KEYS.prefs);
-        if(localPrefs){
+        if(localPrefs && await cloudIsEmpty('preferences')){
             await sb.from('preferences').upsert({
                 user_id: currentUserId,
                 company: localPrefs.company || 'HM Distributors Inc.',
@@ -1227,10 +1243,12 @@ async function migrateLocalToCloud(){
             });
         }
 
-        localStorage.setItem('hm_migrated', 'true');
+        localStorage.setItem(MIGRATED_KEY, 'true');
         console.log('Migration complete.');
+        return true;
     } catch(e){
         console.warn('Migration error (will retry next load):', e);
+        return false;
     }
 }
 

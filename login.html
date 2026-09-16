@@ -473,8 +473,8 @@ body{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const SUPABASE_URL = 'https://dhnvrjoyqiwxirrztxxy.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_1TjB34lwvUnUF9NJinUYew_UXrlZmh2';
+const SUPABASE_URL = 'https://ubdvcjrrbvyibrnvsswo.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_8QQJe8SM62Tc-9TKFCqOGg_TCa72cvE';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // If already logged in with a valid session, redirect
@@ -529,7 +529,10 @@ async function handleLogin(e){
 
         if(error){
             btn.classList.remove('loading');
-            document.getElementById('loginErrorMsg').textContent = 'Invalid username or password';
+            const offline = error.name === 'AuthRetryableFetchError' || error.status === 0;
+            document.getElementById('loginErrorMsg').textContent = offline
+                ? "Can't reach the server. Please try again in a moment."
+                : 'Invalid username or password';
             err.classList.add('show');
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginPassword').focus();

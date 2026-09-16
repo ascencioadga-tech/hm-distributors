@@ -4,285 +4,414 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HM Distributors | Daily Quote Sheet</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#333}
+:root{
+    --canvas:#ffffff;
+    --subtle:#f7f8fa;
+    --sunken:#f1f3f6;
+    --border:#e3e8ee;
+    --border-strong:#d1d9e0;
+    --text:#1a1f36;
+    --text-2:#3c4257;
+    --muted:#697386;
+    --faint:#a3acb9;
+    --brand:#0e6b2e;
+    --brand-hover:#0a5a26;
+    --brand-deep:#073015;
+    --brand-soft:#e9f4ed;
+    --brand-ring:rgba(14,107,46,.22);
+    --ok-bg:#d7f7c2;--ok-fg:#006908;
+    --warn-bg:#fcedb9;--warn-fg:#a82c00;
+    --info-bg:#e6ebf1;--info-fg:#3c4257;
+    --danger:#df1b41;--danger-bg:#ffe7f2;
+    --up:#c0123c;--down:#0a7b3e;
+    --radius:8px;
+    --shadow-sm:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(60,66,87,.06);
+    --shadow-md:0 2px 5px rgba(60,66,87,.08),0 7px 14px rgba(60,66,87,.08);
+    --shadow-lg:0 15px 35px rgba(50,50,93,.12),0 5px 15px rgba(0,0,0,.08);
+}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--canvas);min-height:100vh;color:var(--text);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;font-feature-settings:'cv11','ss01'}
+button,input,select{font-family:inherit}
+.tnum{font-variant-numeric:tabular-nums}
+svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 
-/* ── Top Bar ── */
-.topbar{background:linear-gradient(135deg,#073015,#0b5d1e);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.15)}
-.topbar-left{display:flex;align-items:center;gap:16px}
-.topbar-logo{height:44px}
-.topbar-title{color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:-.3px}
-.topbar-subtitle{color:rgba(255,255,255,.5);font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px}
-.topbar-right{display:flex;align-items:center;gap:20px}
-.topbar-date{color:#c4a265;font-size:.85rem;font-weight:700;letter-spacing:.5px}
-.topbar-user{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;cursor:pointer}
+/* ── Top bar ── */
+.topbar{height:60px;background:var(--canvas);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:12px;min-width:0}
+.topbar-logo{height:30px;width:auto}
+.topbar-divider{width:1px;height:20px;background:var(--border)}
+.topbar-subtitle{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap}
+.topbar-right{display:flex;align-items:center;gap:14px}
+.topbar-date{font-size:13px;color:var(--muted);white-space:nowrap}
+.sync-state{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:var(--muted);padding:4px 10px;border-radius:999px;background:var(--subtle);border:1px solid var(--border);white-space:nowrap}
+.sync-state .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.sync-state[data-state="synced"] .sync-dot{background:#1ea672}
+.sync-state[data-state="syncing"] .sync-dot{background:#f5a623;animation:pulse-dot 1.2s ease-in-out infinite}
+.sync-state[data-state="offline"]{color:var(--warn-fg);background:#fff8e6;border-color:#f7d98b}
+.sync-state[data-state="offline"] .sync-dot{background:#e5850b}
+.btn-signout{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:var(--canvas);color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;box-shadow:var(--shadow-sm);transition:background .15s,border-color .15s}
+.btn-signout:hover{background:var(--subtle);border-color:var(--border-strong)}
+.topbar-user{width:32px;height:32px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px}
 
 /* ── Layout ── */
-.app-layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 76px)}
-
-/* ── Sidebar ── */
-.sidebar{background:#fff;border-right:1px solid rgba(0,0,0,.06);padding:32px 0;display:flex;flex-direction:column}
-.sidebar-section{padding:0 24px;margin-bottom:28px}
-.sidebar-label{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#bbb;margin-bottom:14px}
+.app-layout{display:grid;grid-template-columns:232px 1fr;min-height:calc(100vh - 60px)}
+.sidebar{background:var(--subtle);border-right:1px solid var(--border);padding:20px 12px;display:flex;flex-direction:column;position:sticky;top:60px;height:calc(100vh - 60px)}
+.sidebar-section{margin-bottom:22px}
+.sidebar-label{font-size:11px;font-weight:600;color:var(--faint);padding:0 10px;margin-bottom:6px;letter-spacing:.2px}
 .sidebar-nav{list-style:none}
-.sidebar-nav li{margin-bottom:4px}
-.sidebar-nav a{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;text-decoration:none;color:#666;font-size:.82rem;font-weight:600;transition:all .2s;cursor:pointer}
-.sidebar-nav a:hover{background:#f5f3ef;color:#073015}
-.sidebar-nav a.active{background:linear-gradient(135deg,#073015,#0b5d1e);color:#fff}
-.sidebar-nav a .icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center}
-.sidebar-nav a .icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-nav li{margin-bottom:1px}
+.sidebar-nav a{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:6px;text-decoration:none;color:var(--text-2);font-size:14px;font-weight:500;cursor:pointer;transition:background .12s,color .12s}
+.sidebar-nav a:hover{background:var(--sunken);color:var(--text)}
+.sidebar-nav a.active{background:var(--canvas);color:var(--brand);font-weight:600;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.sidebar-nav a .icon{width:16px;height:16px;display:flex;align-items:center;justify-content:center}
+.sidebar-nav a .icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .sidebar-spacer{flex:1}
-.sidebar-footer{padding:20px 24px;border-top:1px solid rgba(0,0,0,.06)}
-.sidebar-footer p{font-size:.7rem;color:#bbb;line-height:1.6}
+.sidebar-footer{padding:12px 10px 0;border-top:1px solid var(--border)}
+.sidebar-footer p{font-size:12px;color:var(--faint);line-height:1.6}
 
-/* ── Main Content ── */
-.main{padding:36px 48px;overflow-y:auto}
+.main{padding:28px 40px 60px;min-width:0}
+.view{display:none;max-width:1240px;margin:0 auto}
+.view.active{display:block;animation:fade-in .18s ease}
+@keyframes fade-in{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
 
-/* ── Page Header ── */
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:36px}
-.page-header h1{font-family:'Playfair Display',serif;font-size:2rem;font-weight:800;color:#073015;display:flex;align-items:center;gap:14px}
-.page-header p{color:#999;font-size:.85rem;margin-top:4px}
-.status-pill{display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:5px 14px;border-radius:20px;background:rgba(234,179,8,.08);color:#b8860b;border:1px solid rgba(234,179,8,.15);position:relative;top:-1px}
-.status-pill.sent{background:rgba(7,48,21,.06);color:#073015;border-color:rgba(7,48,21,.12)}
-.status-dot{width:6px;height:6px;border-radius:50%;background:#e4a30b;animation:pulse-dot 2s ease-in-out infinite}
-.status-pill.sent .status-dot{background:#1a7a3a;animation:none}
+/* ── Page header ── */
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px}
+.page-header h1{font-size:26px;font-weight:700;letter-spacing:-.4px;color:var(--text);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.page-header p{color:var(--muted);font-size:14px;margin-top:4px}
+.page-meta{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;margin-top:6px}
+.page-meta .sep{color:var(--border-strong)}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+
+/* ── Pills ── */
+.status-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--warn-bg);color:var(--warn-fg);letter-spacing:0;line-height:18px;white-space:nowrap}
+.status-pill.sent{background:var(--ok-bg);color:var(--ok-fg)}
+.status-pill.neutral{background:var(--info-bg);color:var(--info-fg)}
+.status-dot{display:none}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.35}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.header-actions{display:flex;gap:12px}
-.btn{padding:10px 24px;border-radius:10px;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .3s;border:none;display:flex;align-items:center;gap:8px;letter-spacing:.3px}
-.btn-outline{background:transparent;border:2px solid rgba(0,0,0,.08);color:#666}
-.btn-outline:hover{border-color:#073015;color:#073015}
-.btn-gold{background:linear-gradient(135deg,#c4a265,#d4b87a);color:#fff;box-shadow:0 4px 16px rgba(196,162,101,.25)}
-.btn-gold:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(196,162,101,.35)}
-.btn-green{background:linear-gradient(135deg,#073015,#0b5d1e);color:#fff;box-shadow:0 4px 16px rgba(7,48,21,.2)}
-.btn-green:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(7,48,21,.3)}
 
-/* ── Status Bar ── */
-.status-bar{display:flex;gap:20px;margin-bottom:32px}
-.status-card{background:#fff;border-radius:14px;padding:20px 28px;flex:1;border:1px solid rgba(0,0,0,.04);display:flex;align-items:center;gap:16px}
-.status-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center}
-.status-icon svg{width:22px;height:22px;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
-.status-icon.green{background:rgba(7,48,21,.06)}
-.status-icon.green svg{stroke:#073015}
-.status-icon.gold{background:rgba(196,162,101,.1)}
-.status-icon.gold svg{stroke:#c4a265}
-.status-icon.blue{background:rgba(59,130,246,.08)}
-.status-icon.blue svg{stroke:#3b82f6}
-.status-info h4{font-size:1.3rem;font-weight:800;color:#073015}
-.status-info p{font-size:.7rem;color:#bbb;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+/* ── Buttons ── */
+.btn{height:34px;padding:0 14px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;transition:background .15s,border-color .15s,box-shadow .15s,color .15s}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 4px var(--brand-ring)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn-outline,.btn-secondary{background:var(--canvas);border-color:var(--border);color:var(--text-2);box-shadow:var(--shadow-sm)}
+.btn-outline:hover,.btn-secondary:hover{border-color:var(--border-strong);color:var(--text)}
+.btn-ghost{background:transparent;color:var(--muted)}
+.btn-ghost:hover{background:var(--subtle);color:var(--text)}
+.btn-green,.btn-gold,.btn-primary{background:var(--brand);color:#fff;box-shadow:0 1px 1px rgba(0,0,0,.12),0 2px 5px rgba(14,107,46,.25)}
+.btn-green:hover,.btn-gold:hover,.btn-primary:hover{background:var(--brand-hover)}
+.btn-danger-ghost{background:transparent;color:var(--danger)}
+.btn-danger-ghost:hover{background:var(--danger-bg)}
+.btn-sm{height:28px;padding:0 10px;font-size:13px}
+.btn .kbd{font-size:11px;font-weight:600;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,.18)}
+.link-btn{background:none;border:none;color:var(--brand);font-size:13px;font-weight:500;cursor:pointer;padding:0}
+.link-btn:hover{color:var(--brand-hover);text-decoration:underline}
 
-/* ── Quote Card ── */
-.quote-card{background:#fff;border-radius:20px;border:1px solid rgba(0,0,0,.04);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.03);margin-bottom:32px}
-.quote-card-header{background:linear-gradient(135deg,#073015,#0b5d1e);padding:28px 36px;display:flex;align-items:center;justify-content:space-between}
-.quote-card-header h2{color:#fff;font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700}
-.quote-card-header .date-badge{background:rgba(255,255,255,.12);color:#c4a265;padding:8px 18px;border-radius:8px;font-size:.75rem;font-weight:700;letter-spacing:.5px}
-.quote-card-body{padding:0}
+/* ── Card ── */
+.card{background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border)}
+.card-head h3{font-size:15px;font-weight:600;color:var(--text)}
+.card-head .sub{font-size:13px;color:var(--muted)}
 
-/* ── Brand Tabs ── */
-.brand-tabs{display:flex;border-bottom:2px solid rgba(0,0,0,.06);background:#faf9f6}
-.brand-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:12px;padding:18px 24px;cursor:pointer;transition:all .3s;border-bottom:3px solid transparent}
-.brand-tab:hover{background:rgba(7,48,21,.03)}
-.brand-tab.active{background:linear-gradient(135deg,#073015,#0b5d1e);border-bottom-color:#c4a265}
-.brand-tab-logo{height:40px;width:auto;object-fit:contain;mix-blend-mode:multiply;border-radius:4px;transition:filter .3s}
-.brand-tab.active .brand-tab-logo{mix-blend-mode:normal}
-.brand-tab-name{font-size:.8rem;font-weight:700;color:#666;transition:color .3s}
-.brand-tab.active .brand-tab-name{color:#fff}
+/* ── Quote sheet ── */
+.quote-card{background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+.brand-tabs{display:flex;gap:4px;padding:0 12px;border-bottom:1px solid var(--border);background:var(--canvas);overflow-x:auto;scrollbar-width:none}
+.brand-tabs::-webkit-scrollbar{display:none}
+.brand-tab{display:flex;align-items:center;gap:10px;padding:12px 12px 11px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:border-color .15s,color .15s;white-space:nowrap;border-radius:0}
+.brand-tab:hover .brand-tab-name{color:var(--text)}
+.brand-tab.active{border-bottom-color:var(--brand)}
+.brand-tab-logo{height:28px;width:auto;max-width:72px;object-fit:contain;border-radius:4px;mix-blend-mode:multiply}
+.brand-tab-name{font-size:14px;font-weight:500;color:var(--muted);transition:color .15s}
+.brand-tab.active .brand-tab-name{color:var(--brand);font-weight:600}
+.bt-count{font-size:12px;font-weight:500;color:var(--muted);background:var(--subtle);border:1px solid var(--border);padding:0 7px;border-radius:999px;line-height:18px;font-variant-numeric:tabular-nums}
+.brand-tab.active .bt-count{background:var(--brand-soft);border-color:transparent;color:var(--brand)}
+.bt-count.done{background:var(--ok-bg);border-color:transparent;color:var(--ok-fg)}
 
-/* ── Brand Content ── */
-.brand-content{display:none;padding:28px 36px}
+.sheet-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 18px;background:var(--subtle);border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);flex-wrap:wrap}
+.sheet-progress{display:flex;align-items:center;gap:10px;min-width:0}
+.sheet-progress strong{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.progress-track{width:120px;height:4px;border-radius:4px;background:var(--border);overflow:hidden}
+.progress-fill{height:100%;background:var(--brand);border-radius:4px;transition:width .25s ease}
+.sheet-hints{display:flex;align-items:center;gap:14px}
+.sheet-hints kbd{font-family:inherit;font-size:11px;font-weight:600;color:var(--text-2);background:var(--canvas);border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:0 5px;margin:0 2px}
+.legend-ghost{color:var(--faint)}
+
+.brand-content{display:none;padding:20px 18px 22px}
 .brand-content.active{display:block}
-.brand-products{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
-.brand-products.two-col{grid-template-columns:1fr 1fr}
+.brand-products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.brand-products.two-col{grid-template-columns:repeat(2,minmax(0,1fr))}
 
-/* ── Product Sections ── */
-.product-group{margin-bottom:24px}
-.product-group:last-child{margin-bottom:0}
-.product-group-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid}
-.product-group-header h3{font-size:.85rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
-.product-group-header .count{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(0,0,0,.04);color:#999}
+.product-group{border:1px solid var(--border);border-radius:var(--radius);background:var(--canvas);overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.product-group:focus-within{border-color:var(--border-strong);box-shadow:var(--shadow-md)}
+.pg-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--canvas)}
+.pg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--faint)}
+.pg-head h3{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg-note{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg-count{margin-left:auto;font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pg-count.done{color:var(--ok-fg);font-weight:600}
+.theme-red .pg-dot{background:#e5424d}
+.theme-green .pg-dot{background:#3d9a2a}
+.theme-yellow .pg-dot{background:#e5b50b}
+.theme-orange .pg-dot{background:#f07c1a}
+.theme-purple .pg-dot{background:#8b5cf6}
+.theme-teal .pg-dot{background:#0d9488}
 
-/* Color Themes */
-.theme-red .product-group-header{border-color:#ff4444;color:#cc0000}
-.theme-red .product-group-header h3{color:#cc0000}
-.theme-green .product-group-header{border-color:#388600;color:#388600}
-.theme-green .product-group-header h3{color:#388600}
-.theme-yellow .product-group-header{border-color:#ffc000;color:#c49000}
-.theme-yellow .product-group-header h3{color:#c49000}
-.theme-orange .product-group-header{border-color:#ff8c00;color:#e07000}
-.theme-orange .product-group-header h3{color:#e07000}
-.theme-purple .product-group-header{border-color:#8b5cf6;color:#7c3aed}
-.theme-purple .product-group-header h3{color:#7c3aed}
-.theme-teal .product-group-header{border-color:#0d9488;color:#0d9488}
-.theme-teal .product-group-header h3{color:#0d9488}
+.pg-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.pg-table th{font-size:11px;font-weight:600;color:var(--muted);text-align:right;padding:7px 12px 5px;background:var(--subtle);border-bottom:1px solid var(--border);letter-spacing:.2px;text-transform:uppercase}
+.pg-table th:first-child{text-align:left}
+.pg-table td{padding:0;border-bottom:1px solid #eef1f4;height:36px;vertical-align:middle}
+.pg-table tr:last-child td{border-bottom:none}
+.pg-table tbody tr:hover td{background:#fbfcfd}
+.pg-size{padding:0 12px !important;font-size:13px;font-weight:500;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.price-field{position:relative;display:flex;align-items:center;justify-content:flex-end;height:36px}
+.price-field .dollar{position:absolute;left:10px;font-size:13px;color:var(--faint);pointer-events:none;transition:color .12s}
+.price-input{width:100%;height:36px;border:none;background:transparent;padding:0 12px 0 22px;font-size:14px;font-weight:500;color:var(--text);text-align:right;font-variant-numeric:tabular-nums;border-radius:0;transition:background .12s,box-shadow .12s}
+.price-input::placeholder{color:#c3cad3;font-weight:400}
+.price-input:hover{background:var(--subtle)}
+.price-input:focus{outline:none;background:var(--canvas);box-shadow:inset 0 0 0 2px var(--brand)}
+.price-input.has-value{color:var(--text);font-weight:600}
+.price-field:focus-within .dollar,.price-input.has-value ~ .dollar{color:var(--muted)}
+.price-field .delta{position:absolute;right:10px;top:3px;font-size:9.5px;font-weight:600;line-height:12px;padding:0 3px;border-radius:3px;pointer-events:none;font-variant-numeric:tabular-nums;white-space:nowrap}
+.price-field.has-delta .price-input{padding-top:13px;font-size:13.5px}
+.price-field.has-delta .dollar{top:auto;bottom:6px}
+.price-field .delta:empty{display:none}
+.price-field .delta.up{color:var(--up);background:#fff0f3}
+.price-field .delta.down{color:var(--down);background:#e8f7ee}
+.price-field:focus-within .delta{display:none}
+.price-field.has-delta:focus-within .price-input{padding-top:0;font-size:14px}
+.price-field.has-delta:focus-within .dollar{bottom:auto}
+.pg-table.cols-2 col.c-size{width:40%}
+.pg-table.cols-1 col.c-size{width:50%}
 
-/* ── Price Rows ── */
-.price-row{display:grid;grid-template-columns:1fr auto;align-items:center;padding:6px 0;gap:8px}
-.price-row.dual-price{grid-template-columns:1fr auto auto}
-.number-input-wrap{width:70px}
-.number-input{width:100%;padding:7px 10px;border:1.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:.8rem;font-weight:700;color:#073015;font-family:'Inter',sans-serif;text-align:center;transition:all .2s;background:#faf9f6}
-.number-input:focus{outline:none;border-color:#c4a265;box-shadow:0 0 0 3px rgba(196,162,101,.12);background:#fff}
-.number-input:hover{border-color:rgba(0,0,0,.15)}
-.number-input::placeholder{color:#ddd;font-weight:500}
-.number-input.has-value{background:#fff;border-color:rgba(7,48,21,.15)}
-.price-row.header-row{border-bottom:1px solid rgba(0,0,0,.06);margin-bottom:4px;padding-bottom:8px}
-.price-row .label{font-size:.78rem;font-weight:600;color:#555}
-.price-row.header-row .label{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#bbb}
-
-.label-select-wrap{width:90px}
-.label-select{width:100%;padding:6px 8px;border:1.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:.7rem;font-weight:600;color:#073015;font-family:'Inter',sans-serif;background:#faf9f6;cursor:pointer;transition:all .2s;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:22px}
-.label-select:focus{outline:none;border-color:#c4a265;box-shadow:0 0 0 3px rgba(196,162,101,.12);background-color:#fff}
-.label-select:hover{border-color:rgba(0,0,0,.15)}
-
-.price-input-wrap{position:relative;width:90px}
-.price-input-wrap .dollar{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.75rem;color:#bbb;font-weight:600;pointer-events:none}
-.price-input{width:100%;padding:7px 10px 7px 22px;border:1.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:.8rem;font-weight:700;color:#073015;font-family:'Inter',sans-serif;text-align:right;transition:all .2s;background:#faf9f6}
-.price-input:focus{outline:none;border-color:#c4a265;box-shadow:0 0 0 3px rgba(196,162,101,.12);background:#fff}
-.price-input:hover{border-color:rgba(0,0,0,.15)}
-.price-input::placeholder{color:#ddd;font-weight:500}
-.price-input.has-value{background:#fff;border-color:rgba(7,48,21,.15)}
-
-/* ── Bottom Actions ── */
-.quote-footer{padding:24px 36px;background:#faf9f6;border-top:1px solid rgba(0,0,0,.04);display:flex;align-items:center;justify-content:space-between}
-.quote-footer .disclaimer{font-size:.7rem;color:#bbb;max-width:500px;line-height:1.6}
-.quote-footer .actions{display:flex;gap:12px}
+.quote-footer{padding:14px 18px;background:var(--subtle);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.quote-footer .disclaimer{font-size:12.5px;color:var(--muted);max-width:560px;line-height:1.55}
+.quote-footer .actions{display:flex;gap:8px}
 
 /* ── Toast ── */
-.toast{position:fixed;bottom:40px;right:40px;background:#073015;color:#fff;padding:16px 28px;border-radius:14px;font-size:.82rem;font-weight:600;box-shadow:0 12px 40px rgba(0,0,0,.2);transform:translateY(120px);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1);z-index:999;display:flex;align-items:center;gap:10px}
-.toast.show{transform:translateY(0);opacity:1}
-.toast .toast-icon{display:flex;align-items:center}
-.toast .toast-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.toast{position:fixed;bottom:28px;left:50%;background:#1a1f36;color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;font-weight:500;box-shadow:var(--shadow-lg);transform:translate(-50%,16px);opacity:0;pointer-events:none;transition:transform .25s cubic-bezier(.16,1,.3,1),opacity .2s;z-index:1200;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px)}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.toast .toast-icon{display:flex;align-items:center;color:#8ee3a6}
+.toast .toast-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-/* ── Views ── */
-.view{display:none}
-.view.active{display:block}
+/* ── Inputs ── */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .field-label{font-size:13px;font-weight:500;color:var(--text-2)}
+.field .hint{font-size:12.5px;color:var(--muted)}
+.input{width:100%;height:34px;padding:0 10px;border:1px solid var(--border);border-radius:6px;background:var(--canvas);font-size:14px;color:var(--text);box-shadow:var(--shadow-sm);transition:border-color .15s,box-shadow .15s}
+.input::placeholder{color:var(--faint)}
+.input:hover{border-color:var(--border-strong)}
+.input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-ring)}
+.search-input{padding-left:32px;background:var(--canvas) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23a3acb9' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 11px center no-repeat}
+.checkbox-row{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-2);cursor:pointer}
+.checkbox-row input{width:16px;height:16px;accent-color:var(--brand)}
 
-/* ── Quote History View ── */
-.history-filters{display:flex;gap:12px;margin-bottom:24px;align-items:center}
-.history-search{flex:1;max-width:320px;padding:10px 16px 10px 40px;border:1.5px solid rgba(0,0,0,.08);border-radius:10px;font-size:.82rem;font-family:'Inter',sans-serif;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 14px center no-repeat;transition:all .2s}
-.history-search:focus{outline:none;border-color:#c4a265;box-shadow:0 0 0 3px rgba(196,162,101,.12)}
-.history-list{display:grid;gap:12px}
-.history-card{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:14px;padding:20px 28px;display:flex;align-items:center;gap:20px;transition:all .3s;cursor:pointer}
-.history-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.06);border-color:rgba(7,48,21,.1);transform:translateY(-1px)}
-.history-date-badge{min-width:64px;text-align:center;padding:12px 14px;background:linear-gradient(135deg,#073015,#0b5d1e);border-radius:12px;color:#fff}
-.history-date-badge .h-day{font-size:1.4rem;font-weight:800;line-height:1}
-.history-date-badge .h-month{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c4a265;margin-top:4px}
-.history-info{flex:1;min-width:0}
-.history-info h4{font-size:.9rem;font-weight:700;color:#073015;margin-bottom:4px}
-.history-info p{font-size:.72rem;color:#999;line-height:1.5}
-.history-meta{display:flex;gap:16px;flex-shrink:0;align-items:center}
-.history-stat{text-align:center}
-.history-stat .h-num{font-size:1.1rem;font-weight:800;color:#073015}
-.history-stat .h-label{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb}
-.history-badge{padding:5px 14px;border-radius:20px;font-size:.62rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.history-badge.sent{background:rgba(7,48,21,.06);color:#1a7a3a}
-.history-badge.draft{background:rgba(234,179,8,.08);color:#b8860b}
-.history-actions{display:flex;gap:8px;flex-shrink:0}
-.history-card-btn{width:34px;height:34px;border-radius:8px;border:1px solid rgba(0,0,0,.06);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.history-card-btn svg{width:15px;height:15px;stroke:#999;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.history-card-btn:hover{border-color:rgba(7,48,21,.15);background:#f5f3ef}
-.history-card-btn:hover svg{stroke:#073015}
-.history-empty{text-align:center;padding:80px 20px;color:#ccc}
-.history-empty svg{width:48px;height:48px;stroke:#ddd;fill:none;stroke-width:1.5;margin-bottom:16px}
-.history-empty p{font-size:.85rem;margin-bottom:4px}
-.history-empty span{font-size:.72rem;color:#bbb}
+/* ── Empty states ── */
+.empty{text-align:center;padding:56px 20px}
+.empty-icon{width:44px;height:44px;border-radius:10px;background:var(--subtle);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--muted)}
+.empty-icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.empty h4{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px}
+.empty p{font-size:14px;color:var(--muted);margin-bottom:16px;max-width:360px;margin-left:auto;margin-right:auto}
 
-/* ── Price Trends View ── */
-.trends-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.trend-card{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:16px;padding:24px 28px;transition:all .3s}
-.trend-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.04)}
-.trend-card h3{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#073015;margin-bottom:4px}
-.trend-card .trend-sub{font-size:.65rem;color:#bbb;margin-bottom:16px}
-.trend-bar-group{margin-bottom:12px}
-.trend-bar-label{display:flex;justify-content:space-between;margin-bottom:4px}
-.trend-bar-label span:first-child{font-size:.72rem;font-weight:600;color:#555}
-.trend-bar-label span:last-child{font-size:.72rem;font-weight:700;color:#073015}
-.trend-bar{height:8px;background:#f0ede6;border-radius:4px;overflow:hidden}
-.trend-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
-.trend-bar-fill.green{background:linear-gradient(135deg,#073015,#1a7a3a)}
-.trend-bar-fill.gold{background:linear-gradient(135deg,#c4a265,#d4b87a)}
-.trend-bar-fill.red{background:linear-gradient(135deg,#dc2626,#ef4444)}
-.trend-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
-.trend-summary-card{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:14px;padding:20px 24px;text-align:center}
-.trend-summary-card .ts-num{font-size:1.6rem;font-weight:800;color:#073015}
-.trend-summary-card .ts-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;margin-top:4px}
+/* ── Email / send view ── */
+.email-layout{display:grid;grid-template-columns:320px minmax(0,1fr);gap:20px;align-items:start}
+.recipients-panel{position:sticky;top:84px;overflow:hidden}
+.rp-head{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
+.rp-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.rp-title h3{font-size:15px;font-weight:600}
+.rp-title .rp-count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.rp-title .rp-count span{color:var(--text);font-weight:600}
+.rp-bulk{display:flex;gap:12px;margin-top:10px}
+#recipientsList{max-height:420px;overflow-y:auto;padding:6px}
+.recipient-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background .12s}
+.recipient-item:hover{background:var(--subtle)}
+.recipient-check{width:16px;height:16px;border-radius:4px;border:1px solid var(--border-strong);background:var(--canvas);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s,border-color .12s;box-shadow:var(--shadow-sm)}
+.recipient-item.selected .recipient-check{background:var(--brand);border-color:var(--brand)}
+.recipient-item.selected .recipient-check::after{content:'';width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
+.recipient-avatar{width:30px;height:30px;border-radius:50%;background:var(--sunken);color:var(--text-2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.recipient-item.selected .recipient-avatar{background:var(--brand-soft);color:var(--brand)}
+.recipient-details{flex:1;min-width:0}
+.recipient-details h4{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recipient-details p{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recipient-delete{background:none;border:none;cursor:pointer;width:26px;height:26px;border-radius:6px;color:var(--faint);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s,color .12s}
+.recipient-item:hover .recipient-delete{opacity:1}
+.recipient-delete:hover{background:var(--danger-bg);color:var(--danger)}
+.recipient-delete svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.rp-empty{text-align:center;padding:28px 12px;color:var(--muted);font-size:13.5px}
+.rp-foot{padding:12px 16px;border-top:1px solid var(--border);background:var(--subtle)}
+.add-recipient-form{display:none;flex-direction:column;gap:10px;margin-top:12px}
+.add-recipient-form.open{display:flex}
+.add-recipient-form .row{display:flex;gap:8px;justify-content:flex-end}
 
-/* ══════════════════════════════════════════
-   PDF PREVIEW MODAL
-   ══════════════════════════════════════════ */
-/* ── Products Manager ── */
-.pm-brand-tabs{display:flex;gap:8px;margin-bottom:28px}
-.pm-tab{display:flex;align-items:center;gap:10px;padding:12px 20px;border:1px solid rgba(0,0,0,.06);border-radius:12px;background:#fff;cursor:pointer;transition:all .3s;font-size:.8rem;font-weight:700;color:#666}
-.pm-tab:hover{border-color:rgba(7,48,21,.15);color:#073015}
-.pm-tab.active{background:#073015;border-color:#073015;color:#fff;box-shadow:0 4px 16px rgba(7,48,21,.2)}
-.pm-tab-logo{height:24px;border-radius:3px;mix-blend-mode:multiply}
-.pm-tab.active .pm-tab-logo{mix-blend-mode:normal}
+.email-preview-card{overflow:hidden}
+.email-fields{padding:4px 18px}
+.email-field{display:grid;grid-template-columns:72px 1fr;align-items:center;gap:12px;min-height:44px;padding:6px 0}
+.email-field:not(:last-child){border-bottom:1px solid var(--border)}
+.email-field-label{font-size:13px;font-weight:500;color:var(--muted)}
+.email-field-value{font-size:14px;color:var(--text);min-width:0;display:flex;flex-wrap:wrap;gap:4px}
+.email-field-value .email-tag{display:inline-flex;align-items:center;background:var(--subtle);border:1px solid var(--border);padding:0 8px;border-radius:4px;font-size:13px;line-height:22px;color:var(--text-2)}
+.email-field-value .email-tag.more{background:transparent;border-style:dashed;color:var(--muted)}
+.email-field-value input{border:none;outline:none;font-size:14px;font-weight:600;color:var(--text);width:100%;background:transparent;padding:4px 0}
+.email-field-value input:focus{box-shadow:inset 0 -2px 0 var(--brand)}
+.field-placeholder{color:var(--faint);font-size:14px}
+.subject-input{font-weight:600 !important}
+.email-body{background:var(--sunken);border-top:1px solid var(--border);padding:28px 20px}
+.email-frame-label{max-width:680px;margin:0 auto 10px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--muted)}
+.email-body-inner{max-width:680px;margin:0 auto;background:#fff;box-shadow:var(--shadow-lg);border-radius:8px;overflow:hidden}
 
-.pm-list{display:grid;gap:12px}
-.pm-card{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:20px;transition:all .3s}
-.pm-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.04);border-color:rgba(0,0,0,.08)}
-.pm-card-color{width:5px;height:48px;border-radius:4px;flex-shrink:0}
-.pm-card-color.cap-red{background:#dc2626}
-.pm-card-color.cap-green{background:#388600}
-.pm-card-color.cap-purple{background:#7c3aed}
-.pm-card-color.cap-yellow{background:#c49000}
-.pm-card-color.cap-orange{background:#e07000}
+/* ── Modal (shared) ── */
+.modal-overlay,.pm-modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,31,54,.38);z-index:1000;justify-content:center;align-items:center;padding:20px}
+.modal-overlay.show,.pm-modal-overlay.show{display:flex;animation:fade-in .15s ease}
+.modal,.pm-modal{background:var(--canvas);width:100%;max-width:480px;border-radius:10px;overflow:hidden;box-shadow:var(--shadow-lg);max-height:calc(100vh - 40px);display:flex;flex-direction:column}
+.modal-header,.pm-modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3,.pm-modal-header h3{font-size:16px;font-weight:600;color:var(--text)}
+.modal-close,.pm-modal-close{width:28px;height:28px;border:none;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);border-radius:6px}
+.modal-close:hover,.pm-modal-close:hover{background:var(--subtle);color:var(--text)}
+.modal-body,.pm-modal-body{padding:18px 20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
+.modal-footer,.pm-modal-footer{padding:12px 20px;border-top:1px solid var(--border);background:var(--subtle);display:flex;justify-content:flex-end;gap:8px}
+.summary-list{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.summary-row{display:flex;justify-content:space-between;gap:16px;padding:10px 14px;font-size:14px}
+.summary-row:not(:last-child){border-bottom:1px solid var(--border)}
+.summary-row .k{color:var(--muted)}
+.summary-row .v{color:var(--text);font-weight:500;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.modal-note{font-size:13px;color:var(--muted)}
+
+/* ── Products manager ── */
+.pm-brand-tabs{display:inline-flex;gap:2px;padding:3px;margin-bottom:18px;background:var(--subtle);border:1px solid var(--border);border-radius:8px}
+.pm-tab{display:flex;align-items:center;gap:8px;height:32px;padding:0 12px;border:none;border-radius:6px;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:var(--muted);transition:background .12s,color .12s}
+.pm-tab:hover{color:var(--text)}
+.pm-tab.active{background:var(--canvas);color:var(--text);box-shadow:var(--shadow-sm)}
+.pm-tab-logo{height:20px;border-radius:3px;mix-blend-mode:multiply}
+.pm-list{border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;background:var(--canvas)}
+.pm-card{display:flex;align-items:center;gap:14px;padding:14px 16px;transition:background .12s}
+.pm-card:not(:last-child){border-bottom:1px solid var(--border)}
+.pm-card:hover{background:#fbfcfd}
+.pm-card-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pm-card-color.cap-red{background:#e5424d}
+.pm-card-color.cap-green{background:#3d9a2a}
+.pm-card-color.cap-purple{background:#8b5cf6}
+.pm-card-color.cap-yellow{background:#e5b50b}
+.pm-card-color.cap-orange{background:#f07c1a}
 .pm-card-color.cap-teal{background:#0d9488}
-.pm-card-info{flex:1;min-width:0}
-.pm-card-name{font-weight:800;color:#073015;font-size:.95rem;margin-bottom:4px}
-.pm-card-note{font-size:.7rem;color:#aaa;margin-bottom:6px}
-.pm-card-sizes{display:flex;flex-wrap:wrap;gap:5px}
-.pm-card-size{font-size:.62rem;font-weight:700;padding:3px 10px;background:#f4f1eb;border-radius:20px;color:#666;letter-spacing:.3px}
-.pm-card-actions{display:flex;gap:8px;flex-shrink:0}
-.pm-card-btn{width:34px;height:34px;border-radius:8px;border:1px solid rgba(0,0,0,.06);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.pm-card-btn svg{width:15px;height:15px;stroke:#999;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.pm-card-btn:hover{border-color:rgba(0,0,0,.12);background:#faf9f6}
-.pm-card-btn.delete:hover{background:#fef2f2;border-color:#fca5a5}
-.pm-card-btn.delete:hover svg{stroke:#dc2626}
-.pm-card-btn.edit:hover svg{stroke:#073015}
-.pm-empty{text-align:center;padding:60px 20px;color:#ccc;font-size:.85rem}
-
-/* ── Product Modal ── */
-.pm-modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
-.pm-modal-overlay.show{display:flex}
-.pm-modal{background:#fff;width:100%;max-width:520px;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.25)}
-.pm-modal-header{padding:20px 28px;border-bottom:1px solid rgba(0,0,0,.05);display:flex;align-items:center;justify-content:space-between}
-.pm-modal-header h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#073015}
-.pm-modal-close{width:32px;height:32px;border:none;background:none;font-size:1.3rem;cursor:pointer;color:#999;border-radius:8px;transition:all .2s}
-.pm-modal-close:hover{background:#f5f5f5;color:#333}
-.pm-modal-body{padding:24px 28px;display:flex;flex-direction:column;gap:20px}
-.pm-field label{display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px}
-.pm-field input,.pm-field select{width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,.08);border-radius:10px;font-size:.85rem;color:#333;font-family:'Inter',sans-serif;background:#faf9f6;transition:border .2s}
-.pm-field input:focus,.pm-field select:focus{outline:none;border-color:#c4a265}
+.pm-card-info{flex:1;min-width:0;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pm-card-name{font-weight:600;color:var(--text);font-size:14px;min-width:140px}
+.pm-card-note{font-size:13px;color:var(--muted)}
+.pm-card-sizes{display:flex;flex-wrap:wrap;gap:4px}
+.pm-card-size{font-size:12px;font-weight:500;padding:0 7px;line-height:20px;background:var(--subtle);border:1px solid var(--border);border-radius:4px;color:var(--text-2)}
+.pm-card-actions{display:flex;gap:4px;flex-shrink:0}
+.pm-card-btn,.icon-btn{width:30px;height:30px;border-radius:6px;border:1px solid transparent;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:background .12s,color .12s,border-color .12s}
+.pm-card-btn svg,.icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.pm-card-btn:hover,.icon-btn:hover{background:var(--canvas);border-color:var(--border);color:var(--text);box-shadow:var(--shadow-sm)}
+.pm-card-btn.delete:hover,.icon-btn.delete:hover{color:var(--danger)}
+.pm-field label{display:block;font-size:13px;font-weight:500;color:var(--text-2);margin-bottom:6px}
+.pm-field input,.pm-field select{width:100%;height:34px;padding:0 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;color:var(--text);background:var(--canvas);box-shadow:var(--shadow-sm)}
+.pm-field input:focus,.pm-field select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-ring)}
 .pm-field-row{display:flex;gap:16px}
 .pm-field-row .pm-field{flex:1}
 .pm-color-options{display:flex;gap:8px}
-.pm-color-btn{width:32px;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;transition:all .2s;position:relative}
-.pm-color-btn:hover{transform:scale(1.1)}
-.pm-color-btn.active{border-color:#073015;box-shadow:0 0 0 2px rgba(7,48,21,.15)}
-.pm-color-btn.active::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800}
-.pm-sizes-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;min-height:24px}
-.pm-size-tag{display:flex;align-items:center;gap:6px;padding:5px 12px;background:#f4f1eb;border-radius:20px;font-size:.72rem;font-weight:700;color:#555}
-.pm-size-tag button{background:none;border:none;cursor:pointer;color:#ccc;font-size:.85rem;padding:0;line-height:1;transition:color .2s}
-.pm-size-tag button:hover{color:#dc2626}
+.pm-color-btn{width:26px;height:26px;border-radius:50%;border:2px solid #fff;cursor:pointer;box-shadow:0 0 0 1px var(--border);position:relative;transition:box-shadow .12s}
+.pm-color-btn.active{box-shadow:0 0 0 2px var(--text)}
+.pm-sizes-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;min-height:22px}
+.pm-size-tag{display:flex;align-items:center;gap:6px;padding:0 4px 0 8px;line-height:24px;background:var(--subtle);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text-2)}
+.pm-size-tag button{background:none;border:none;cursor:pointer;color:var(--faint);font-size:15px;width:18px;height:18px;border-radius:3px;line-height:1}
+.pm-size-tag button:hover{color:var(--danger);background:var(--danger-bg)}
 .pm-add-size{display:flex;gap:8px}
-.pm-add-size input{flex:1;padding:8px 12px;border:1px solid rgba(0,0,0,.08);border-radius:8px;font-size:.8rem;background:#faf9f6;font-family:'Inter',sans-serif}
-.pm-add-size input:focus{outline:none;border-color:#c4a265}
-.btn-sm{padding:8px 16px;font-size:.72rem}
-.pm-modal-footer{padding:16px 28px;border-top:1px solid rgba(0,0,0,.05);display:flex;justify-content:flex-end;gap:10px}
+.pm-add-size input{flex:1;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;box-shadow:var(--shadow-sm)}
+.pm-add-size input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-ring)}
+.pm-empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:14px}
 
-.pdf-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:flex-start;padding:40px;overflow-y:auto;backdrop-filter:blur(4px)}
-.pdf-overlay.show{display:flex}
-.pdf-modal{background:#fff;width:100%;max-width:800px;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.3);margin:auto}
-.pdf-toolbar{background:#073015;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1}
-.pdf-toolbar h3{color:#fff;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700}
-.pdf-toolbar-actions{display:flex;gap:10px}
-.pdf-toolbar .btn-pdf{padding:8px 20px;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;border:none;transition:all .2s}
-.btn-pdf-print{background:#c4a265;color:#fff}
-.btn-pdf-print:hover{background:#d4b87a}
-.btn-pdf-close{background:rgba(255,255,255,.12);color:#fff}
-.btn-pdf-close:hover{background:rgba(255,255,255,.2)}
+/* ── History ── */
+.history-filters{display:flex;gap:10px;margin-bottom:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.history-search{width:280px;max-width:100%}
+.history-seg{display:inline-flex;gap:2px;padding:3px;background:var(--subtle);border:1px solid var(--border);border-radius:8px}
+.history-seg button{height:28px;padding:0 12px;border:none;border-radius:6px;background:transparent;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer}
+.history-seg button.active{background:var(--canvas);color:var(--text);box-shadow:var(--shadow-sm)}
+.data-table-wrap{border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);background:var(--canvas);overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;min-width:640px}
+.data-table th{font-size:12px;font-weight:600;color:var(--muted);text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--canvas);white-space:nowrap}
+.data-table th.num,.data-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.data-table td{padding:0 16px;height:48px;border-bottom:1px solid #eef1f4;font-size:14px;color:var(--text-2);white-space:nowrap}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tbody tr{cursor:pointer;transition:background .1s}
+.data-table tbody tr:hover{background:#f7f9fc}
+.data-table tbody tr.selected{background:var(--brand-soft)}
+.data-table .primary{color:var(--text);font-weight:500}
+.data-table .muted{color:var(--muted)}
+.data-table .truncate{max-width:320px;overflow:hidden;text-overflow:ellipsis}
+.row-actions{display:flex;justify-content:flex-end;gap:2px;opacity:0;transition:opacity .12s}
+.data-table tbody tr:hover .row-actions{opacity:1}
+.table-foot{padding:10px 16px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+
+/* ── Drawer ── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(26,31,54,.25);z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s}
+.drawer-overlay.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:460px;max-width:100vw;background:var(--canvas);box-shadow:var(--shadow-lg);z-index:1001;transform:translateX(100%);transition:transform .25s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}
+.drawer.show{transform:none}
+.drawer-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.drawer-head .eyebrow{font-size:12px;color:var(--muted);margin-bottom:4px}
+.drawer-head h3{font-size:18px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.drawer-body{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:20px}
+.drawer-body > *,.modal-body > *{flex-shrink:0}
+.drawer-foot{padding:12px 20px;border-top:1px solid var(--border);background:var(--subtle);display:flex;justify-content:space-between;gap:8px}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.stat-row > div{padding:12px 14px}
+.stat-row > div:not(:last-child){border-right:1px solid var(--border)}
+.stat-row .k{font-size:12px;color:var(--muted);margin-bottom:2px}
+.stat-row .v{font-size:18px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.section-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+.chip-list{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;padding:0 8px;line-height:24px;border-radius:4px;background:var(--subtle);border:1px solid var(--border);color:var(--text-2)}
+.mini-table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.mini-table th{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.2px;text-align:right;padding:7px 12px;background:var(--subtle);border-bottom:1px solid var(--border)}
+.mini-table th:first-child{text-align:left}
+.mini-table td{font-size:13.5px;padding:7px 12px;border-bottom:1px solid #eef1f4;text-align:right;font-variant-numeric:tabular-nums;color:var(--text)}
+.mini-table td:first-child{text-align:left;color:var(--text-2)}
+.mini-table tr:last-child td{border-bottom:none}
+.mini-table .group-row td{background:#fbfcfd;font-weight:600;color:var(--text);font-size:13px;text-align:left}
+.mini-table .dim{color:var(--faint)}
+
+/* ── Trends ── */
+.trend-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);background:var(--canvas);margin-bottom:20px;overflow:hidden}
+.trend-summary-card{padding:16px 18px}
+.trend-summary-card:not(:last-child){border-right:1px solid var(--border)}
+.trend-summary-card .ts-label{font-size:13px;font-weight:500;color:var(--muted)}
+.trend-summary-card .ts-num{font-size:24px;font-weight:600;color:var(--text);margin-top:4px;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+.trend-summary-card .ts-sub{font-size:12.5px;color:var(--faint);margin-top:2px}
+.trends-grid{display:grid;gap:20px}
+.trend-card{overflow:hidden}
+.trend-table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:560px}
+.trend-table col.c-prod{width:34%}.trend-table col.c-spark{width:22%}.trend-table col.c-num{width:14.66%}
+.trend-table th{font-size:12px;font-weight:600;color:var(--muted);text-align:left;padding:9px 18px;border-bottom:1px solid var(--border);white-space:nowrap}
+.trend-table th.num,.trend-table td.num{text-align:right}
+.trend-table td{padding:0 18px;height:46px;border-bottom:1px solid #eef1f4;font-size:14px;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.trend-table tr:last-child td{border-bottom:none}
+.trend-table .prod{display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500}
+.trend-table .prod .size{color:var(--muted);font-weight:400}
+.spark{display:block}
+.change-pill{display:inline-block;font-size:12px;font-weight:600;padding:0 6px;line-height:20px;border-radius:4px;min-width:56px;text-align:center}
+.change-pill.up{background:#fff0f3;color:var(--up)}
+.change-pill.down{background:#e8f7ee;color:var(--down)}
+.change-pill.flat{background:var(--subtle);color:var(--muted)}
+
+/* ── Preferences ── */
+.settings-card{max-width:680px}
+.settings-row{display:grid;grid-template-columns:220px 1fr;gap:24px;padding:18px 20px;align-items:start}
+.settings-row:not(:last-child){border-bottom:1px solid var(--border)}
+.settings-row .sr-label{font-size:14px;font-weight:500;color:var(--text)}
+.settings-row .sr-desc{font-size:13px;color:var(--muted);margin-top:2px}
+
+/* ── PDF preview modal chrome ── */
+.pdf-overlay{display:none;position:fixed;inset:0;background:rgba(26,31,54,.45);z-index:1000;justify-content:center;align-items:flex-start;padding:32px 20px;overflow-y:auto}
+.pdf-overlay.show{display:flex;animation:fade-in .15s ease}
+.pdf-modal{background:#fff;width:100%;max-width:800px;border-radius:10px;overflow:hidden;box-shadow:var(--shadow-lg);margin:auto}
+.pdf-toolbar{background:var(--canvas);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1}
+.pdf-toolbar h3{font-size:15px;font-weight:600;color:var(--text)}
+.pdf-toolbar-actions{display:flex;gap:8px}
+
+
+/* ── Client-facing PDF + email preview content (unchanged) ── */
 .pdf-body{padding:48px 52px}
 .pdf-header{text-align:center;margin-bottom:32px;padding-bottom:24px;border-bottom:2px solid #073015}
 .pdf-header img{height:60px;margin-bottom:12px}
@@ -311,42 +440,6 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
 .pdf-footer{text-align:center;margin-top:20px;padding:20px;background:#073015;border-radius:0 0 16px 16px}
 .pdf-footer p{color:rgba(255,255,255,.5);font-size:.65rem;line-height:1.8}
 .pdf-footer .pf-name{color:#c4a265;font-weight:700;font-size:.75rem}
-
-/* ══════════════════════════════════════════
-   EMAIL TEMPLATE VIEW
-   ══════════════════════════════════════════ */
-.email-layout{display:grid;grid-template-columns:300px 1fr;gap:28px}
-.recipients-panel{background:#fff;border-radius:16px;border:1px solid rgba(0,0,0,.04);padding:24px;height:fit-content;position:sticky;top:100px}
-.recipients-panel h3{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#073015;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.recipients-panel h3 svg{width:16px;height:16px;stroke:#073015;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.recipient-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:6px;cursor:pointer;transition:all .2s;border:1.5px solid transparent}
-.recipient-item:hover{background:#f5f3ef}
-.recipient-item.selected{background:rgba(7,48,21,.03);border-color:rgba(7,48,21,.12)}
-.recipient-check{width:20px;height:20px;border-radius:6px;border:2px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
-.recipient-item.selected .recipient-check{background:#073015;border-color:#073015}
-.recipient-item.selected .recipient-check::after{content:'';width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
-.recipient-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#073015,#0b5d1e);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0}
-.recipient-details{flex:1;min-width:0}
-.recipient-details h4{font-size:.8rem;font-weight:700;color:#073015;margin-bottom:1px}
-.recipient-details p{font-size:.65rem;color:#aaa;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.recipients-count{margin-top:16px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06);font-size:.7rem;color:#999;font-weight:600;display:flex;justify-content:space-between;align-items:center}
-.recipients-count span{color:#073015;font-weight:800}
-
-.email-preview-card{background:#fff;border-radius:16px;border:1px solid rgba(0,0,0,.04);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.03)}
-.email-toolbar{padding:16px 24px;border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between;background:#faf9f6}
-.email-toolbar-left{display:flex;gap:8px}
-.email-toolbar .btn{padding:8px 18px;font-size:.75rem}
-.email-fields{padding:20px 28px;border-bottom:1px solid rgba(0,0,0,.06)}
-.email-field{display:flex;align-items:flex-start;gap:12px;padding:8px 0}
-.email-field:not(:last-child){border-bottom:1px solid rgba(0,0,0,.03)}
-.email-field-label{font-size:.7rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;min-width:70px;padding-top:2px}
-.email-field-value{font-size:.82rem;color:#333;font-weight:500;flex:1}
-.email-field-value .email-tag{display:inline-flex;align-items:center;gap:6px;background:#f0ede6;padding:4px 12px;border-radius:6px;margin:2px 4px 2px 0;font-size:.75rem;font-weight:600;color:#073015}
-.email-field-value input{border:none;outline:none;font-size:.82rem;font-family:'Inter',sans-serif;font-weight:500;color:#333;width:100%;background:transparent}
-.email-field-value input::placeholder{color:#ccc}
-.subject-input{font-weight:700 !important;font-size:.9rem !important;color:#073015 !important}
-.email-body{padding:0;background:#e8e4dd}
-.email-body-inner{max-width:680px;margin:32px auto;background:#fff;box-shadow:0 4px 30px rgba(0,0,0,.1);border-radius:12px;overflow:hidden}
 
 /* ── Email HTML Template ── */
 .eml-hero{background:linear-gradient(160deg,#041f0e 0%,#073015 40%,#0a4a22 100%);padding:52px 48px 44px;text-align:center;position:relative;overflow:hidden}
@@ -406,97 +499,141 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
 .eml-footer-divider{width:40px;height:1px;background:rgba(196,162,101,.25);margin:14px auto}
 
 /* ── Mobile bottom nav ── */
-.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:900;background:#fff;border-top:1px solid rgba(0,0,0,.08);box-shadow:0 -4px 20px rgba(0,0,0,.06);padding:6px 4px calc(6px + env(safe-area-inset-bottom));justify-content:space-around}
-.mobile-bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;flex:1;cursor:pointer;color:#999;text-decoration:none;transition:color .2s;min-width:0}
-.mobile-bottom-nav a svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.mobile-bottom-nav a span{font-size:.58rem;font-weight:700;letter-spacing:.3px}
-.mobile-bottom-nav a.active{color:#073015}
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:900;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--border);padding:4px 4px calc(4px + env(safe-area-inset-bottom));justify-content:space-around}
+.mobile-bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;flex:1;cursor:pointer;color:var(--faint);text-decoration:none;min-width:0}
+.mobile-bottom-nav a svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.mobile-bottom-nav a span{font-size:10.5px;font-weight:500}
+.mobile-bottom-nav a.active{color:var(--brand)}
 
 /* ── Responsive ── */
-@media(max-width:1200px){.brand-products{grid-template-columns:1fr 1fr}.email-layout{grid-template-columns:260px 1fr}}
-@media(max-width:1024px){.app-layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:24px 24px 88px}.email-layout{grid-template-columns:1fr}.recipients-panel{position:static}.mobile-bottom-nav{display:flex}}
-@media(max-width:768px){.brand-products{grid-template-columns:1fr}.status-bar{flex-direction:column}.page-header{flex-direction:column;gap:16px}.header-actions{width:100%}.header-actions .btn{flex:1;justify-content:center}.main{padding:18px 16px 88px}.topbar{padding:12px 18px}.topbar-subtitle{font-size:.62rem}}
-@media(max-width:480px){.mobile-bottom-nav a span{font-size:.52rem}.mobile-bottom-nav a svg{width:18px;height:18px}.brand-products.two-col{grid-template-columns:1fr}.page-header h1{font-size:1.6rem}}
+@media(max-width:1240px){.brand-products{grid-template-columns:repeat(2,minmax(0,1fr))}.trend-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.trend-summary-card:nth-child(2){border-right:none}.trend-summary-card:nth-child(-n+2){border-bottom:1px solid var(--border)}}
+@media(max-width:1024px){
+    .app-layout{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .main{padding:20px 20px 92px}
+    .email-layout{grid-template-columns:1fr}
+    .recipients-panel{position:static}
+    .mobile-bottom-nav{display:flex}
+    .topbar-date{display:none}
+    .sheet-hints{display:none}
+}
+@media(max-width:768px){
+    .topbar{padding:0 16px;height:56px}
+    .topbar-divider,.btn-signout .label{display:none}
+    .btn-signout{width:32px;padding:0}
+    .brand-products,.brand-products.two-col{grid-template-columns:1fr}
+    .page-header{flex-direction:column;align-items:stretch;gap:14px}
+    .page-header h1{font-size:22px}
+    .header-actions{justify-content:stretch}
+    .header-actions .btn{flex:1}
+    .main{padding:16px 16px 92px}
+    .brand-content{padding:14px 12px 16px}
+    .quote-footer{flex-direction:column;align-items:stretch}
+    .quote-footer .actions .btn{flex:1}
+    .settings-row{grid-template-columns:1fr;gap:10px}
+    .stat-row .v{font-size:16px}
+    .pm-card-info{flex-direction:column;align-items:flex-start;gap:6px}
+    .price-input,.price-field.has-delta .price-input,.price-field.has-delta:focus-within .price-input{font-size:16px}
+}
+@media(max-width:480px){
+    .sync-state .sync-label{display:none}
+    .sync-state{padding:6px}
+    .topbar-subtitle{font-size:13px}
+    .trend-summary{grid-template-columns:1fr 1fr}
+    .brand-tab-logo{height:24px}
+    .brand-tab{padding:10px 8px 9px;gap:8px}
+}
 
 @media print{
-    .pdf-toolbar,.topbar,.sidebar,.pdf-overlay{background:none;box-shadow:none}
+    .pdf-toolbar,.topbar,.sidebar{box-shadow:none}
     .pdf-modal{box-shadow:none;border-radius:0}
     .pdf-toolbar{display:none}
 }
+
 </style>
 </head>
 <body>
 
 <!-- TOP BAR -->
-<div class="topbar">
+<header class="topbar">
     <div class="topbar-left">
         <img src="logo.avif" alt="HM Distributors" class="topbar-logo" onerror="this.style.display='none'">
-        <div>
-            <div class="topbar-subtitle">Daily Quote System</div>
-        </div>
+        <span class="topbar-divider"></span>
+        <span class="topbar-subtitle">Daily Quote</span>
     </div>
     <div class="topbar-right">
-        <div class="topbar-date" id="topbarDate"></div>
-        <button onclick="logout()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 16px;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;font-family:'Inter',sans-serif" onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.12)'">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Sign Out
+        <span class="topbar-date tnum" id="topbarDate"></span>
+        <span class="sync-state" id="syncState" data-state="syncing" title="Connecting…"><span class="sync-dot"></span><span class="sync-label">Connecting…</span></span>
+        <button class="btn-signout" onclick="logout()" title="Sign out">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span class="label">Sign out</span>
         </button>
         <div class="topbar-user" id="topbarUser" title="Signed in">BM</div>
     </div>
-</div>
+</header>
 
-<!-- APP LAYOUT -->
 <div class="app-layout">
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-section">
-            <div class="sidebar-label">Menu</div>
+            <div class="sidebar-label">Quotes</div>
             <ul class="sidebar-nav">
-                <li><a onclick="switchView('quote')" class="active" data-view="quote"><span class="icon"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span> Today's Quote</a></li>
-                <li><a onclick="switchView('email')" data-view="email"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span> Email Templates</a></li>
-                <li><a onclick="switchView('history')" data-view="history"><span class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span> Quote History</a></li>
-                <li><a onclick="switchView('trends')" data-view="trends"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span> Price Trends</a></li>
+                <li><a onclick="switchView('quote')" class="active" data-view="quote"><span class="icon"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>Today's quote</a></li>
+                <li><a onclick="switchView('email')" data-view="email"><span class="icon"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>Review &amp; send</a></li>
+                <li><a onclick="switchView('history')" data-view="history"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></span>History</a></li>
+                <li><a onclick="switchView('trends')" data-view="trends"><span class="icon"><svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg></span>Price trends</a></li>
             </ul>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-label">Settings</div>
             <ul class="sidebar-nav">
-                <li><a onclick="switchView('products')" data-view="products"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span> Products</a></li>
-                <li><a onclick="switchView('prefs')" data-view="prefs"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span> Preferences</a></li>
+                <li><a onclick="switchView('products')" data-view="products"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>Products</a></li>
+                <li><a onclick="switchView('prefs')" data-view="prefs"><span class="icon"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>Preferences</a></li>
             </ul>
         </div>
         <div class="sidebar-spacer"></div>
         <div class="sidebar-footer">
-            <p>HM Distributors Inc.<br>Nogales, Arizona<br>(520) 281-9534</p>
+            <p>HM Distributors Inc.<br>Rio Rico, Arizona<br>(520) 281-9534</p>
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="main">
 
         <!-- VIEW: TODAY'S QUOTE -->
-        <div class="view active" id="view-quote">
+        <section class="view active" id="view-quote">
             <div class="page-header">
                 <div>
-                    <h1>Today's Quote Sheet <span class="status-pill" id="sentStatus"><span class="status-dot"></span>Not Sent</span></h1>
-                    <p>Fill in today's prices and send to your clients</p>
+                    <h1>Today's quote <span class="status-pill neutral" id="sentStatus">Draft</span></h1>
+                    <div class="page-meta"><span class="tnum" id="quoteDateBadge"></span><span class="sep">·</span><span id="savedState">Not saved yet</span></div>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-outline" onclick="clearAll()">Clear All</button>
-                    <button class="btn btn-outline" onclick="loadLastPrices()">Load Last Prices</button>
-                    <button class="btn btn-gold" onclick="previewQuote()">Preview PDF</button>
+                    <button class="btn btn-ghost" onclick="clearAll()">Clear all</button>
+                    <button class="btn btn-secondary" onclick="loadLastPrices()">
+                        <svg class="ic" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>Load last prices</button>
+                    <button class="btn btn-secondary" onclick="previewQuote()">
+                        <svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Preview PDF</button>
+                    <button class="btn btn-primary" onclick="switchView('email')">Review &amp; send
+                        <svg class="ic" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
                 </div>
             </div>
+
             <div class="quote-card">
-                <div class="quote-card-header">
-                    <h2>Daily Price Sheet</h2>
-                    <div class="date-badge" id="quoteDateBadge"></div>
+                <div class="brand-tabs" role="tablist">
+                    <div class="brand-tab active" data-brand="spv" onclick="switchBrand('spv')" role="tab"><img src="svp-paris.jpg" alt="" class="brand-tab-logo"><span class="brand-tab-name">SPV &amp; Paris</span><span class="bt-count" id="count-spv">0/0</span></div>
+                    <div class="brand-tab" data-brand="wolf" onclick="switchBrand('wolf')" role="tab"><img src="wolf.jpg" alt="" class="brand-tab-logo"><span class="brand-tab-name">The Wolf</span><span class="bt-count" id="count-wolf">0/0</span></div>
+                    <div class="brand-tab" data-brand="mr" onclick="switchBrand('mr')" role="tab"><img src="mrproduce.jpg" alt="" class="brand-tab-logo"><span class="brand-tab-name">Mr. Produce</span><span class="bt-count" id="count-mr">0/0</span></div>
                 </div>
-                <div class="brand-tabs">
-                    <div class="brand-tab active" onclick="switchBrand('spv')"><img src="svp-paris.jpg" alt="SPV &amp; Paris" class="brand-tab-logo"><span class="brand-tab-name">SPV & Paris</span></div>
-                    <div class="brand-tab" onclick="switchBrand('wolf')"><img src="wolf.jpg" alt="The Wolf" class="brand-tab-logo"><span class="brand-tab-name">The Wolf</span></div>
-                    <div class="brand-tab" onclick="switchBrand('mr')"><img src="mrproduce.jpg" alt="Mr. Produce" class="brand-tab-logo"><span class="brand-tab-name">Mr. Produce</span></div>
+                <div class="sheet-toolbar">
+                    <div class="sheet-progress">
+                        <span><strong id="filledTotal">0</strong> of <span id="inputsTotal" class="tnum">0</span> prices filled</span>
+                        <span class="progress-track"><span class="progress-fill" id="progressFill" style="width:0%"></span></span>
+                    </div>
+                    <div class="sheet-hints">
+                        <span><kbd>↵</kbd> next row</span>
+                        <span><kbd>Tab</kbd> next column</span>
+                        <span class="legend-ghost" id="ghostLegend" hidden>Gray prices are from your last sent quote</span>
+                    </div>
                 </div>
                 <div class="quote-card-body">
                     <div class="brand-content active" id="brand-spv"></div>
@@ -504,211 +641,203 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
                     <div class="brand-content" id="brand-mr"></div>
                 </div>
                 <div class="quote-footer">
-                    <div class="disclaimer">All prices are FOB Nogales, AZ. All prices are informational and are subject to change without notice. Please call for current availability.</div>
+                    <div class="disclaimer">All prices are FOB Nogales, AZ, informational, and subject to change without notice. Please call for current availability.</div>
                     <div class="actions">
-                        <button class="btn btn-outline" onclick="saveDraft()">Save Draft</button>
-                        <button class="btn btn-green" onclick="switchView('email')">Send to Clients →</button>
+                        <button class="btn btn-secondary" onclick="saveDraft()">Save draft</button>
+                        <button class="btn btn-primary" onclick="switchView('email')">Review &amp; send</button>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- VIEW: EMAIL TEMPLATES -->
-        <!-- PRODUCTS MANAGEMENT VIEW -->
-        <div class="view" id="view-products">
+        <!-- VIEW: PRODUCTS -->
+        <section class="view" id="view-products">
             <div class="page-header">
                 <div>
                     <h1>Products</h1>
-                    <p>Manage your product catalog by brand</p>
+                    <p>The products and sizes that appear on your quote sheet, by brand.</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-outline" onclick="addProductModal()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:-2px;margin-right:4px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Product</button>
+                    <button class="btn btn-primary" onclick="addProductModal()"><svg class="ic" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add product</button>
                 </div>
             </div>
-
             <div class="pm-brand-tabs">
-                <button class="pm-tab active" onclick="switchProductBrand('spv',this)"><img src="svp-paris.jpg" class="pm-tab-logo"><span>SPV & Paris</span></button>
-                <button class="pm-tab" onclick="switchProductBrand('wolf',this)"><img src="wolf.jpg" class="pm-tab-logo"><span>The Wolf</span></button>
-                <button class="pm-tab" onclick="switchProductBrand('mr',this)"><img src="mrproduce.jpg" class="pm-tab-logo"><span>Mr. Produce</span></button>
+                <button class="pm-tab active" onclick="switchProductBrand('spv',this)"><img src="svp-paris.jpg" class="pm-tab-logo" alt=""><span>SPV &amp; Paris</span></button>
+                <button class="pm-tab" onclick="switchProductBrand('wolf',this)"><img src="wolf.jpg" class="pm-tab-logo" alt=""><span>The Wolf</span></button>
+                <button class="pm-tab" onclick="switchProductBrand('mr',this)"><img src="mrproduce.jpg" class="pm-tab-logo" alt=""><span>Mr. Produce</span></button>
             </div>
-
             <div id="productsList" class="pm-list"></div>
-        </div>
+        </section>
 
         <!-- ADD/EDIT PRODUCT MODAL -->
         <div class="pm-modal-overlay" id="pmModal" onclick="if(event.target===this)closePmModal()">
             <div class="pm-modal">
                 <div class="pm-modal-header">
-                    <h3 id="pmModalTitle">Add Product</h3>
-                    <button class="pm-modal-close" onclick="closePmModal()">&times;</button>
+                    <h3 id="pmModalTitle">Add product</h3>
+                    <button class="pm-modal-close" onclick="closePmModal()" aria-label="Close">&times;</button>
                 </div>
                 <div class="pm-modal-body">
                     <div class="pm-field">
-                        <label>Brand</label>
+                        <label for="pmBrand">Brand</label>
                         <select id="pmBrand">
-                            <option value="spv">SPV & Paris</option>
+                            <option value="spv">SPV &amp; Paris</option>
                             <option value="wolf">The Wolf</option>
                             <option value="mr">Mr. Produce</option>
                         </select>
                     </div>
                     <div class="pm-field">
-                        <label>Product Name</label>
+                        <label for="pmName">Product name</label>
                         <input type="text" id="pmName" placeholder="e.g. Roma Tomatoes">
                     </div>
-                    <div class="pm-field-row">
-                        <div class="pm-field">
-                            <label>Color Theme</label>
-                            <div class="pm-color-options" id="pmColors">
-                                <button class="pm-color-btn active" data-theme="red" data-cap="cap-red" style="background:#dc2626" onclick="selectPmColor(this)"></button>
-                                <button class="pm-color-btn" data-theme="green" data-cap="cap-green" style="background:#388600" onclick="selectPmColor(this)"></button>
-                                <button class="pm-color-btn" data-theme="purple" data-cap="cap-purple" style="background:#7c3aed" onclick="selectPmColor(this)"></button>
-                                <button class="pm-color-btn" data-theme="yellow" data-cap="cap-yellow" style="background:#c49000" onclick="selectPmColor(this)"></button>
-                                <button class="pm-color-btn" data-theme="orange" data-cap="cap-orange" style="background:#e07000" onclick="selectPmColor(this)"></button>
-                                <button class="pm-color-btn" data-theme="teal" data-cap="cap-teal" style="background:#0d9488" onclick="selectPmColor(this)"></button>
-                            </div>
+                    <div class="pm-field">
+                        <label>Color</label>
+                        <div class="pm-color-options" id="pmColors">
+                            <button class="pm-color-btn active" data-theme="red" data-cap="cap-red" style="background:#e5424d" onclick="selectPmColor(this)" aria-label="Red"></button>
+                            <button class="pm-color-btn" data-theme="green" data-cap="cap-green" style="background:#3d9a2a" onclick="selectPmColor(this)" aria-label="Green"></button>
+                            <button class="pm-color-btn" data-theme="purple" data-cap="cap-purple" style="background:#8b5cf6" onclick="selectPmColor(this)" aria-label="Purple"></button>
+                            <button class="pm-color-btn" data-theme="yellow" data-cap="cap-yellow" style="background:#e5b50b" onclick="selectPmColor(this)" aria-label="Yellow"></button>
+                            <button class="pm-color-btn" data-theme="orange" data-cap="cap-orange" style="background:#f07c1a" onclick="selectPmColor(this)" aria-label="Orange"></button>
+                            <button class="pm-color-btn" data-theme="teal" data-cap="cap-teal" style="background:#0d9488" onclick="selectPmColor(this)" aria-label="Teal"></button>
                         </div>
                     </div>
                     <div class="pm-field">
-                        <label>Note <span style="color:#aaa;font-weight:400">(optional — e.g. "1 1/9 HH BELLS")</span></label>
-                        <input type="text" id="pmNote" placeholder="Additional info shown below prices">
+                        <label for="pmNote">Note <span style="color:var(--faint);font-weight:400">optional, e.g. "1 1/9 HH BELLS"</span></label>
+                        <input type="text" id="pmNote" placeholder="Shown under the product name">
                     </div>
                     <div class="pm-field">
-                        <label>Sizes</label>
+                        <label for="pmNewSize">Sizes</label>
                         <div class="pm-sizes-list" id="pmSizes"></div>
                         <div class="pm-add-size">
-                            <input type="text" id="pmNewSize" placeholder="Add a size (e.g. XLGE)" onkeydown="if(event.key==='Enter')addPmSize()">
-                            <button class="btn btn-outline btn-sm" onclick="addPmSize()">Add</button>
+                            <input type="text" id="pmNewSize" placeholder="Add a size, e.g. XLGE" onkeydown="if(event.key==='Enter')addPmSize()">
+                            <button class="btn btn-secondary btn-sm" onclick="addPmSize()">Add</button>
                         </div>
                     </div>
                 </div>
                 <div class="pm-modal-footer">
-                    <button class="btn btn-outline" onclick="closePmModal()">Cancel</button>
-                    <button class="btn btn-green" onclick="savePmProduct()">Save Product</button>
+                    <button class="btn btn-secondary" onclick="closePmModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="savePmProduct()">Save product</button>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW: QUOTE HISTORY -->
-        <div class="view" id="view-history">
+        <!-- VIEW: HISTORY -->
+        <section class="view" id="view-history">
             <div class="page-header">
                 <div>
-                    <h1>Quote History</h1>
-                    <p>View and reload past quote sheets</p>
+                    <h1>History</h1>
+                    <p>Every quote you've sent or saved. Click one to see its prices or reuse them.</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-outline" onclick="clearHistory()">Clear History</button>
+                    <button class="btn btn-danger-ghost" onclick="clearHistory()">Clear history</button>
                 </div>
             </div>
             <div class="history-filters">
-                <input type="text" class="history-search" placeholder="Search by date or status..." oninput="filterHistory(this.value)">
+                <input type="text" class="input search-input history-search" placeholder="Search by date or recipient" oninput="filterHistory(this.value)">
+                <div class="history-seg" id="historySeg">
+                    <button class="active" data-type="all" onclick="setHistoryType('all')">All</button>
+                    <button data-type="sent" onclick="setHistoryType('sent')">Sent</button>
+                    <button data-type="draft" onclick="setHistoryType('draft')">Drafts</button>
+                </div>
             </div>
-            <div id="historyList" class="history-list"></div>
-        </div>
+            <div id="historyList"></div>
+        </section>
 
-        <!-- VIEW: PRICE TRENDS -->
-        <div class="view" id="view-trends">
+        <!-- VIEW: TRENDS -->
+        <section class="view" id="view-trends">
             <div class="page-header">
                 <div>
-                    <h1>Price Trends</h1>
-                    <p>Track price changes across your product catalog</p>
+                    <h1>Price trends</h1>
+                    <p>How your prices moved across your recent sent quotes.</p>
                 </div>
             </div>
             <div class="trend-summary" id="trendSummary"></div>
             <div class="trends-grid" id="trendsGrid"></div>
-        </div>
+        </section>
 
         <!-- VIEW: PREFERENCES -->
-        <div class="view" id="view-prefs">
+        <section class="view" id="view-prefs">
             <div class="page-header">
                 <div>
                     <h1>Preferences</h1>
-                    <p>Configure your quote system settings</p>
+                    <p>Defaults used when building and sending your quote.</p>
                 </div>
             </div>
-            <div style="background:#fff;border-radius:16px;border:1px solid rgba(0,0,0,.04);padding:32px 36px;max-width:600px">
-                <div style="margin-bottom:24px">
-                    <label style="display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px">Company Name</label>
-                    <input type="text" id="prefCompany" value="HM Distributors Inc." style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,.08);border-radius:10px;font-size:.85rem;font-family:'Inter',sans-serif;background:#faf9f6" oninput="savePref()">
+            <div class="card settings-card">
+                <div class="settings-row">
+                    <div><div class="sr-label">Company name</div><div class="sr-desc">Shown on the quote sheet.</div></div>
+                    <input type="text" class="input" id="prefCompany" value="HM Distributors Inc." oninput="savePref()">
                 </div>
-                <div style="margin-bottom:24px">
-                    <label style="display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px">Default Email Subject</label>
-                    <input type="text" id="prefSubject" value="HM Distributors — Daily Quote Sheet" style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,.08);border-radius:10px;font-size:.85rem;font-family:'Inter',sans-serif;background:#faf9f6" oninput="savePref()">
+                <div class="settings-row">
+                    <div><div class="sr-label">Email subject</div><div class="sr-desc">Default subject for new quotes.</div></div>
+                    <input type="text" class="input" id="prefSubject" value="HM Distributors — Daily Quote Sheet" oninput="savePref()">
                 </div>
-                <div style="margin-bottom:24px">
-                    <label style="display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px">Auto-save Drafts</label>
-                    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.82rem;color:#555"><input type="checkbox" id="prefAutosave" checked onchange="savePref()" style="width:18px;height:18px;accent-color:#073015"> Automatically save draft as you type</label>
+                <div class="settings-row">
+                    <div><div class="sr-label">FOB location</div><div class="sr-desc">Where prices are quoted from.</div></div>
+                    <input type="text" class="input" id="prefFob" value="Nogales, AZ" oninput="savePref()">
                 </div>
-                <div style="margin-bottom:24px">
-                    <label style="display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px">FOB Location</label>
-                    <input type="text" id="prefFob" value="Nogales, AZ" style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,.08);border-radius:10px;font-size:.85rem;font-family:'Inter',sans-serif;background:#faf9f6" oninput="savePref()">
+                <div class="settings-row">
+                    <div><div class="sr-label">Auto-save drafts</div><div class="sr-desc">Save your prices as you type.</div></div>
+                    <label class="checkbox-row"><input type="checkbox" id="prefAutosave" checked onchange="savePref()"> Save automatically</label>
                 </div>
-                <div style="padding-top:16px;border-top:1px solid rgba(0,0,0,.06)">
-                    <button class="btn btn-outline" onclick="resetPrefs()" style="font-size:.75rem">Reset to Defaults</button>
+                <div class="settings-row">
+                    <div><div class="sr-label">Reset</div><div class="sr-desc">Restore all preferences to their defaults.</div></div>
+                    <div><button class="btn btn-secondary" onclick="resetPrefs()">Reset to defaults</button></div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="view" id="view-email">
+        <!-- VIEW: REVIEW & SEND -->
+        <section class="view" id="view-email">
             <div class="page-header">
                 <div>
-                    <h1>Email Preview</h1>
-                    <p>Review how your quote sheet will appear to clients</p>
+                    <h1>Review &amp; send</h1>
+                    <p>Choose who gets today's quote and check the email before it goes out.</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-outline" onclick="switchView('quote')">← Back to Quote</button>
-                    <button class="btn btn-outline" onclick="refreshEmailPreview()">Refresh Preview</button>
-                    <button class="btn btn-green" onclick="sendEmails()">
-                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                        Send Quotes
-                    </button>
+                    <button class="btn btn-ghost" onclick="switchView('quote')">
+                        <svg class="ic" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back to prices</button>
+                    <button class="btn btn-secondary" onclick="refreshEmailPreview()">Refresh preview</button>
+                    <button class="btn btn-primary" onclick="openSendConfirm()">
+                        <svg class="ic" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Send quote</button>
                 </div>
             </div>
             <div class="email-layout">
-                <div class="recipients-panel">
-                    <h3><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Recipients</h3>
-                    <div id="recipientsList"></div>
-                    <div class="recipients-count">Selected: <span id="selectedCount">0</span></div>
-                    <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06)">
-                        <button class="btn btn-outline" onclick="openAddRecipient()" style="width:100%;justify-content:center;font-size:.72rem;padding:8px 14px">
-                            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            Add Recipient
-                        </button>
+                <div class="card recipients-panel">
+                    <div class="rp-head">
+                        <div class="rp-title">
+                            <h3>Recipients</h3>
+                            <div class="rp-count"><span id="selectedCount">0</span> of <span id="recipientTotal">0</span> selected</div>
+                        </div>
+                        <input type="text" class="input search-input" id="recipientSearch" placeholder="Search recipients" oninput="renderRecipients()">
+                        <div class="rp-bulk">
+                            <button class="link-btn" onclick="selectAllRecipients()">Select all</button>
+                            <button class="link-btn" onclick="deselectAllRecipients()">Clear selection</button>
+                        </div>
                     </div>
-                    <!-- Add Recipient Form (hidden by default) -->
-                    <div id="addRecipientForm" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06)">
-                        <div style="margin-bottom:10px">
-                            <label style="display:block;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:5px">Name</label>
-                            <input type="text" id="newRecipientName" placeholder="e.g. John Smith" style="width:100%;padding:8px 12px;border:1.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:.78rem;font-family:'Inter',sans-serif;background:#faf9f6" onkeydown="if(event.key==='Enter')document.getElementById('newRecipientCompany').focus()">
-                        </div>
-                        <div style="margin-bottom:10px">
-                            <label style="display:block;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:5px">Company</label>
-                            <input type="text" id="newRecipientCompany" placeholder="e.g. Sysco Foods" style="width:100%;padding:8px 12px;border:1.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:.78rem;font-family:'Inter',sans-serif;background:#faf9f6" onkeydown="if(event.key==='Enter')document.getElementById('newRecipientEmail').focus()">
-                        </div>
-                        <div style="margin-bottom:12px">
-                            <label style="display:block;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:5px">Email</label>
-                            <input type="email" id="newRecipientEmail" placeholder="e.g. john@sysco.com" style="width:100%;padding:8px 12px;border:1.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:.78rem;font-family:'Inter',sans-serif;background:#faf9f6" onkeydown="if(event.key==='Enter')addRecipient()">
-                        </div>
-                        <div style="display:flex;gap:8px">
-                            <button class="btn btn-green" onclick="addRecipient()" style="flex:1;justify-content:center;font-size:.72rem;padding:8px 14px">Add</button>
-                            <button class="btn btn-outline" onclick="closeAddRecipient()" style="font-size:.72rem;padding:8px 14px">Cancel</button>
+                    <div id="recipientsList"></div>
+                    <div class="rp-foot">
+                        <button class="btn btn-secondary" id="addRecipientToggle" onclick="openAddRecipient()" style="width:100%">
+                            <svg class="ic" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add recipient</button>
+                        <div id="addRecipientForm" class="add-recipient-form">
+                            <div class="field"><label for="newRecipientName">Name</label><input type="text" class="input" id="newRecipientName" placeholder="John Smith" onkeydown="if(event.key==='Enter')document.getElementById('newRecipientCompany').focus()"></div>
+                            <div class="field"><label for="newRecipientCompany">Company</label><input type="text" class="input" id="newRecipientCompany" placeholder="Sysco Foods" onkeydown="if(event.key==='Enter')document.getElementById('newRecipientEmail').focus()"></div>
+                            <div class="field"><label for="newRecipientEmail">Email</label><input type="email" class="input" id="newRecipientEmail" placeholder="john@sysco.com" onkeydown="if(event.key==='Enter')addRecipient()"></div>
+                            <div class="row">
+                                <button class="btn btn-ghost btn-sm" onclick="closeAddRecipient()">Cancel</button>
+                                <button class="btn btn-primary btn-sm" onclick="addRecipient()">Add recipient</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="email-preview-card">
-                    <div class="email-toolbar">
-                        <div class="email-toolbar-left">
-                            <button class="btn btn-outline" onclick="selectAllRecipients()" style="padding:8px 14px;font-size:.72rem">Select All</button>
-                            <button class="btn btn-outline" onclick="deselectAllRecipients()" style="padding:8px 14px;font-size:.72rem">Deselect All</button>
-                        </div>
-                    </div>
+                <div class="card email-preview-card">
                     <div class="email-fields">
                         <div class="email-field">
                             <div class="email-field-label">From</div>
-                            <div class="email-field-value" style="color:#073015;font-weight:600">HM Distributors &lt;quotes@hmdistributors.com&gt;</div>
+                            <div class="email-field-value">HM Distributors &lt;quotes@hmdistributors.com&gt;</div>
                         </div>
                         <div class="email-field">
                             <div class="email-field-label">To</div>
-                            <div class="email-field-value" id="emailToField"><span style="color:#ccc;font-size:.8rem">Select recipients from the panel</span></div>
+                            <div class="email-field-value" id="emailToField"><span class="field-placeholder">Select recipients</span></div>
                         </div>
                         <div class="email-field">
                             <div class="email-field-label">Subject</div>
@@ -716,23 +845,59 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
                         </div>
                     </div>
                     <div class="email-body">
+                        <div class="email-frame-label"><svg class="ic" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Preview: what your customers will see</div>
                         <div class="email-body-inner" id="emailPreviewBody"></div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
     </main>
 </div>
+
+<!-- SEND CONFIRMATION -->
+<div class="modal-overlay" id="sendModal" onclick="if(event.target===this)closeSendConfirm()">
+    <div class="modal" role="dialog" aria-labelledby="sendModalTitle">
+        <div class="modal-header">
+            <h3 id="sendModalTitle">Send today's quote?</h3>
+            <button class="modal-close" onclick="closeSendConfirm()" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="summary-list" id="sendSummary"></div>
+            <p class="modal-note">Each recipient gets their own email. This can't be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeSendConfirm()">Cancel</button>
+            <button class="btn btn-primary" id="confirmSendBtn" onclick="sendEmails()">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- HISTORY DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeHistoryDrawer()"></div>
+<aside class="drawer" id="historyDrawer" aria-hidden="true">
+    <div class="drawer-head">
+        <div>
+            <div class="eyebrow" id="drawerEyebrow">Quote</div>
+            <h3 id="drawerTitle"></h3>
+        </div>
+        <button class="modal-close" onclick="closeHistoryDrawer()" aria-label="Close">&times;</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-foot">
+        <button class="btn btn-danger-ghost" id="drawerDelete">Delete</button>
+        <button class="btn btn-primary" id="drawerReuse">Reuse these prices</button>
+    </div>
+</aside>
 
 <!-- PDF PREVIEW MODAL -->
 <div class="pdf-overlay" id="pdfOverlay" onclick="if(event.target===this)closePdf()">
     <div class="pdf-modal">
         <div class="pdf-toolbar">
-            <h3>PDF Preview</h3>
+            <h3>PDF preview</h3>
             <div class="pdf-toolbar-actions">
-                <button class="btn-pdf btn-pdf-print" onclick="printPdf()">Print / Save PDF</button>
-                <button class="btn-pdf btn-pdf-close" onclick="closePdf()">Close</button>
+                <button class="btn btn-secondary btn-sm" onclick="closePdf()">Close</button>
+                <button class="btn btn-primary btn-sm" onclick="printPdf()">Print / Save PDF</button>
             </div>
         </div>
         <div class="pdf-body" id="pdfBody"></div>
@@ -742,15 +907,15 @@ body{font-family:'Inter',sans-serif;background:#f5f3ef;min-height:100vh;color:#3
 <!-- MOBILE BOTTOM NAV -->
 <nav class="mobile-bottom-nav" id="mobileBottomNav">
     <a onclick="switchView('quote')" class="active" data-mview="quote"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span>Quote</span></a>
-    <a onclick="switchView('email')" data-mview="email"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>Email</span></a>
-    <a onclick="switchView('history')" data-mview="history"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>History</span></a>
-    <a onclick="switchView('trends')" data-mview="trends"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Trends</span></a>
-    <a onclick="switchView('products')" data-mview="products"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>Products</span></a>
-    <a onclick="switchView('prefs')" data-mview="prefs"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></a>
+    <a onclick="switchView('email')" data-mview="email"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span>Send</span></a>
+    <a onclick="switchView('history')" data-mview="history"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg><span>History</span></a>
+    <a onclick="switchView('trends')" data-mview="trends"><svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg><span>Trends</span></a>
+    <a onclick="switchView('products')" data-mview="products"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span>Products</span></a>
+    <a onclick="switchView('prefs')" data-mview="prefs"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg><span>Settings</span></a>
 </nav>
 
 <!-- TOAST -->
-<div class="toast" id="toast"><span class="toast-icon"></span><span class="toast-msg"></span></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-icon"></span><span class="toast-msg"></span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -772,9 +937,27 @@ if(cachedUser && cachedUser.initials){
 }
 
 // Supabase is the source of truth for auth
+function setSyncState(state){
+    const el = document.getElementById('syncState');
+    if(!el) return;
+    const labels = {
+        synced:  ['Synced', 'Your quotes are saved to the cloud'],
+        syncing: ['Saving…', 'Saving to the cloud'],
+        offline: ['Offline', "Can't reach the server. Changes are kept on this device and will sync when you're back online."],
+        local:   ['This device', 'Cloud sync is off. Changes are saved on this device only.']
+    };
+    const [label, title] = labels[state] || labels.synced;
+    el.dataset.state = state;
+    el.title = title;
+    el.querySelector('.sync-label').textContent = label;
+}
+window.addEventListener('offline', () => setSyncState('offline'));
+window.addEventListener('online', () => setSyncState(sb && currentUserId ? 'synced' : 'local'));
+
 (async function checkSession(){
     if(!sb){
         // Cloud sync disabled — fall back to sessionStorage-only auth
+        setSyncState('local');
         if(!cachedUser) window.location.href = 'login.html';
         return;
     }
@@ -800,6 +983,9 @@ if(cachedUser && cachedUser.initials){
     // Never pull cloud data over this device's local copy until it has been uploaded
     if(await migrateLocalToCloud()){
         await Sync.loadAll();
+        setSyncState(navigator.onLine ? 'synced' : 'offline');
+    } else {
+        setSyncState('offline');
     }
 })();
 
@@ -925,14 +1111,22 @@ const Sync = {
     // ── Draft ──
     async saveDraft(data){
         saveToStorage(STORAGE_KEYS.draft, data);
-        if(!currentUserId) return;
+        if(!currentUserId) return true;
+        setSyncState('syncing');
         try {
-            await sb.from('current_draft').upsert({
+            const { error } = await sb.from('current_draft').upsert({
                 user_id: currentUserId,
                 data: data,
                 updated_at: new Date().toISOString()
             });
-        } catch(e){ console.warn('Sync draft failed:', e); }
+            if(error) throw error;
+            setSyncState('synced');
+            return true;
+        } catch(e){
+            console.warn('Sync draft failed:', e);
+            setSyncState('offline');
+            return false;
+        }
     },
 
     async loadDraft(){
@@ -1120,11 +1314,20 @@ const Sync = {
 
     // ── Load All (called after auth) ──
     async loadAll(){
-        await Promise.all([
+        const [, , , cloudLastSent] = await Promise.all([
             this.loadRecipients(),
             this.loadProducts(),
-            this.loadPrefs()
+            this.loadPrefs(),
+            this.loadLastSent()
         ]);
+        if(cloudLastSent && JSON.stringify(cloudLastSent) !== JSON.stringify(lastSentCache)){
+            const current = gatherFormData();
+            lastSentCache = cloudLastSent;
+            saveToStorage(STORAGE_KEYS.lastSent, cloudLastSent);
+            rebuildQuoteView();
+            restoreFormData(current);
+            setQuoteStatus();
+        }
         // Load and restore draft
         const draft = await this.loadDraft();
         if(draft && draft.prices){
@@ -1296,9 +1499,23 @@ function autoSaveDraft(){
     data.type = 'draft';
     // Save locally immediately
     saveToStorage(STORAGE_KEYS.draft, data);
+    markSaved();
     // Debounce cloud save to every 5 seconds
     scheduleCloudDraftSave(data);
 }
+
+// "Saved 2 min ago" under the page title
+let lastSavedAt = null;
+function markSaved(){ lastSavedAt = Date.now(); renderSavedState(); }
+function renderSavedState(){
+    const el = document.getElementById('savedState');
+    if(!el) return;
+    if(!lastSavedAt){ el.textContent = 'Not saved yet'; return; }
+    const mins = Math.floor((Date.now() - lastSavedAt) / 60000);
+    el.textContent = mins < 1 ? 'Saved just now' : mins < 60 ? `Saved ${mins} min ago`
+        : `Saved at ${new Date(lastSavedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+}
+setInterval(renderSavedState, 30000);
 
 let cloudDraftTimer = null;
 function scheduleCloudDraftSave(data){
@@ -1389,70 +1606,145 @@ const svgIcons = {
 //  QUOTE VIEW
 // ══════════════════════════════════════════
 
+// Column definitions per brand: [input id prefix, column label]
+const BRAND_COLUMNS = {
+    spv:  [['spv-', 'SPV'], ['paris-', 'Paris']],
+    wolf: [['', 'Price'], ['p2-', '#2']],
+    mr:   [['', 'Price']]
+};
+
+// Last sent quote, used for gray "ghost" prices and change indicators
+let lastSentCache = loadFromStorage(STORAGE_KEYS.lastSent);
+
+function parsePrice(v){
+    if(v === null || v === undefined) return null;
+    const s = String(v).trim().replace(/^\$/, '');
+    return /^\d+(\.\d+)?$/.test(s) ? parseFloat(s) : null;
+}
+
+function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
 function renderBrandProducts(brandKey){
     const container = document.getElementById(`brand-${brandKey}`);
     const products = productData[brandKey];
-    const isSpvDual = brandKey === 'spv';
-    const isWolfDual = brandKey === 'wolf';
-    const isDual = isSpvDual || isWolfDual;
+    const cols = BRAND_COLUMNS[brandKey];
+    const last = (lastSentCache && lastSentCache.prices) || {};
     const gridClass = brandKey === 'wolf' ? 'brand-products two-col' : 'brand-products';
     let html = `<div class="${gridClass}">`;
     products.forEach(group => {
-        let headerExtra = '';
-        if(group.header) headerExtra = `<div style="font-size:.65rem;color:#999;margin-bottom:8px">${group.header}</div>`;
-        if(group.subheader) headerExtra = `<div style="font-size:.65rem;color:#999;margin-bottom:8px">${group.subheader}</div>`;
+        const note = group.subheader || group.header || '';
         let rows = '';
         group.sizes.forEach(size => {
             const id = makeId(group.name, size);
-            totalInputs++;
-            if(isSpvDual){
-                // SPV & Paris: Size | SPV price | Paris price
-                const spvId = `spv-${id}`;
-                const parisId = `paris-${id}`;
+            let cells = '';
+            cols.forEach(([prefix, label], ci) => {
                 totalInputs++;
-                rows += `<div class="price-row dual-price"><div class="label">${size}</div><div class="price-input-wrap"><span class="dollar">$</span><input type="text" class="price-input" id="${spvId}" placeholder="0.00" oninput="updateCount();scheduleAutoSave()"></div><div class="price-input-wrap"><span class="dollar">$</span><input type="text" class="price-input" id="${parisId}" placeholder="0.00" oninput="updateCount();scheduleAutoSave()"></div></div>`;
-            } else if(isWolfDual){
-                // Wolf: Size | Price | #2
-                const p2Id = `p2-${id}`;
-                totalInputs++;
-                rows += `<div class="price-row dual-price"><div class="label">${size}</div><div class="price-input-wrap"><span class="dollar">$</span><input type="text" class="price-input" id="${id}" placeholder="0.00" oninput="updateCount();scheduleAutoSave()"></div><div class="price-input-wrap"><span class="dollar">$</span><input type="text" class="price-input" id="${p2Id}" placeholder="0.00" oninput="updateCount();scheduleAutoSave()"></div></div>`;
-            } else {
-                // Mr. Produce: Size | Price
-                rows += `<div class="price-row"><div class="label">${size}</div><div class="price-input-wrap"><span class="dollar">$</span><input type="text" class="price-input" id="${id}" placeholder="0.00" oninput="updateCount();scheduleAutoSave()"></div></div>`;
-            }
+                const inputId = prefix + id;
+                const lastVal = last[inputId];
+                const ghost = parsePrice(lastVal) !== null ? parsePrice(lastVal).toFixed(2) : (lastVal ? escapeHtml(lastVal) : '0.00');
+                const title = lastVal ? ` title="Last sent: ${escapeHtml(lastVal)}"` : '';
+                cells += `<td><div class="price-field"><span class="dollar">$</span><input type="text" class="price-input" id="${inputId}" data-col="${ci}" placeholder="${ghost}"${title} inputmode="decimal" autocomplete="off" aria-label="${escapeHtml(group.name)} ${escapeHtml(size)} ${label}" oninput="updateCount();scheduleAutoSave()"><span class="delta"></span></div></td>`;
+            });
+            rows += `<tr><td class="pg-size">${escapeHtml(size)}</td>${cells}</tr>`;
         });
-        let headerRow;
-        if(isSpvDual){
-            headerRow = `<div class="price-row dual-price header-row"><div class="label">Size</div><div class="label" style="text-align:center;width:90px">SPV</div><div class="label" style="text-align:center;width:90px">Paris</div></div>`;
-        } else if(isWolfDual){
-            headerRow = `<div class="price-row dual-price header-row"><div class="label">Size</div><div class="label" style="text-align:center;width:90px">Price</div><div class="label" style="text-align:center;width:90px">#2</div></div>`;
-        } else {
-            headerRow = `<div class="price-row header-row"><div class="label">Size</div><div class="label" style="text-align:center;width:90px">Price</div></div>`;
-        }
+        const colgroup = `<colgroup><col class="c-size">${cols.map(() => '<col>').join('')}</colgroup>`;
+        const head = `<tr><th>Size</th>${cols.map(([, label]) => `<th>${label}</th>`).join('')}</tr>`;
         html += `<div class="product-group ${group.theme}">
-            <div class="product-group-header"><h3>${group.name}</h3><span class="count">${group.sizes.length}</span></div>
-            ${headerExtra}
-            ${headerRow}
-            ${rows}</div>`;
+            <div class="pg-head"><span class="pg-dot"></span><h3>${escapeHtml(group.name)}</h3>${note ? `<span class="pg-note">${escapeHtml(note)}</span>` : ''}<span class="pg-count"></span></div>
+            <table class="pg-table cols-${cols.length}">${colgroup}<thead>${head}</thead><tbody>${rows}</tbody></table>
+        </div>`;
     });
     html += '</div>';
     container.innerHTML = html;
 }
 
 function switchBrand(brandKey){
-    document.querySelectorAll('.brand-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.brand-content').forEach(c => c.classList.remove('active'));
-    document.querySelector(`.brand-tab[onclick="switchBrand('${brandKey}')"]`).classList.add('active');
-    document.getElementById(`brand-${brandKey}`).classList.add('active');
+    document.querySelectorAll('.brand-tab').forEach(t => t.classList.toggle('active', t.dataset.brand === brandKey));
+    document.querySelectorAll('.brand-content').forEach(c => c.classList.toggle('active', c.id === `brand-${brandKey}`));
 }
 
 function renderProducts(){
+    totalInputs = 0;
     ['spv','wolf','mr'].forEach(key => renderBrandProducts(key));
+    document.getElementById('ghostLegend').hidden = !(lastSentCache && lastSentCache.prices);
+    updateCount();
 }
 
 function updateCount(){
-    const inputs = document.querySelectorAll('.price-input');
-    inputs.forEach(inp => { inp.classList.toggle('has-value', !!inp.value); });
+    let filledAll = 0, totalAll = 0;
+    ['spv','wolf','mr'].forEach(brandKey => {
+        const container = document.getElementById(`brand-${brandKey}`);
+        const inputs = container.querySelectorAll('.price-input');
+        let filled = 0;
+        inputs.forEach(inp => {
+            const has = !!inp.value.trim();
+            inp.classList.toggle('has-value', has);
+            if(has) filled++;
+            // Change vs. last sent quote
+            const delta = inp.parentElement.querySelector('.delta');
+            const now = parsePrice(inp.value);
+            const before = lastSentCache && lastSentCache.prices ? parsePrice(lastSentCache.prices[inp.id]) : null;
+            if(delta){
+                if(now !== null && before !== null && Math.abs(now - before) >= 0.005){
+                    const diff = now - before;
+                    delta.textContent = `${diff > 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(2)}`;
+                    delta.className = `delta ${diff > 0 ? 'up' : 'down'}`;
+                    delta.parentElement.classList.add('has-delta');
+                } else {
+                    delta.textContent = '';
+                    delta.className = 'delta';
+                    delta.parentElement.classList.remove('has-delta');
+                }
+            }
+        });
+        container.querySelectorAll('.product-group').forEach(group => {
+            const gi = group.querySelectorAll('.price-input');
+            const gf = [...gi].filter(i => i.value.trim()).length;
+            const c = group.querySelector('.pg-count');
+            c.textContent = `${gf}/${gi.length}`;
+            c.classList.toggle('done', gf === gi.length && gi.length > 0);
+        });
+        const badge = document.getElementById(`count-${brandKey}`);
+        if(badge){
+            badge.textContent = `${filled}/${inputs.length}`;
+            badge.classList.toggle('done', filled === inputs.length && inputs.length > 0);
+        }
+        filledAll += filled; totalAll += inputs.length;
+    });
+    document.getElementById('filledTotal').textContent = filledAll;
+    document.getElementById('inputsTotal').textContent = totalAll;
+    document.getElementById('progressFill').style.width = totalAll ? `${Math.round(filledAll / totalAll * 100)}%` : '0%';
+}
+
+// Enter / arrow keys move through a price column like a spreadsheet
+document.addEventListener('keydown', e => {
+    const inp = e.target;
+    if(!inp.classList || !inp.classList.contains('price-input')) return;
+    const down = e.key === 'Enter' && !e.shiftKey || e.key === 'ArrowDown';
+    const up = e.key === 'Enter' && e.shiftKey || e.key === 'ArrowUp';
+    if(!down && !up) return;
+    const container = inp.closest('.brand-content');
+    const column = [...container.querySelectorAll(`.price-input[data-col="${inp.dataset.col}"]`)];
+    const next = column[column.indexOf(inp) + (down ? 1 : -1)];
+    e.preventDefault();
+    if(next){ next.focus(); next.select(); }
+});
+
+// Today's status: sent (with time) or draft
+function setQuoteStatus(){
+    const pill = document.getElementById('sentStatus');
+    if(!pill) return;
+    const sentToday = lastSentCache && lastSentCache.date === getDateStr();
+    if(sentToday){
+        const t = lastSentCache.timestamp ? new Date(lastSentCache.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
+        pill.textContent = t ? `Sent ${t}` : 'Sent';
+        pill.className = 'status-pill sent';
+    } else {
+        pill.textContent = 'Draft';
+        pill.className = 'status-pill neutral';
+    }
 }
 
 function clearAll(){
@@ -1496,7 +1788,8 @@ async function saveDraft(){
         await Sync.saveQuote(entry);
     }
 
-    showToast(svgIcons.save,'Draft saved successfully');
+    markSaved();
+    showToast(svgIcons.save,'Draft saved');
 }
 
 // ══════════════════════════════════════════
@@ -1628,19 +1921,26 @@ function switchView(viewId){
 
 function renderRecipients(){
     const list = document.getElementById('recipientsList');
+    const q = (document.getElementById('recipientSearch').value || '').trim().toLowerCase();
+    document.getElementById('recipientTotal').textContent = clients.length;
     if(clients.length === 0){
-        list.innerHTML = '<div style="text-align:center;padding:24px 10px;color:#ccc;font-size:.78rem">No recipients yet.<br><span style="font-size:.68rem;color:#bbb">Click "Add Recipient" below.</span></div>';
+        list.innerHTML = '<div class="rp-empty">No recipients yet.<br>Add the buyers who should get your daily quote.</div>';
         updateRecipientCount();
         updateEmailToField();
         return;
     }
+    const matches = clients.map((c, i) => ({ c, i })).filter(({ c }) =>
+        !q || [c.name, c.company, c.email].some(v => (v || '').toLowerCase().includes(q)));
     list.innerHTML = '';
-    clients.forEach((c, i) => {
+    if(matches.length === 0){
+        list.innerHTML = '<div class="rp-empty">No recipients match your search.</div>';
+    }
+    matches.forEach(({ c, i }) => {
         const initials = c.name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
         const item = document.createElement('div');
         item.className = `recipient-item${c.selected ? ' selected' : ''}`;
         item.onclick = (e) => { if(!e.target.closest('.recipient-delete')) toggleRecipient(i); };
-        item.innerHTML = `<div class="recipient-check"></div><div class="recipient-avatar">${initials}</div><div class="recipient-details"><h4>${c.name}</h4><p style="font-weight:600;color:#777;margin-bottom:1px">${c.company || ''}</p><p>${c.email}</p></div><button class="recipient-delete" onclick="event.stopPropagation();deleteRecipient(${i})" title="Remove" style="background:none;border:none;cursor:pointer;padding:4px;color:#ccc;font-size:1rem;line-height:1;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#dc2626';this.style.background='#fef2f2'" onmouseout="this.style.color='#ccc';this.style.background='none'">&times;</button>`;
+        item.innerHTML = `<div class="recipient-check"></div><div class="recipient-avatar">${escapeHtml(initials)}</div><div class="recipient-details"><h4>${escapeHtml(c.name)}</h4><p>${escapeHtml(c.company ? c.company + ' · ' + c.email : c.email)}</p></div><button class="recipient-delete" onclick="event.stopPropagation();deleteRecipient(${i})" title="Remove ${escapeHtml(c.name)}" aria-label="Remove ${escapeHtml(c.name)}"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
         list.appendChild(item);
     });
     updateRecipientCount();
@@ -1652,7 +1952,8 @@ function selectAllRecipients(){ clients.forEach(c => c.selected = true); saveCli
 function deselectAllRecipients(){ clients.forEach(c => c.selected = false); saveClients(); renderRecipients(); }
 
 function openAddRecipient(){
-    document.getElementById('addRecipientForm').style.display = 'block';
+    document.getElementById('addRecipientForm').classList.add('open');
+    document.getElementById('addRecipientToggle').style.display = 'none';
     document.getElementById('newRecipientName').value = '';
     document.getElementById('newRecipientCompany').value = '';
     document.getElementById('newRecipientEmail').value = '';
@@ -1660,7 +1961,8 @@ function openAddRecipient(){
 }
 
 function closeAddRecipient(){
-    document.getElementById('addRecipientForm').style.display = 'none';
+    document.getElementById('addRecipientForm').classList.remove('open');
+    document.getElementById('addRecipientToggle').style.display = '';
 }
 
 function addRecipient(){
@@ -1668,13 +1970,12 @@ function addRecipient(){
     const company = document.getElementById('newRecipientCompany').value.trim();
     const email = document.getElementById('newRecipientEmail').value.trim();
 
-    if(!name){ showToast(svgIcons.alert, 'Please enter the recipient name'); return; }
-    if(!company){ showToast(svgIcons.alert, 'Please enter the company name'); return; }
-    if(!email || !email.includes('@')){ showToast(svgIcons.alert, 'Please enter a valid email address'); return; }
+    if(!name){ showToast(svgIcons.alert, 'Enter the recipient\'s name'); return; }
+    if(!company){ showToast(svgIcons.alert, 'Enter the company name'); return; }
+    if(!email || !email.includes('@')){ showToast(svgIcons.alert, 'Enter a valid email address'); return; }
 
-    // Check for duplicate email
     if(clients.some(c => c.email.toLowerCase() === email.toLowerCase())){
-        showToast(svgIcons.alert, 'This email is already in the list'); return;
+        showToast(svgIcons.alert, 'That email is already in your list'); return;
     }
 
     clients.push({ name, company, email, selected: true });
@@ -1697,9 +1998,31 @@ function updateRecipientCount(){ document.getElementById('selectedCount').textCo
 function updateEmailToField(){
     const field = document.getElementById('emailToField');
     const selected = clients.filter(c => c.selected);
+    const shown = 6;
     field.innerHTML = selected.length === 0
-        ? '<span style="color:#ccc;font-size:.8rem">Select recipients from the panel</span>'
-        : selected.map(c => `<span class="email-tag">${c.name} &lt;${c.email}&gt;</span>`).join('');
+        ? '<span class="field-placeholder">Select recipients</span>'
+        : selected.slice(0, shown).map(c => `<span class="email-tag" title="${escapeHtml(c.email)}">${escapeHtml(c.name)}</span>`).join('')
+          + (selected.length > shown ? `<span class="email-tag more">+${selected.length - shown} more</span>` : '');
+}
+
+function openSendConfirm(){
+    const selected = clients.filter(c => c.selected);
+    if(selected.length === 0){ showToast(svgIcons.alert,'Select at least one recipient'); return; }
+    const filled = document.querySelectorAll('.price-input.has-value').length;
+    if(filled === 0){ showToast(svgIcons.alert,'Add prices before sending'); return; }
+    const subject = document.getElementById('emailSubject').value || `HM Distributors — Daily Quote Sheet — ${getDateStr()}`;
+    const names = selected.slice(0, 3).map(c => c.name).join(', ') + (selected.length > 3 ? ` +${selected.length - 3} more` : '');
+    document.getElementById('sendSummary').innerHTML = `
+        <div class="summary-row"><span class="k">Recipients</span><span class="v">${selected.length} · ${escapeHtml(names)}</span></div>
+        <div class="summary-row"><span class="k">Prices</span><span class="v tnum">${filled} filled</span></div>
+        <div class="summary-row"><span class="k">Subject</span><span class="v">${escapeHtml(subject)}</span></div>`;
+    document.getElementById('confirmSendBtn').textContent = `Send to ${selected.length} recipient${selected.length === 1 ? '' : 's'}`;
+    document.getElementById('sendModal').classList.add('show');
+    document.getElementById('confirmSendBtn').focus();
+}
+
+function closeSendConfirm(){
+    document.getElementById('sendModal').classList.remove('show');
 }
 
 function updateEmailSubject(){
@@ -2053,11 +2376,11 @@ async function sendEmails(){
     const subject = document.getElementById('emailSubject').value || `HM Distributors \u2014 Daily Quote Sheet \u2014 ${getDateStr()}`;
 
     // Show sending state
-    const sendBtn = document.querySelector('.btn-green[onclick="sendEmails()"]');
+    const sendBtn = document.getElementById('confirmSendBtn');
     const originalBtnHtml = sendBtn ? sendBtn.innerHTML : '';
     if(sendBtn){
         sendBtn.disabled = true;
-        sendBtn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Sending...';
+        sendBtn.innerHTML = '<svg class="ic" viewBox="0 0 24 24" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Sending…';
     }
 
     try {
@@ -2096,9 +2419,10 @@ async function sendEmails(){
             Sync.deleteDraft();
 
             // Update UI
-            const pill = document.getElementById('sentStatus');
-            pill.innerHTML = '<span class="status-dot"></span>Sent';
-            pill.classList.add('sent');
+            lastSentCache = data;
+            setQuoteStatus();
+            rebuildQuoteView();
+            closeSendConfirm();
 
             if(result.failed > 0){
                 showToast(svgIcons.alert, `Sent to ${result.sent}, failed ${result.failed}. Check console for details.`);
@@ -2134,9 +2458,9 @@ function showToast(icon, msg){
 }
 
 function setDate(){
-    const d = getShortDate();
-    document.getElementById('topbarDate').textContent = d;
-    document.getElementById('quoteDateBadge').textContent = d;
+    const now = new Date();
+    document.getElementById('topbarDate').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    document.getElementById('quoteDateBadge').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 // ══════════════════════════════════════════
@@ -2277,100 +2601,168 @@ function savePmProduct(){
 }
 
 function rebuildQuoteView(){
-    totalInputs = 0;
-    ['spv','wolf','mr'].forEach(key => {
-        const container = document.getElementById(`brand-${key}`);
-        if(container) container.innerHTML = '';
-    });
+    // Keep prices already typed when the product list changes
+    const current = gatherFormData();
     renderProducts();
+    restoreFormData(current);
 }
 
 // ══════════════════════════════════════════
 //  QUOTE HISTORY
 // ══════════════════════════════════════════
 
-async function renderHistory(filter){
+let historyCache = [];
+let historyQuery = '';
+let historyType = 'all';
+
+const ICON_HISTORY = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
+const ICON_TRENDS = '<svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>';
+
+function fmtWhen(ts){
+    const d = new Date(ts);
+    return {
+        day: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
+        time: d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+    };
+}
+
+async function renderHistory(){
     const container = document.getElementById('historyList');
-    let history = await Sync.loadHistory();
+    historyCache = await Sync.loadHistory();
 
-    if(filter){
-        const f = filter.toLowerCase();
-        history = history.filter(h =>
-            h.date.toLowerCase().includes(f) ||
-            h.type.toLowerCase().includes(f) ||
-            (h.recipients && h.recipients.some(r => r.toLowerCase().includes(f)))
-        );
-    }
+    const q = historyQuery.toLowerCase();
+    const rows = historyCache.map((h, i) => ({ h, i })).filter(({ h }) =>
+        (historyType === 'all' || h.type === historyType) &&
+        (!q || h.date.toLowerCase().includes(q) || (h.recipients || []).some(r => String(r).toLowerCase().includes(q))));
 
-    if(history.length === 0){
-        container.innerHTML = `<div class="history-empty">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <p>No quote history yet</p>
-            <span>Your sent quotes and saved drafts will appear here</span>
+    if(historyCache.length === 0){
+        container.innerHTML = `<div class="card empty">
+            <div class="empty-icon">${ICON_HISTORY}</div>
+            <h4>No quotes yet</h4>
+            <p>Quotes you send and drafts you save will show up here, so you can look back or reuse prices.</p>
+            <button class="btn btn-primary" onclick="switchView('quote')">Start today's quote</button>
         </div>`;
         return;
     }
+    if(rows.length === 0){
+        container.innerHTML = `<div class="card empty"><div class="empty-icon">${ICON_HISTORY}</div><h4>No matching quotes</h4><p>Try a different search or filter.</p></div>`;
+        return;
+    }
 
-    container.innerHTML = history.map((h, i) => {
-        const d = new Date(h.timestamp);
-        const day = d.getDate();
-        const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-        const month = months[d.getMonth()];
-        const recipientText = h.type === 'sent'
-            ? `Sent to ${h.recipientCount || 0} recipient${(h.recipientCount||0) !== 1 ? 's' : ''}${h.recipients ? ': ' + h.recipients.slice(0,3).join(', ') + (h.recipients.length > 3 ? '...' : '') : ''}`
-            : 'Saved as draft';
-
-        return `<div class="history-card" onclick="loadHistoryEntry(${i})">
-            <div class="history-date-badge">
-                <div class="h-day">${day}</div>
-                <div class="h-month">${month}</div>
-            </div>
-            <div class="history-info">
-                <h4>${h.date}</h4>
-                <p>${recipientText}</p>
-            </div>
-            <div class="history-meta">
-                <div class="history-stat">
-                    <div class="h-num">${h.priceCount || 0}</div>
-                    <div class="h-label">Prices</div>
-                </div>
-                <span class="history-badge ${h.type}">${h.type === 'sent' ? 'Sent' : 'Draft'}</span>
-            </div>
-            <div class="history-actions" onclick="event.stopPropagation()">
-                <button class="history-card-btn" onclick="loadHistoryEntry(${i})" title="Load this quote">
-                    <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                </button>
-                <button class="history-card-btn" onclick="deleteHistoryEntry(${i})" title="Delete">
-                    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                </button>
-            </div>
-        </div>`;
+    const body = rows.map(({ h, i }) => {
+        const when = fmtWhen(h.timestamp);
+        const recips = h.type === 'sent'
+            ? `${h.recipientCount || 0} · ${(h.recipients || []).slice(0, 3).map(escapeHtml).join(', ')}${(h.recipients || []).length > 3 ? '…' : ''}`
+            : '<span class="muted">—</span>';
+        return `<tr onclick="openHistoryDrawer(${i})">
+            <td><span class="primary">${escapeHtml(when.day)}</span> <span class="muted">${escapeHtml(when.time)}</span></td>
+            <td><span class="status-pill ${h.type === 'sent' ? 'sent' : ''}">${h.type === 'sent' ? 'Sent' : 'Draft'}</span></td>
+            <td class="num">${h.priceCount || 0}</td>
+            <td class="truncate">${recips}</td>
+            <td><div class="row-actions" onclick="event.stopPropagation()">
+                <button class="icon-btn" onclick="loadHistoryEntry(${i})" title="Reuse these prices"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+                <button class="icon-btn delete" onclick="deleteHistoryEntry(${i})" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+            </div></td>
+        </tr>`;
     }).join('');
+
+    container.innerHTML = `<div class="data-table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Date</th><th>Status</th><th class="num">Prices</th><th>Recipients</th><th></th></tr></thead>
+            <tbody>${body}</tbody>
+        </table>
+        <div class="table-foot">${rows.length} ${rows.length === 1 ? 'quote' : 'quotes'}</div>
+    </div>`;
 }
 
 function filterHistory(val){
-    renderHistory(val);
+    historyQuery = val || '';
+    renderHistory();
+}
+
+function setHistoryType(type){
+    historyType = type;
+    document.querySelectorAll('#historySeg button').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+    renderHistory();
+}
+
+// Prices of one saved quote, grouped by brand and product
+function quotePricesTable(prices){
+    let html = '';
+    ['spv','wolf','mr'].forEach(brandKey => {
+        const cols = BRAND_COLUMNS[brandKey];
+        let brandRows = '';
+        productData[brandKey].forEach(group => {
+            let groupRows = '';
+            group.sizes.forEach(size => {
+                const id = makeId(group.name, size);
+                const vals = cols.map(([prefix]) => prices[prefix + id] || '');
+                if(!vals.some(v => v)) return;
+                groupRows += `<tr><td>${escapeHtml(size)}</td>${vals.map(v => {
+                    const n = parsePrice(v);
+                    return v ? `<td>${n !== null ? '$' + n.toFixed(2) : escapeHtml(v)}</td>` : '<td class="dim">—</td>';
+                }).join('')}</tr>`;
+            });
+            if(groupRows) brandRows += `<tr class="group-row"><td colspan="${cols.length + 1}">${escapeHtml(group.name)}</td></tr>${groupRows}`;
+        });
+        if(brandRows){
+            html += `<div><div class="section-title">${escapeHtml(brandMeta[brandKey].name)}</div>
+                <table class="mini-table"><thead><tr><th>Size</th>${cols.map(([, l]) => `<th>${l}</th>`).join('')}</tr></thead><tbody>${brandRows}</tbody></table></div>`;
+        }
+    });
+    return html || '<p class="modal-note">No prices were saved with this quote.</p>';
+}
+
+function openHistoryDrawer(idx){
+    const h = historyCache[idx];
+    if(!h) return;
+    const when = fmtWhen(h.timestamp);
+    document.getElementById('drawerEyebrow').textContent = `${when.day} · ${when.time}`;
+    document.getElementById('drawerTitle').innerHTML = `${escapeHtml(h.date)} <span class="status-pill ${h.type === 'sent' ? 'sent' : ''}">${h.type === 'sent' ? 'Sent' : 'Draft'}</span>`;
+    const recipients = (h.recipients || []);
+    document.getElementById('drawerBody').innerHTML = `
+        <div class="stat-row">
+            <div><div class="k">Prices</div><div class="v">${h.priceCount || 0}</div></div>
+            <div><div class="k">Recipients</div><div class="v">${h.type === 'sent' ? (h.recipientCount || 0) : '—'}</div></div>
+            <div><div class="k">Status</div><div class="v" style="font-size:15px">${h.type === 'sent' ? 'Sent' : 'Draft'}</div></div>
+        </div>
+        ${recipients.length ? `<div><div class="section-title">Sent to</div><div class="chip-list">${recipients.map(r => `<span class="chip">${escapeHtml(r)}</span>`).join('')}</div></div>` : ''}
+        ${quotePricesTable((h.data && h.data.prices) || {})}`;
+    document.getElementById('drawerReuse').onclick = () => { closeHistoryDrawer(); loadHistoryEntry(idx); };
+    document.getElementById('drawerDelete').onclick = async () => { if(await deleteHistoryEntry(idx)) closeHistoryDrawer(); };
+    document.getElementById('drawerOverlay').classList.add('show');
+    const drawer = document.getElementById('historyDrawer');
+    drawer.classList.add('show');
+    drawer.setAttribute('aria-hidden', 'false');
+}
+
+function closeHistoryDrawer(){
+    document.getElementById('drawerOverlay').classList.remove('show');
+    const drawer = document.getElementById('historyDrawer');
+    drawer.classList.remove('show');
+    drawer.setAttribute('aria-hidden', 'true');
 }
 
 async function loadHistoryEntry(idx){
-    const history = loadFromStorage(STORAGE_KEYS.history) || [];
-    const entry = history[idx];
+    const entry = historyCache[idx];
     if(!entry || !entry.data) return;
-
     restoreFormData(entry.data);
+    markSaved();
+    autoSaveDraft();
     switchView('quote');
-    showToast(svgIcons.clipboard, `Loaded quote from ${entry.date}`);
+    showToast(svgIcons.clipboard, `Loaded prices from ${entry.date}`);
 }
 
 async function deleteHistoryEntry(idx){
-    const history = loadFromStorage(STORAGE_KEYS.history) || [];
-    if(!confirm('Delete this history entry?')) return;
-    const entry = history[idx];
-    history.splice(idx, 1);
-    saveToStorage(STORAGE_KEYS.history, history);
-    if(entry) Sync.deleteQuote(entry);
+    const entry = historyCache[idx];
+    if(!entry || !confirm('Delete this quote from history?')) return false;
+    const local = (loadFromStorage(STORAGE_KEYS.history) || []).filter(h =>
+        !((entry.id !== undefined && h.id === entry.id) || (h.timestamp === entry.timestamp && h.type === entry.type)));
+    saveToStorage(STORAGE_KEYS.history, local);
+    await Sync.deleteQuote(entry);
     renderHistory();
-    showToast(svgIcons.trash, 'History entry removed');
+    showToast(svgIcons.trash, 'Quote removed from history');
+    return true;
 }
 
 async function clearHistory(){
@@ -2384,81 +2776,82 @@ async function clearHistory(){
 //  PRICE TRENDS
 // ══════════════════════════════════════════
 
+function sparkline(values, w = 96, h = 28){
+    const min = Math.min(...values), max = Math.max(...values);
+    const range = max - min || 1;
+    const step = values.length > 1 ? w / (values.length - 1) : 0;
+    const pts = values.map((v, i) => [i * step, h - 3 - ((v - min) / range) * (h - 6)]);
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+    const last = pts[pts.length - 1];
+    const prev = values[values.length - 2], end = values[values.length - 1];
+    const color = end - prev >= 0.005 ? '#c0123c' : prev - end >= 0.005 ? '#0a7b3e' : '#697386';
+    return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.4" fill="${color}"/></svg>`;
+}
+
 async function renderTrends(){
     const history = await Sync.loadHistory();
-    const sentHistory = history.filter(h => h.type === 'sent').slice(0, 30);
+    const sent = history.filter(h => h.type === 'sent').sort((a, b) => b.timestamp - a.timestamp);
     const summaryEl = document.getElementById('trendSummary');
     const gridEl = document.getElementById('trendsGrid');
 
-    // Summary cards
-    const totalSent = history.filter(h => h.type === 'sent').length;
-    const totalDrafts = history.filter(h => h.type === 'draft').length;
-    const avgPrices = sentHistory.length > 0
-        ? Math.round(sentHistory.reduce((sum, h) => sum + (h.priceCount || 0), 0) / sentHistory.length)
-        : 0;
+    const drafts = history.filter(h => h.type === 'draft').length;
+    const avgPrices = sent.length ? Math.round(sent.slice(0, 30).reduce((sum, h) => sum + (h.priceCount || 0), 0) / Math.min(sent.length, 30)) : 0;
+    const lastSent = sent[0] ? fmtWhen(sent[0].timestamp).day : '—';
+    const recipientsReached = new Set(sent.flatMap(h => h.recipients || [])).size;
 
     summaryEl.innerHTML = `
-        <div class="trend-summary-card"><div class="ts-num">${totalSent}</div><div class="ts-label">Quotes Sent</div></div>
-        <div class="trend-summary-card"><div class="ts-num">${totalDrafts}</div><div class="ts-label">Drafts Saved</div></div>
-        <div class="trend-summary-card"><div class="ts-num">${avgPrices}</div><div class="ts-label">Avg Prices/Quote</div></div>
-    `;
+        <div class="trend-summary-card"><div class="ts-label">Quotes sent</div><div class="ts-num">${sent.length}</div><div class="ts-sub">${drafts} draft${drafts === 1 ? '' : 's'} saved</div></div>
+        <div class="trend-summary-card"><div class="ts-label">Last sent</div><div class="ts-num" style="font-size:18px;margin-top:8px">${lastSent}</div></div>
+        <div class="trend-summary-card"><div class="ts-label">Avg. prices per quote</div><div class="ts-num">${avgPrices}</div></div>
+        <div class="trend-summary-card"><div class="ts-label">Recipients reached</div><div class="ts-num">${recipientsReached}</div></div>`;
 
-    if(sentHistory.length < 2){
-        gridEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#ccc">
-            <p style="font-size:.85rem;margin-bottom:4px">Not enough data yet</p>
-            <span style="font-size:.72rem;color:#bbb">Send at least 2 quotes to see price trends</span>
+    if(sent.length < 2){
+        gridEl.innerHTML = `<div class="card empty">
+            <div class="empty-icon">${ICON_TRENDS}</div>
+            <h4>Not enough quotes yet</h4>
+            <p>Send at least 2 quotes and you'll see how each price has moved, with a small chart per product.</p>
+            <button class="btn btn-primary" onclick="switchView('quote')">Go to today's quote</button>
         </div>`;
         return;
     }
 
-    // Build trend cards per brand
+    const recent = sent.slice(0, 10).reverse();
     let html = '';
     ['spv','wolf','mr'].forEach(brandKey => {
-        const brand = brandMeta[brandKey];
-        const products = productData[brandKey];
-        let productTrends = '';
-
-        products.forEach(group => {
+        const cols = BRAND_COLUMNS[brandKey];
+        const [prefix, colLabel] = cols[0];
+        let rows = '';
+        productData[brandKey].forEach(group => {
             group.sizes.forEach(size => {
-                const id = makeId(group.name, size);
-                // Get prices from recent history
-                const prices = sentHistory.slice(0, 7).reverse().map(h => {
-                    const val = h.data && h.data.prices && h.data.prices[id];
-                    return val && !isNaN(parseFloat(val)) ? parseFloat(val) : null;
-                }).filter(p => p !== null);
-
-                if(prices.length >= 2){
-                    const latest = prices[prices.length - 1];
-                    const previous = prices[prices.length - 2];
-                    const change = latest - previous;
-                    const pct = ((change / previous) * 100).toFixed(1);
-                    const maxPrice = Math.max(...prices, 1);
-                    const barWidth = Math.round((latest / maxPrice) * 100);
-                    const barColor = change > 0 ? 'red' : change < 0 ? 'green' : 'gold';
-
-                    productTrends += `<div class="trend-bar-group">
-                        <div class="trend-bar-label">
-                            <span>${group.name} (${size})</span>
-                            <span>$${latest.toFixed(2)} <span style="font-size:.6rem;color:${change > 0 ? '#dc2626' : change < 0 ? '#1a7a3a' : '#999'}">${change >= 0 ? '+' : ''}${pct}%</span></span>
-                        </div>
-                        <div class="trend-bar"><div class="trend-bar-fill ${barColor}" style="width:${barWidth}%"></div></div>
-                    </div>`;
-                }
+                const id = prefix + makeId(group.name, size);
+                const series = recent.map(h => parsePrice(h.data && h.data.prices && h.data.prices[id])).filter(v => v !== null);
+                if(series.length < 2) return;
+                const latest = series[series.length - 1], previous = series[series.length - 2];
+                const change = latest - previous;
+                const pct = previous ? (change / previous) * 100 : 0;
+                const cls = Math.abs(change) < 0.005 ? 'flat' : change > 0 ? 'up' : 'down';
+                const pctText = cls === 'flat' ? '0.0%' : `${change > 0 ? '+' : ''}${pct.toFixed(1)}%`;
+                rows += `<tr>
+                    <td><div class="prod ${group.theme}"><span class="pg-dot"></span>${escapeHtml(group.name)} <span class="size">${escapeHtml(size)}</span></div></td>
+                    <td>${sparkline(series)}</td>
+                    <td class="num">$${previous.toFixed(2)}</td>
+                    <td class="num" style="color:var(--text);font-weight:600">$${latest.toFixed(2)}</td>
+                    <td class="num"><span class="change-pill ${cls}">${pctText}</span></td>
+                </tr>`;
             });
         });
-
-        if(productTrends){
-            html += `<div class="trend-card">
-                <h3>${brand.name}</h3>
-                <div class="trend-sub">Price changes from last ${Math.min(sentHistory.length, 7)} quotes</div>
-                ${productTrends}
+        if(rows){
+            html += `<div class="card trend-card">
+                <div class="card-head"><h3>${escapeHtml(brandMeta[brandKey].name)}</h3><span class="sub">${colLabel} · last ${recent.length} sent quotes</span></div>
+                <div style="overflow-x:auto"><table class="trend-table"><colgroup><col class="c-prod"><col class="c-spark"><col class="c-num"><col class="c-num"><col class="c-num"></colgroup>
+                    <thead><tr><th>Product</th><th>Trend</th><th class="num">Previous</th><th class="num">Latest</th><th class="num">Change</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table></div>
             </div>`;
         }
     });
 
-    gridEl.innerHTML = html || `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#ccc">
-        <p style="font-size:.85rem">No price changes detected</p>
-    </div>`;
+    gridEl.innerHTML = html || `<div class="card empty"><div class="empty-icon">${ICON_TRENDS}</div><h4>No price changes to show</h4><p>Your sent quotes don't share enough numeric prices yet.</p></div>`;
 }
 
 // ══════════════════════════════════════════
@@ -2511,12 +2904,14 @@ renderProductsList();
         const filledCount = Object.values(draft.prices).filter(v => v).length;
         if(filledCount > 0){
             restoreFormData(draft);
+            if(draft.timestamp){ lastSavedAt = draft.timestamp; renderSavedState(); }
         }
     }
 })();
+setQuoteStatus();
 
-// Close PDF on Escape
-document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closePdf(); closePmModal(); } });
+// Close overlays on Escape
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closePdf(); closePmModal(); closeSendConfirm(); closeHistoryDrawer(); } });
 </script>
 </body>
 </html>

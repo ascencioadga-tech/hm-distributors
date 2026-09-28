@@ -903,12 +903,13 @@ const CLOUD_SYNC_ENABLED = true;
 const sb = CLOUD_SYNC_ENABLED ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let currentUserId = null;
-let currentUserName = (cachedUser && cachedUser.username) || '';
+let currentUserName = '';
 
 // Set topbar initials immediately from sessionStorage if available (avoids flash)
 const cachedUser = JSON.parse(sessionStorage.getItem('hm_user') || 'null');
 if(cachedUser && cachedUser.initials){
     document.getElementById('topbarUser').textContent = cachedUser.initials;
+    currentUserName = cachedUser.username || '';
 }
 
 // Supabase is the source of truth for auth

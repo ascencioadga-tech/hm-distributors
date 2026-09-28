@@ -729,7 +729,36 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
                     <div><button class="btn btn-secondary" onclick="resetPrefs()">Reset to defaults</button></div>
                 </div>
             </div>
+
+            <div class="card settings-card" style="margin-top:20px" id="usersCard">
+                <div class="card-head">
+                    <div><h3>Users</h3><div class="sub">Everyone who can sign in. All users share the same customers, products and history.</div></div>
+                    <button class="btn btn-primary btn-sm" onclick="openAddUser()"><svg class="ic" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add user</button>
+                </div>
+                <div id="usersList"><div class="pm-empty">Loading…</div></div>
+            </div>
         </section>
+
+        <!-- ADD USER MODAL -->
+        <div class="modal-overlay" id="userModal" onclick="if(event.target===this)closeAddUser()">
+            <div class="modal" role="dialog" aria-labelledby="userModalTitle">
+                <div class="modal-header">
+                    <h3 id="userModalTitle">Add user</h3>
+                    <button class="modal-close" onclick="closeAddUser()" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="field"><label for="nuName">Name</label><input type="text" class="input" id="nuName" placeholder="René Monteverde" autocomplete="off"></div>
+                    <div class="field"><label for="nuUsername">Username</label><input type="text" class="input" id="nuUsername" placeholder="rene" autocomplete="off" autocapitalize="none"><span class="hint">What they type to sign in. Letters, numbers, dots or dashes.</span></div>
+                    <div class="field"><label for="nuEmail">Email</label><input type="email" class="input" id="nuEmail" placeholder="renem@hmdistinc.com" autocomplete="off"></div>
+                    <div class="field"><label for="nuPassword">Password</label><input type="text" class="input" id="nuPassword" placeholder="At least 8 characters" autocomplete="new-password"><span class="hint">Share this with them privately. They sign in with their username and this password.</span></div>
+                    <p class="modal-note" id="nuError" style="color:var(--danger);display:none"></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeAddUser()">Cancel</button>
+                    <button class="btn btn-primary" id="nuSaveBtn" onclick="createUser()">Create user</button>
+                </div>
+            </div>
+        </div>
 
         <!-- VIEW: REVIEW & SEND -->
         <section class="view" id="view-email">
@@ -874,6 +903,7 @@ const CLOUD_SYNC_ENABLED = true;
 const sb = CLOUD_SYNC_ENABLED ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let currentUserId = null;
+let currentUserName = (cachedUser && cachedUser.username) || '';
 
 // Set topbar initials immediately from sessionStorage if available (avoids flash)
 const cachedUser = JSON.parse(sessionStorage.getItem('hm_user') || 'null');
@@ -915,11 +945,13 @@ window.addEventListener('online', () => setSyncState(sb && currentUserId ? 'sync
     }
 
     currentUserId = session.user.id;
+    if(session.user.user_metadata?.name) currentUserName = session.user.user_metadata.name;
 
     // Derive display info from Supabase user if sessionStorage is empty
     if(!cachedUser){
         const emailLocal = (session.user.email || '').split('@')[0];
         const name = session.user.user_metadata?.name || emailLocal || 'User';
+        currentUserName = name;
         const initials = name.split(/\s+|(?=[A-Z])/).map(w => w[0]).join('').substring(0,2).toUpperCase();
         sessionStorage.setItem('hm_user', JSON.stringify({ username: name, initials, email: session.user.email }));
         document.getElementById('topbarUser').textContent = initials;
@@ -973,7 +1005,7 @@ const Sync = {
         if(!currentUserId) return;
         try {
             // Delete all then re-insert (simple full-replace sync)
-            await sb.from('recipients').delete().eq('user_id', currentUserId);
+            await sb.from('recipients').delete().neq('email', '');
             if(clients.length > 0){
                 const rows = clients.map(c => ({
                     user_id: currentUserId,
@@ -990,7 +1022,7 @@ const Sync = {
     async loadRecipients(){
         if(!currentUserId) return;
         try {
-            const { data, error } = await sb.from('recipients').select('*').eq('user_id', currentUserId);
+            const { data, error } = await sb.from('recipients').select('*').order('name');
             if(!error && data){
                 clients.length = 0;
                 data.forEach(r => clients.push({ name: r.name, company: r.company, email: r.email, selected: r.selected }));
@@ -1005,7 +1037,7 @@ const Sync = {
         saveToStorage(STORAGE_KEYS.products, productData);
         if(!currentUserId) return;
         try {
-            await sb.from('products').delete().eq('user_id', currentUserId);
+            await sb.from('products').delete().neq('name', '');
             const rows = [];
             ['spv','wolf','mr'].forEach(brandKey => {
                 (productData[brandKey] || []).forEach((p, idx) => {
@@ -1029,8 +1061,7 @@ const Sync = {
     async loadProducts(){
         if(!currentUserId) return;
         try {
-            const { data, error } = await sb.from('products').select('*')
-                .eq('user_id', currentUserId).order('sort_order');
+            const { data, error } = await sb.from('products').select('*').order('sort_order');
             if(!error && data && data.length > 0){
                 productData.spv = [];
                 productData.wolf = [];
@@ -1112,7 +1143,7 @@ const Sync = {
         if(!currentUserId) return loadFromStorage(STORAGE_KEYS.lastSent);
         try {
             const { data, error } = await sb.from('last_sent').select('data')
-                .eq('user_id', currentUserId).single();
+                .order('sent_at', { ascending: false }).limit(1).maybeSingle();
             if(!error && data) return data.data;
         } catch(e){ console.warn('Load last_sent failed:', e); }
         return loadFromStorage(STORAGE_KEYS.lastSent);
@@ -1159,6 +1190,7 @@ const Sync = {
                         total_products: entry.totalProducts || 0,
                         recipient_count: entry.recipientCount || 0,
                         recipient_names: entry.recipients || [],
+                        sent_by: currentUserName,
                         data: entry.data || {}
                     }).eq('id', existing.id);
                     return;
@@ -1173,6 +1205,7 @@ const Sync = {
                 total_products: entry.totalProducts || 0,
                 recipient_count: entry.recipientCount || 0,
                 recipient_names: entry.recipients || [],
+                sent_by: currentUserName,
                 data: entry.data || {}
             });
         } catch(e){ console.warn('Sync quote failed:', e); }
@@ -1182,7 +1215,6 @@ const Sync = {
         if(!currentUserId) return loadFromStorage(STORAGE_KEYS.history) || [];
         try {
             const { data, error } = await sb.from('quotes').select('*')
-                .eq('user_id', currentUserId)
                 .order('created_at', { ascending: false })
                 .limit(90);
             if(!error && data){
@@ -1195,6 +1227,7 @@ const Sync = {
                     totalProducts: q.total_products,
                     recipientCount: q.recipient_count,
                     recipients: q.recipient_names,
+                    sentBy: q.sent_by || '',
                     data: q.data
                 }));
                 saveToStorage(STORAGE_KEYS.history, history);
@@ -1207,7 +1240,7 @@ const Sync = {
     async deleteQuote(entry){
         if(!currentUserId || !entry.id) return;
         try {
-            await sb.from('quotes').delete().eq('id', entry.id).eq('user_id', currentUserId);
+            await sb.from('quotes').delete().eq('id', entry.id);
         } catch(e){ console.warn('Delete quote failed:', e); }
     },
 
@@ -1215,7 +1248,7 @@ const Sync = {
         localStorage.removeItem(STORAGE_KEYS.history);
         if(!currentUserId) return;
         try {
-            await sb.from('quotes').delete().eq('user_id', currentUserId);
+            await sb.from('quotes').delete().neq('type', '');
         } catch(e){ console.warn('Clear history failed:', e); }
     },
 
@@ -1290,8 +1323,10 @@ const Sync = {
 const MIGRATED_KEY = 'hm_migrated:' + SUPABASE_URL;
 
 async function cloudIsEmpty(table){
-    const { count, error } = await sb.from(table).select('*', { count: 'exact', head: true })
-        .eq('user_id', currentUserId);
+    const personal = table === 'current_draft' || table === 'preferences' || table === 'last_sent';
+    let q = sb.from(table).select('*', { count: 'exact', head: true });
+    if(personal) q = q.eq('user_id', currentUserId);
+    const { count, error } = await q;
     if(error) throw error;
     return !count;
 }
@@ -1305,7 +1340,7 @@ async function migrateLocalToCloud(){
     try {
         // Migrate recipients
         const localClients = loadFromStorage(STORAGE_KEYS.clients);
-        if(localClients && localClients.length > 0){
+        if(localClients && localClients.length > 0 && await cloudIsEmpty('recipients')){
             const rows = localClients.map(c => ({
                 user_id: currentUserId,
                 name: c.name,
@@ -1313,7 +1348,7 @@ async function migrateLocalToCloud(){
                 email: c.email,
                 selected: c.selected !== false
             }));
-            const { error } = await sb.from('recipients').upsert(rows, { onConflict: 'user_id,email' });
+            const { error } = await sb.from('recipients').upsert(rows, { onConflict: 'email', ignoreDuplicates: true });
             if(error) throw error;
         }
 
@@ -1854,7 +1889,7 @@ function switchView(viewId){
     if(viewId === 'products'){ renderProductsList(); }
     if(viewId === 'history'){ renderHistory(); }
     if(viewId === 'trends'){ renderTrends(); }
-    if(viewId === 'prefs'){ loadPrefsUI(); }
+    if(viewId === 'prefs'){ loadPrefsUI(); loadUsers(); }
     window.scrollTo(0,0);
     const main = document.querySelector('.main');
     if(main) main.scrollTop = 0;
@@ -2418,6 +2453,7 @@ async function renderHistory(){
         return `<tr onclick="openHistoryDrawer(${i})">
             <td><span class="primary">${escapeHtml(when.day)}</span> <span class="muted">${escapeHtml(when.time)}</span></td>
             <td><span class="status-pill ${h.type === 'sent' ? 'sent' : ''}">${h.type === 'sent' ? 'Sent' : 'Draft'}</span></td>
+            <td class="muted">${escapeHtml(h.sentBy || '—')}</td>
             <td class="num">${h.priceCount || 0}</td>
             <td class="truncate">${recips}</td>
             <td><div class="row-actions" onclick="event.stopPropagation()">
@@ -2429,7 +2465,7 @@ async function renderHistory(){
 
     container.innerHTML = `<div class="data-table-wrap">
         <table class="data-table">
-            <thead><tr><th>Date</th><th>Status</th><th class="num">Prices</th><th>Recipients</th><th></th></tr></thead>
+            <thead><tr><th>Date</th><th>Status</th><th>By</th><th class="num">Prices</th><th>Recipients</th><th></th></tr></thead>
             <tbody>${body}</tbody>
         </table>
         <div class="table-foot">${rows.length} ${rows.length === 1 ? 'quote' : 'quotes'}</div>
@@ -2651,6 +2687,97 @@ async function resetPrefs(){
     showToast(svgIcons.check, 'Preferences reset to defaults');
 }
 
+// ══════════════════════════════════════════
+//  USERS (accounts)
+// ══════════════════════════════════════════
+
+async function usersApi(payload){
+    if(!sb) throw new Error('Cloud sync is off on this device, so users can\'t be managed here.');
+    const { data: { session } } = await sb.auth.getSession();
+    if(!session) throw new Error('Sign in again to manage users.');
+    const res = await fetch('/.netlify/functions/manage-users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify(payload)
+    });
+    const out = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(out.error || 'Something went wrong.');
+    return out;
+}
+
+async function loadUsers(){
+    const list = document.getElementById('usersList');
+    if(!list) return;
+    try {
+        const { users, me } = await usersApi({ action: 'list' });
+        if(!users.length){ list.innerHTML = '<div class="pm-empty">No users yet.</div>'; return; }
+        list.innerHTML = users.map(u => {
+            const last = u.last_sign_in_at ? fmtWhen(new Date(u.last_sign_in_at).getTime()) : null;
+            const initials = u.name.split(/\s+/).map(w => w[0]).join('').substring(0,2).toUpperCase();
+            return `<div class="pm-card">
+                <div class="recipient-avatar">${escapeHtml(initials)}</div>
+                <div class="pm-card-info">
+                    <div><div class="pm-card-name">${escapeHtml(u.name)}${u.id === me ? ' <span class="status-pill neutral" style="margin-left:6px">You</span>' : ''}</div>
+                    <div class="pm-card-note">Username <b>${escapeHtml(u.username)}</b> · ${escapeHtml(u.email)}</div></div>
+                    <div class="pm-card-note">${last ? `Last sign-in ${escapeHtml(last.day)}, ${escapeHtml(last.time)}` : 'Never signed in'}</div>
+                </div>
+                <div class="pm-card-actions">${u.id === me ? '' : `<button class="pm-card-btn delete" onclick="removeUser('${u.id}', '${escapeHtml(u.name).replace(/'/g, "\\'")}')" title="Remove user"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`}</div>
+            </div>`;
+        }).join('');
+    } catch(e){
+        list.innerHTML = `<div class="pm-empty">${escapeHtml(e.message)}</div>`;
+    }
+}
+
+function openAddUser(){
+    ['nuName','nuUsername','nuEmail','nuPassword'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('nuError').style.display = 'none';
+    document.getElementById('userModal').classList.add('show');
+    document.getElementById('nuName').focus();
+}
+function closeAddUser(){ document.getElementById('userModal').classList.remove('show'); }
+
+// Suggest a username from the name
+document.addEventListener('input', e => {
+    if(e.target.id !== 'nuName') return;
+    const u = document.getElementById('nuUsername');
+    if(u.dataset.touched) return;
+    u.value = e.target.value.trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z0-9._-]/g, '');
+});
+document.addEventListener('input', e => { if(e.target.id === 'nuUsername') e.target.dataset.touched = '1'; });
+
+async function createUser(){
+    const btn = document.getElementById('nuSaveBtn');
+    const err = document.getElementById('nuError');
+    err.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Creating…';
+    try {
+        const { user } = await usersApi({
+            action: 'create',
+            name: document.getElementById('nuName').value,
+            username: document.getElementById('nuUsername').value,
+            email: document.getElementById('nuEmail').value,
+            password: document.getElementById('nuPassword').value
+        });
+        closeAddUser();
+        showToast(svgIcons.check, `${user.name} can now sign in as "${user.username}"`);
+        loadUsers();
+    } catch(e){
+        err.textContent = e.message; err.style.display = 'block';
+    } finally {
+        btn.disabled = false; btn.textContent = 'Create user';
+    }
+}
+
+async function removeUser(id, name){
+    if(!confirm(`Remove ${name}? They will no longer be able to sign in. Customers, products and history are shared and stay.`)) return;
+    try {
+        await usersApi({ action: 'delete', id });
+        showToast(svgIcons.trash, `${name} removed`);
+        loadUsers();
+    } catch(e){ showToast(svgIcons.alert, e.message); }
+}
+
 // ── Init ──
 setDate();
 renderProducts();
@@ -2672,7 +2799,7 @@ renderProductsList();
 setQuoteStatus();
 
 // Close overlays on Escape
-document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closePdf(); closePmModal(); closeSendConfirm(); closeHistoryDrawer(); } });
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closePdf(); closePmModal(); closeSendConfirm(); closeHistoryDrawer(); closeAddUser(); } });
 </script>
 </body>
 </html>

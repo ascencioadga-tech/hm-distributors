@@ -510,7 +510,8 @@ const USER_EMAIL_MAP = {
 
 function usernameToEmail(username){
     const key = username.trim().toLowerCase();
-    return USER_EMAIL_MAP[key] || (key + '@hmdistributors.local');
+    if(key.includes('@')) return key;
+    return USER_EMAIL_MAP[key] || (key + '@users.hmdistributors.com');
 }
 
 async function handleLogin(e){

@@ -259,7 +259,7 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
 .subject-input{font-weight:600 !important}
 .email-body{background:var(--sunken);border-top:1px solid var(--border);padding:28px 20px}
 .email-frame-label{max-width:680px;margin:0 auto 10px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--muted)}
-.email-body-inner{max-width:680px;margin:0 auto;background:#fff;box-shadow:var(--shadow-lg);border-radius:8px;overflow:hidden}
+.email-body-inner{max-width:680px;margin:0 auto;background:#fff;box-shadow:var(--shadow-lg);border-radius:8px;overflow-x:auto}
 
 /* ── Modal (shared) ── */
 .modal-overlay,.pm-modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,31,54,.38);z-index:1000;justify-content:center;align-items:center;padding:20px}
@@ -441,62 +441,7 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
 .pdf-footer p{color:rgba(255,255,255,.5);font-size:.65rem;line-height:1.8}
 .pdf-footer .pf-name{color:#c4a265;font-weight:700;font-size:.75rem}
 
-/* ── Email HTML Template ── */
-.eml-hero{background:linear-gradient(160deg,#041f0e 0%,#073015 40%,#0a4a22 100%);padding:52px 48px 44px;text-align:center;position:relative;overflow:hidden}
-.eml-hero::before{content:'';position:absolute;top:-40%;right:-20%;width:400px;height:400px;background:radial-gradient(circle,rgba(196,162,101,.08) 0%,transparent 70%);pointer-events:none}
-.eml-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(196,162,101,.3),transparent)}
-.eml-hero img{height:56px;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.3))}
-.eml-hero-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-.3px}
-.eml-hero-subtitle{font-size:.7rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:#c4a265;margin-bottom:20px}
-.eml-hero-date{display:inline-block;padding:8px 24px;border:1px solid rgba(196,162,101,.25);border-radius:24px;font-size:.7rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.85)}
-.eml-hero-divider{width:40px;height:2px;background:linear-gradient(to right,#c4a265,rgba(196,162,101,.3));margin:16px auto 0;border-radius:2px}
-
-.eml-greeting{padding:24px 36px 16px;font-size:.82rem;color:#444;line-height:1.8}
-.eml-greeting strong{color:#073015}
-.eml-greeting-line{width:32px;height:2px;background:#c4a265;margin-bottom:12px;border-radius:2px}
-
-.eml-brand-section{padding:20px 36px 8px}
-.eml-brand-header{display:flex;align-items:center;gap:14px;padding:12px 16px;margin-bottom:14px;background:linear-gradient(135deg,#faf9f6,#f5f3ef);border-radius:8px;border-left:3px solid #c4a265}
-.eml-brand-header img{height:30px;border-radius:4px}
-.eml-brand-header h2{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:#073015;letter-spacing:-.2px}
-.eml-products-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-
-.eml-product-group{margin-bottom:0;border-radius:8px;overflow:hidden;border:1px solid rgba(0,0,0,.06)}
-.eml-product-label{display:flex;align-items:center;gap:6px;padding:6px 10px;font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#fff}
-.eml-product-label .eml-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.4)}
-.eml-product-label.cap-red{background:linear-gradient(135deg,#b91c1c,#dc2626)}
-.eml-product-label.cap-purple{background:linear-gradient(135deg,#6d28d9,#7c3aed)}
-.eml-product-label.cap-green{background:linear-gradient(135deg,#2d6a00,#388600)}
-.eml-product-label.cap-yellow{background:linear-gradient(135deg,#a37800,#c49000)}
-.eml-product-label.cap-orange{background:linear-gradient(135deg,#c45e00,#e07000)}
-.eml-product-label.cap-teal{background:linear-gradient(135deg,#0a7a70,#0d9488)}
-
-.eml-table{width:100%;border-collapse:collapse;font-size:.72rem}
-.eml-table thead th{background:#faf9f6;padding:4px 10px;text-align:left;font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#aaa;border-bottom:1px solid #eee}
-.eml-table thead th:last-child{text-align:right}
-.eml-table thead th:nth-child(2),.eml-table thead th:nth-child(3){text-align:center}
-.eml-table tbody td{padding:5px 10px;border-bottom:1px solid #f5f5f5;color:#333;font-weight:500}
-.eml-table tbody td:nth-child(2),.eml-table tbody td:nth-child(3){text-align:center;font-size:.65rem;color:#777}
-.eml-table tbody td:last-child{text-align:right;font-weight:700;color:#073015;font-family:'Playfair Display',serif;font-size:.78rem}
-.eml-table tbody tr:last-child td{border-bottom:none}
-.eml-table tbody td.no-price{color:#d4d4d4;font-style:normal;font-weight:400;font-family:'Inter',sans-serif;font-size:.7rem}
-.eml-table-note{font-size:.55rem;color:#aaa;padding:4px 10px 6px;background:#faf9f6;border-top:1px solid #f0f0f0;letter-spacing:.3px}
-
-.eml-section-divider{height:1px;background:linear-gradient(to right,transparent,rgba(0,0,0,.06),transparent);margin:4px 36px 8px}
-
-.eml-cta{padding:10px 36px 20px;text-align:center}
-.eml-cta-text{font-size:.72rem;color:#888;margin-bottom:10px}
-.eml-cta-btn{display:inline-block;padding:10px 32px;background:linear-gradient(135deg,#073015,#0a4a22);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:8px;text-decoration:none}
-
-.eml-disclaimer{padding:16px 36px;background:#faf9f6;font-size:.6rem;color:#aaa;line-height:1.7;border-top:1px solid rgba(0,0,0,.04)}
-.eml-disclaimer strong{color:#999}
-
-.eml-footer{background:linear-gradient(160deg,#041f0e,#073015);padding:28px 36px;text-align:center;position:relative}
-.eml-footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(196,162,101,.2),transparent)}
-.eml-footer p{color:rgba(255,255,255,.4);font-size:.68rem;line-height:1.9}
-.eml-footer .eml-footer-name{color:#c4a265;font-weight:700;font-size:.82rem;font-family:'Playfair Display',serif;letter-spacing:.5px;margin-bottom:4px}
-.eml-footer .eml-footer-phone{color:rgba(255,255,255,.65);font-weight:600}
-.eml-footer-divider{width:40px;height:1px;background:rgba(196,162,101,.25);margin:14px auto}
+/* Email preview renders the exact sent-email markup (see buildEmailBody) */
 
 /* ── Mobile bottom nav ── */
 .mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:900;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--border);padding:4px 4px calc(4px + env(safe-area-inset-bottom));justify-content:space-around}
@@ -2047,322 +1992,138 @@ function refreshEmailPreview(){
     const container = document.getElementById('emailPreviewBody');
     const selected = clients.filter(c => c.selected);
     const recipientName = selected.length === 1 ? selected[0].name : 'Valued Customer';
-    let html = '';
+    container.innerHTML = buildEmailBody(recipientName, '');
+}
 
-    // Hero header
-    html += `<div class="eml-hero">
-        <img src="logo.avif" alt="HM Distributors" onerror="this.outerHTML='<div style=\\'color:#fff;font-family:Playfair Display,serif;font-size:1.8rem;font-weight:700\\'>HM Distributors</div>'">
-        <div class="eml-hero-subtitle">Daily Price Sheet</div>
-        <div class="eml-hero-date">${getShortDate()}</div>
-        <div class="eml-hero-divider"></div>
-    </div>`;
+// Rows for one product: [{size, cols:[value|'' ...]}], skipping sizes with no price
+function filledRowsFor(brandKey, group){
+    const cols = BRAND_COLUMNS[brandKey];
+    const rows = [];
+    group.sizes.forEach(size => {
+        const id = makeId(group.name, size);
+        const vals = cols.map(([prefix]) => {
+            const inp = document.getElementById(prefix + id);
+            const raw = inp && inp.value ? inp.value.trim() : '';
+            if(!raw) return '';
+            const n = parsePrice(raw);
+            return n !== null ? `$${n.toFixed(2)}` : escapeHtml(raw);
+        });
+        if(vals.some(v => v)) rows.push({ size, vals });
+    });
+    return rows;
+}
+
+// The customer email. Table-based with inline styles so it renders the same in
+// Outlook, Gmail and Apple Mail, and sized to print on one page.
+function buildEmailBody(recipientName, baseUrl){
+    const img = f => (baseUrl ? baseUrl + '/' : '') + f;
+    const F = "font-family:Helvetica,Arial,sans-serif;";
+    const INK = '#1a1f36', BODY = '#3c4257', MUTED = '#697386', FAINT = '#c3cad3', LINE = '#e3e8ee', SOFT = '#f6f8fa', GREEN = '#0e6b2e', DEEP = '#073015';
+    const dotColors = { 'cap-red':'#e5424d', 'cap-green':'#3d9a2a', 'cap-purple':'#8b5cf6', 'cap-yellow':'#e5b50b', 'cap-orange':'#f07c1a', 'cap-teal':'#0d9488' };
+    const prefs = loadFromStorage(STORAGE_KEYS.prefs) || {};
+    const fob = prefs.fob || 'Nogales, AZ';
+
+    let h = `<table border="0" cellpadding="0" cellspacing="0" width="100%" class="outer-wrap" style="background-color:${SOFT};"><tr><td align="center" style="padding:10px 0;">`;
+    h += `<!--[if mso]><table border="0" cellpadding="0" cellspacing="0" width="680"><tr><td><![endif]-->`;
+    h += `<table border="0" cellpadding="0" cellspacing="0" width="680" style="max-width:680px;width:100%;background-color:#ffffff;border:1px solid ${LINE};">`;
+
+    // Header: logo left, title + date right, green rule beneath
+    h += `<tr><td style="padding:12px 22px 10px;border-bottom:2px solid ${GREEN};"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr>`;
+    h += `<td valign="middle"><img src="${img('logo.png')}" alt="HM Distributors" height="34" style="height:34px;width:auto;display:block;" /></td>`;
+    h += `<td valign="middle" align="right" style="${F}"><div style="font-size:13px;font-weight:bold;color:${INK};">Daily Price Sheet</div><div style="font-size:9.5px;color:${MUTED};margin-top:2px;">${getDateStr()}</div></td>`;
+    h += `</tr></table></td></tr>`;
 
     // Greeting
-    html += `<div class="eml-greeting">
-        <div class="eml-greeting-line"></div>
-        Good morning, <strong>${recipientName}</strong>.<br><br>
-        Here are today's prices for <strong>${getDateStr()}</strong>. All prices are FOB Nogales, AZ. Availability is subject to change — please call to confirm your order.</div>`;
+    h += `<tr><td style="padding:9px 22px 4px;${F}font-size:10px;line-height:14px;color:${BODY};">Good morning, <strong style="color:${INK};">${escapeHtml(recipientName)}</strong>. Here are today&#8217;s prices, FOB ${escapeHtml(fob)}. Please call to confirm availability before placing your order.</td></tr>`;
 
-    // Brand sections — only show products/sizes that have values
-    const brandOrder = ['spv','wolf','mr'];
-    const renderedBrands = [];
-    brandOrder.forEach((brandKey) => {
+    // Brand sections
+    const sections = [];
+    ['spv','wolf','mr'].forEach(brandKey => {
         const brand = brandMeta[brandKey];
-        const products = productData[brandKey];
-        const isSpvDual = brandKey === 'spv';
-        const isWolfDual = brandKey === 'wolf';
+        const cols = BRAND_COLUMNS[brandKey];
+        const groups = productData[brandKey].map(g => ({ g, rows: filledRowsFor(brandKey, g) })).filter(x => x.rows.length);
+        if(!groups.length) return;
 
-        // Build groups HTML, skipping empty rows and empty groups
-        let groupsHtml = '';
-        products.forEach(group => {
-            const note = group.subheader || group.header || '';
-            let rowsHtml = '';
-            group.sizes.forEach(size => {
-                const id = makeId(group.name, size);
-                if(isSpvDual){
-                    const spvInp = document.getElementById('spv-' + id);
-                    const parisInp = document.getElementById('paris-' + id);
-                    const spvRaw = spvInp && spvInp.value ? spvInp.value : '';
-                    const parisRaw = parisInp && parisInp.value ? parisInp.value : '';
-                    if(!spvRaw && !parisRaw) return;
-                    const spvVal = spvRaw ? (spvRaw.match(/^\d/) ? `$${parseFloat(spvRaw).toFixed(2)}` : spvRaw) : '';
-                    const parisVal = parisRaw ? (parisRaw.match(/^\d/) ? `$${parseFloat(parisRaw).toFixed(2)}` : parisRaw) : '';
-                    rowsHtml += `<tr><td>${size}</td>${spvVal ? `<td>${spvVal}</td>` : '<td class="no-price">\u2014</td>'}${parisVal ? `<td>${parisVal}</td>` : '<td class="no-price">\u2014</td>'}</tr>`;
-                } else if(isWolfDual){
-                    const inp = document.getElementById(id);
-                    const p2Inp = document.getElementById('p2-' + id);
-                    const raw = inp && inp.value ? inp.value : '';
-                    const p2Raw = p2Inp && p2Inp.value ? p2Inp.value : '';
-                    if(!raw && !p2Raw) return;
-                    const val = raw ? (raw.match(/^\d/) ? `$${parseFloat(raw).toFixed(2)}` : raw) : '';
-                    const p2Val = p2Raw ? (p2Raw.match(/^\d/) ? `$${parseFloat(p2Raw).toFixed(2)}` : p2Raw) : '';
-                    rowsHtml += `<tr><td>${size}</td>${val ? `<td>${val}</td>` : '<td class="no-price">\u2014</td>'}${p2Val ? `<td>${p2Val}</td>` : '<td class="no-price">\u2014</td>'}</tr>`;
-                } else {
-                    const inp = document.getElementById(id);
-                    const raw = inp && inp.value ? inp.value : '';
-                    if(!raw) return;
-                    const val = raw.match(/^\d/) ? `$${parseFloat(raw).toFixed(2)}` : raw;
-                    rowsHtml += `<tr><td>${size}</td><td>${val}</td></tr>`;
-                }
-            });
+        let b = `<tr><td style="padding:8px 22px 0;">`;
+        b += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom:1px solid ${LINE};"><tr>`;
+        b += `<td valign="middle" style="padding:0 0 4px;"><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle" style="padding-right:7px;"><img src="${img(brand.logo)}" alt="" height="16" style="height:16px;width:auto;display:block;" /></td><td valign="middle" style="${F}font-size:10.5px;font-weight:bold;color:${INK};">${brand.name}</td></tr></table></td>`;
+        b += `</tr></table>`;
 
-            if(!rowsHtml) return;
-
-            groupsHtml += `<div class="eml-product-group">`;
-            groupsHtml += `<div class="eml-product-label ${group.capClass}"><span class="eml-dot"></span>${group.name}</div>`;
-            if(isSpvDual){
-                groupsHtml += `<table class="eml-table"><thead><tr><th>Size</th><th>SPV</th><th>Paris</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
-            } else if(isWolfDual){
-                groupsHtml += `<table class="eml-table"><thead><tr><th>Size</th><th>Price</th><th>#2</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
-            } else {
-                groupsHtml += `<table class="eml-table"><thead><tr><th>Size</th><th>Price</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+        const perRow = 3;
+        for(let r = 0; r < Math.ceil(groups.length / perRow); r++){
+            b += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top:5px;"><tr>`;
+            for(let c = 0; c < perRow; c++){
+                const gi = r * perRow + c;
+                const pad = c === 0 ? '0 3px 0 0' : c === perRow - 1 ? '0 0 0 3px' : '0 3px';
+                if(gi >= groups.length){ b += `<td valign="top" width="33%" style="padding:${pad};"></td>`; continue; }
+                const { g, rows } = groups[gi];
+                const note = g.subheader || g.header || '';
+                const dot = dotColors[g.capClass] || MUTED;
+                b += `<td valign="top" width="33%" style="padding:${pad};">`;
+                b += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid ${LINE};">`;
+                // Product name with colored dot
+                b += `<tr><td style="padding:4px 7px;border-bottom:1px solid ${LINE};${F}font-size:9px;font-weight:bold;color:${INK};"><span style="display:inline-block;width:6px;height:6px;border-radius:3px;background-color:${dot};vertical-align:middle;margin-right:5px;"></span>${escapeHtml(g.name)}${note ? `<div style="font-weight:normal;color:${MUTED};font-size:7px;line-height:9px;margin-top:1px;padding-left:11px;">${escapeHtml(note)}</div>` : ''}</td></tr>`;
+                // Column headers + rows
+                b += `<tr><td style="padding:0;"><table border="0" cellpadding="0" cellspacing="0" width="100%">`;
+                const th = (t, al) => `<td align="${al}" bgcolor="${SOFT}" style="background-color:${SOFT};padding:2px 7px;${F}font-size:6.5px;font-weight:bold;letter-spacing:.5px;text-transform:uppercase;color:${MUTED};border-bottom:1px solid ${LINE};">${t}</td>`;
+                b += `<tr>${th('Size','left')}${cols.map(([, l]) => th(l, 'right')).join('')}</tr>`;
+                rows.forEach((row, i) => {
+                    const bb = i === rows.length - 1 ? '' : `border-bottom:1px solid #eef1f4;`;
+                    b += `<tr><td style="padding:2.5px 7px;${bb}${F}font-size:8.5px;color:${BODY};white-space:nowrap;">${escapeHtml(row.size)}</td>`;
+                    row.vals.forEach(v => {
+                        b += v ? `<td align="right" style="padding:2.5px 7px;${bb}${F}font-size:8.5px;font-weight:bold;color:${GREEN};">${v}</td>`
+                               : `<td align="right" style="padding:2.5px 7px;${bb}${F}font-size:8.5px;color:${FAINT};">&#8212;</td>`;
+                    });
+                    b += `</tr>`;
+                });
+                b += `</table></td></tr></table></td>`;
             }
-            if(note) groupsHtml += `<div class="eml-table-note">${note}</div>`;
-            groupsHtml += `</div>`;
-        });
-
-        if(!groupsHtml) return; // skip brand with no filled products
-
-        renderedBrands.push(`<div class="eml-brand-section"><div class="eml-brand-header"><img src="${brand.logo}" alt="${brand.name}"><h2>${brand.name}</h2></div><div class="eml-products-grid">${groupsHtml}</div></div>`);
+            b += `</tr></table>`;
+        }
+        b += `</td></tr>`;
+        sections.push(b);
     });
+    h += sections.join('');
 
-    renderedBrands.forEach((section, idx) => {
-        html += section;
-        if(idx < renderedBrands.length - 1) html += `<div class="eml-section-divider"></div>`;
-    });
+    // Call to order
+    h += `<tr><td align="center" style="padding:10px 22px 4px;"><table border="0" cellpadding="0" cellspacing="0" align="center"><tr><td bgcolor="${GREEN}" align="center" style="background-color:${GREEN};padding:5px 16px;border-radius:4px;"><a href="tel:+15202819534" style="${F}font-size:8.5px;font-weight:bold;color:#ffffff;text-decoration:none;">Call to order &#8212; (520) 281-9534</a></td></tr></table></td></tr>`;
 
-    // CTA
-    html += `<div class="eml-cta"><p class="eml-cta-text">Ready to place your order?</p><a class="eml-cta-btn" href="tel:+15202819534">Call Us — (520) 281-9534</a></div>`;
+    // Disclaimer + footer
+    h += `<tr><td style="padding:6px 22px 8px;${F}font-size:7px;line-height:10px;color:${MUTED};text-align:center;">All prices are FOB ${escapeHtml(fob)}, informational only and subject to change without notice. Please contact your sales representative to confirm pricing and availability.</td></tr>`;
+    h += `<tr><td bgcolor="${SOFT}" style="background-color:${SOFT};border-top:1px solid ${LINE};padding:8px 22px;text-align:center;${F}">`;
+    h += `<div style="font-size:9px;font-weight:bold;color:${DEEP};">HM Distributors Inc.</div>`;
+    h += `<div style="font-size:7.5px;line-height:11px;color:${MUTED};margin-top:2px;">4 Avenida Acaponeta &#183; Rio Rico, AZ 85648 &nbsp;&#183;&nbsp; Mailing: P.O. Box 548 &#183; Nogales, AZ 85628-0548<br>(520) 281-9534 &#183; quotes@hmdistributors.com</div>`;
+    h += `</td></tr>`;
 
-    // Disclaimer + Footer
-    html += `<div class="eml-disclaimer"><strong>Disclaimer:</strong> All prices are FOB Nogales, AZ and are informational only, subject to change without notice.
-        Please contact your sales representative to confirm pricing and availability before placing orders.</div>`;
-    html += `<div class="eml-footer"><p class="eml-footer-name">HM Distributors Inc.</p><p>4 Avenida Acaponeta &middot; Rio Rico, AZ 85648</p><p style="font-size:.68rem;color:#8a9e8f;margin-top:2px">Mailing: P.O. Box 548 &middot; Nogales, AZ 85628-0548</p><div class="eml-footer-divider"></div><p class="eml-footer-phone">(520) 281-9534</p><p>quotes@hmdistributors.com</p></div>`;
-
-    container.innerHTML = html;
+    h += `</table>`;
+    h += `<!--[if mso]></td></tr></table><![endif]-->`;
+    h += `</td></tr></table>`;
+    return h;
 }
 
 function generateEmailHTML(recipientName){
-    const baseUrl = 'https://hmdistributors.netlify.app';
-    const capColors = { 'cap-red':'#cc0000', 'cap-green':'#2d6a00', 'cap-purple':'#6d28d9', 'cap-yellow':'#a37800', 'cap-orange':'#c45e00', 'cap-teal':'#0a7a70' };
-
-    let html = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    const baseUrl = 'https://hmdistributors.com';
+    return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>HM Distributors Daily Quote</title>
 <!--[if mso]>
-<style type="text/css">
-table {border-collapse:collapse;}
-td {font-family:Arial,sans-serif;}
-</style>
-<noscript>
-<xml>
-<o:OfficeDocumentSettings>
-<o:AllowPNG/>
-<o:PixelsPerInch>96</o:PixelsPerInch>
-</o:OfficeDocumentSettings>
-</xml>
-</noscript>
+<style type="text/css">table {border-collapse:collapse;} td {font-family:Arial,sans-serif;}</style>
+<noscript><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
 <![endif]-->
 <style type="text/css">
 @media print {
-  @page { margin:0.25cm; }
+  @page { margin:0.3cm; }
   body { background:#fff !important; }
   .outer-wrap { padding:0 !important; background:#fff !important; }
 }
 </style>
 </head>
-<body style="margin:0;padding:0;background-color:#e8e4dd;font-family:Arial,Helvetica,sans-serif;width:100%;">`;
-
-    // Outer wrapper
-    html += `<table border="0" cellpadding="0" cellspacing="0" width="100%" class="outer-wrap" style="background-color:#e8e4dd;">
-<tr><td align="center" style="padding:6px 0;">`;
-
-    html += `<!--[if mso]><table border="0" cellpadding="0" cellspacing="0" width="680"><tr><td><![endif]-->`;
-    html += `<table border="0" cellpadding="0" cellspacing="0" width="680" style="max-width:680px;width:100%;background-color:#ffffff;border:1px solid #e0e0e0;">`;
-
-    // Hero — compact
-    html += `<tr><td bgcolor="#073015" align="center" style="background-color:#073015;padding:10px 24px 8px;">`;
-    html += `<img src="${baseUrl}/logo.png" alt="HM Distributors" width="32" height="32" style="display:block;margin:0 auto 4px;height:32px;width:auto;" />`;
-    html += `<p style="font-family:Arial,sans-serif;font-size:9px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#c4a265;margin:0 0 4px;">DAILY PRICE SHEET</p>`;
-    html += `<table border="0" cellpadding="0" cellspacing="0" align="center"><tr><td style="border:1px solid #c4a265;padding:3px 12px;font-family:Arial,sans-serif;font-size:9px;font-weight:bold;letter-spacing:1px;color:#e8e4dd;">${getShortDate()}</td></tr></table>`;
-    html += `</td></tr>`;
-
-    // Greeting — compact
-    html += `<tr><td style="padding:6px 24px 4px;font-family:Arial,sans-serif;font-size:10px;color:#444444;line-height:14px;">`;
-    html += `<p style="margin:0;">Good morning, <strong style="color:#073015;">${recipientName}</strong>. Today&#8217;s prices for <strong style="color:#073015;">${getDateStr()}</strong>. All prices FOB Nogales, AZ. Call to confirm.</p>`;
-    html += `</td></tr>`;
-
-    // Brand sections — only show products/sizes that have values
-    const renderedBrandSections = [];
-    ['spv','wolf','mr'].forEach((brandKey) => {
-        const brand = brandMeta[brandKey];
-        const products = productData[brandKey];
-        const isSpvDual = brandKey === 'spv';
-        const isWolfDual = brandKey === 'wolf';
-        const isDual = isSpvDual || isWolfDual;
-
-        // Build filtered groups: only include sizes with values, skip empty groups
-        const filledGroups = [];
-        products.forEach(group => {
-            const filledRows = [];
-            group.sizes.forEach(size => {
-                const id = makeId(group.name, size);
-                if(isSpvDual){
-                    const spvInp = document.getElementById('spv-' + id);
-                    const parisInp = document.getElementById('paris-' + id);
-                    const spvRaw = spvInp && spvInp.value ? spvInp.value : '';
-                    const parisRaw = parisInp && parisInp.value ? parisInp.value : '';
-                    if(!spvRaw && !parisRaw) return;
-                    const spvVal = spvRaw ? (spvRaw.match(/^\d/) ? `$${parseFloat(spvRaw).toFixed(2)}` : spvRaw) : '';
-                    const parisVal = parisRaw ? (parisRaw.match(/^\d/) ? `$${parseFloat(parisRaw).toFixed(2)}` : parisRaw) : '';
-                    filledRows.push({ size, col1: spvVal, col2: parisVal });
-                } else if(isWolfDual){
-                    const inp = document.getElementById(id);
-                    const p2Inp = document.getElementById('p2-' + id);
-                    const raw = inp && inp.value ? inp.value : '';
-                    const p2Raw = p2Inp && p2Inp.value ? p2Inp.value : '';
-                    if(!raw && !p2Raw) return;
-                    const val = raw ? (raw.match(/^\d/) ? `$${parseFloat(raw).toFixed(2)}` : raw) : '';
-                    const p2Val = p2Raw ? (p2Raw.match(/^\d/) ? `$${parseFloat(p2Raw).toFixed(2)}` : p2Raw) : '';
-                    filledRows.push({ size, col1: val, col2: p2Val });
-                } else {
-                    const inp = document.getElementById(id);
-                    const raw = inp && inp.value ? inp.value : '';
-                    if(!raw) return;
-                    const val = raw.match(/^\d/) ? `$${parseFloat(raw).toFixed(2)}` : raw;
-                    filledRows.push({ size, val });
-                }
-            });
-            if(filledRows.length > 0){
-                filledGroups.push({ group, filledRows });
-            }
-        });
-
-        if(filledGroups.length === 0) return; // skip entire brand
-
-        let brandHtml = '';
-
-        // Brand header
-        brandHtml += `<tr><td style="padding:5px 24px 2px;">`;
-        brandHtml += `<table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#faf9f6" style="background-color:#faf9f6;border-left:3px solid #c4a265;">`;
-        brandHtml += `<tr><td style="padding:3px 10px;">`;
-        brandHtml += `<table border="0" cellpadding="0" cellspacing="0"><tr>`;
-        brandHtml += `<td valign="middle" style="padding-right:8px;"><img src="${baseUrl}/${brand.logo}" alt="${brand.name}" height="18" style="height:18px;width:auto;display:block;" /></td>`;
-        brandHtml += `<td valign="middle" style="font-family:Georgia,'Times New Roman',serif;font-size:11px;font-weight:bold;color:#073015;">${brand.name}</td>`;
-        brandHtml += `</tr></table></td></tr></table>`;
-
-        // Products grid — only filled groups
-        const cols = 3;
-        for(let row = 0; row < Math.ceil(filledGroups.length / cols); row++){
-            brandHtml += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top:3px;"><tr>`;
-            for(let col = 0; col < cols; col++){
-                const gi = row * cols + col;
-                if(gi < filledGroups.length){
-                    const { group, filledRows } = filledGroups[gi];
-                    const capColor = capColors[group.capClass] || '#073015';
-                    const note = group.subheader || group.header || '';
-                    const cellWidth = Math.floor(100 / cols);
-
-                    brandHtml += `<td valign="top" width="${cellWidth}%" style="padding:${col > 0 ? '0 0 0 4px' : '0 4px 0 0'};">`;
-                    brandHtml += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #dddddd;">`;
-
-                    // Product label
-                    brandHtml += `<tr><td bgcolor="${capColor}" style="background-color:${capColor};padding:2px 5px;font-family:Arial,sans-serif;font-size:7px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#ffffff;">`;
-                    brandHtml += `${group.name}</td></tr>`;
-
-                    // Header row + rows
-                    brandHtml += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:0;">`;
-                    brandHtml += `<table border="0" cellpadding="0" cellspacing="0" width="100%">`;
-                    if(isDual){
-                        const col1Label = isSpvDual ? 'SPV' : 'Price';
-                        const col2Label = isSpvDual ? 'Paris' : '#2';
-                        brandHtml += `<tr>`;
-                        brandHtml += `<td width="40%" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Size</td>`;
-                        brandHtml += `<td width="30%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">${col1Label}</td>`;
-                        brandHtml += `<td width="30%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">${col2Label}</td>`;
-                        brandHtml += `</tr>`;
-                    } else {
-                        brandHtml += `<tr>`;
-                        brandHtml += `<td width="60%" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Size</td>`;
-                        brandHtml += `<td width="40%" align="right" style="padding:1px 5px;font-family:Arial,sans-serif;font-size:6px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaaaaa;border-bottom:1px solid #eeeeee;">Price</td>`;
-                        brandHtml += `</tr>`;
-                    }
-
-                    filledRows.forEach((r, si) => {
-                        const isLast = si === filledRows.length - 1;
-                        const bb = isLast ? '' : 'border-bottom:1px solid #f0f0f0;';
-                        brandHtml += `<tr>`;
-                        brandHtml += `<td style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#333333;">${r.size}</td>`;
-                        if(isDual){
-                            if(r.col1){
-                                brandHtml += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${r.col1}</td>`;
-                            } else {
-                                brandHtml += `<td align="right" style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#d4d4d4;">&#8212;</td>`;
-                            }
-                            if(r.col2){
-                                brandHtml += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${r.col2}</td>`;
-                            } else {
-                                brandHtml += `<td align="right" style="padding:2px 5px;${bb}font-family:Arial,sans-serif;font-size:9px;color:#d4d4d4;">&#8212;</td>`;
-                            }
-                        } else {
-                            brandHtml += `<td align="right" style="padding:2px 5px;${bb}font-family:Georgia,'Times New Roman',serif;font-size:9px;font-weight:bold;color:#073015;">${r.val}</td>`;
-                        }
-                        brandHtml += `</tr>`;
-                    });
-
-                    brandHtml += `</table></td></tr>`;
-
-                    if(note){
-                        brandHtml += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:1px 5px 2px;font-family:Arial,sans-serif;font-size:6px;color:#aaaaaa;border-top:1px solid #f0f0f0;">${note}</td></tr>`;
-                    }
-
-                    brandHtml += `</table></td>`;
-                } else {
-                    brandHtml += `<td valign="top" width="${Math.floor(100/cols)}%"></td>`;
-                }
-            }
-            brandHtml += `</tr></table>`;
-        }
-
-        brandHtml += `</td></tr>`;
-        renderedBrandSections.push(brandHtml);
-    });
-
-    // Output brand sections with dividers only between them
-    renderedBrandSections.forEach((section, idx) => {
-        html += section;
-        if(idx < renderedBrandSections.length - 1){
-            html += `<tr><td style="padding:2px 24px;"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td height="1" style="background-color:#eeeeee;font-size:1px;line-height:1px;">&nbsp;</td></tr></table></td></tr>`;
-        }
-    });
-
-    // CTA — compact
-    html += `<tr><td align="center" style="padding:5px 24px 6px;text-align:center;">`;
-    html += `<table border="0" cellpadding="0" cellspacing="0" align="center"><tr>`;
-    html += `<td bgcolor="#073015" align="center" style="background-color:#073015;padding:5px 20px;">`;
-    html += `<a href="tel:+15202819534" style="font-family:Arial,sans-serif;font-size:9px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none;">Call Us &#8212; (520) 281-9534</a>`;
-    html += `</td></tr></table>`;
-    html += `</td></tr>`;
-
-    // Disclaimer — compact
-    html += `<tr><td bgcolor="#faf9f6" style="background-color:#faf9f6;padding:4px 24px;border-top:1px solid #eeeeee;">`;
-    html += `<p style="font-family:Arial,sans-serif;font-size:7px;color:#aaaaaa;line-height:10px;margin:0;"><strong style="color:#999999;">Disclaimer:</strong> All prices FOB Nogales, AZ, informational only, subject to change. Contact your sales rep to confirm.</p>`;
-    html += `</td></tr>`;
-
-    // Footer — compact
-    html += `<tr><td bgcolor="#073015" align="center" style="background-color:#073015;padding:8px 24px;text-align:center;">`;
-    html += `<p style="font-family:Georgia,'Times New Roman',serif;font-size:10px;font-weight:bold;color:#c4a265;margin:0;">HM Distributors Inc.</p>`;
-    html += `<p style="font-family:Arial,sans-serif;font-size:8px;color:#8a9e8f;line-height:12px;margin:2px 0 0;">4 Avenida Acaponeta &#183; Rio Rico, AZ 85648 &#183; (520) 281-9534 &#183; quotes@hmdistributors.com</p>`;
-    html += `<p style="font-family:Arial,sans-serif;font-size:7px;color:#6a7e6f;line-height:10px;margin:1px 0 0;">Mailing: P.O. Box 548 &#183; Nogales, AZ 85628-0548</p>`;
-    html += `</td></tr>`;
-
-    html += `</table>`;
-    html += `<!--[if mso]></td></tr></table><![endif]-->`;
-    html += `</td></tr></table></body></html>`;
-    return html;
+<body style="margin:0;padding:0;background-color:#f6f8fa;font-family:Helvetica,Arial,sans-serif;width:100%;">
+${buildEmailBody(recipientName, baseUrl)}
+</body></html>`;
 }
 
 async function sendEmails(){

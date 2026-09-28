@@ -8,13 +8,13 @@
 //
 // Usernames become login emails on a domain HM owns (no mailbox needed):
 //   rene  ->  rene@users.hmdistributors.com
-// The person's real email is kept in user metadata for display.
+// People sign in with the username only; nobody needs a mailbox.
 
 const SUPABASE_URL = "https://ubdvcjrrbvyibrnvsswo.supabase.co";
 const ANON_KEY = "sb_publishable_8QQJe8SM62Tc-9TKFCqOGg_TCa72cvE";
 const LOGIN_DOMAIN = "users.hmdistributors.com";
 
-type UserRow = { id: string; username: string; name: string; email: string; created_at: string; last_sign_in_at: string | null };
+type UserRow = { id: string; username: string; name: string; created_at: string; last_sign_in_at: string | null };
 
 const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -29,7 +29,6 @@ function toRow(u: any): UserRow {
     id: u.id,
     username: usernameFor(u),
     name: u.user_metadata?.name || usernameFor(u),
-    email: u.user_metadata?.contact_email || u.email || "",
     created_at: u.created_at,
     last_sign_in_at: u.last_sign_in_at || null,
   };
@@ -63,11 +62,9 @@ export default async (req: Request) => {
   if (body.action === "create") {
     const username = String(body.username || "").trim().toLowerCase();
     const name = String(body.name || "").trim();
-    const contactEmail = String(body.email || "").trim();
     const password = String(body.password || "");
     if (!/^[a-z0-9._-]{2,32}$/.test(username)) return json(400, { error: "Username: letters, numbers, dots or dashes only (2–32 characters)." });
     if (!name) return json(400, { error: "Enter the person's name." });
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contactEmail)) return json(400, { error: "Enter a valid email address." });
     if (password.length < 8) return json(400, { error: "Password must be at least 8 characters." });
 
     const r = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
@@ -77,7 +74,7 @@ export default async (req: Request) => {
         email: `${username}@${LOGIN_DOMAIN}`,
         password,
         email_confirm: true,
-        user_metadata: { name, username, contact_email: contactEmail, created_by: caller.id },
+        user_metadata: { name, username, created_by: caller.id },
       }),
     });
     const data = await r.json();

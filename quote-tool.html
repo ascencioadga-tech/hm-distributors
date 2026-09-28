@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HM Quotes">
+<link rel="apple-touch-icon" href="apple-icon.png">
+<link rel="manifest" href="quote-app.webmanifest">
 <title>HM Distributors | Daily Quote Sheet</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -54,6 +61,9 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
 .sync-state[data-state="offline"] .sync-dot{background:#e5850b}
 .btn-signout{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:var(--canvas);color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;box-shadow:var(--shadow-sm);transition:background .15s,border-color .15s}
 .btn-signout:hover{background:var(--subtle);border-color:var(--border-strong)}
+.topbar-person{display:flex;align-items:center;gap:10px}
+.topbar-name{font-size:13.5px;font-weight:500;color:var(--text-2);white-space:nowrap}
+.page-greeting{font-size:14px;color:var(--muted);margin-bottom:4px}
 .topbar-user{width:32px;height:32px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px}
 
 /* ── Layout ── */
@@ -489,6 +499,160 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
     .brand-tab{padding:10px 8px 9px;gap:8px}
 }
 
+/* ══════════════════════════════════════════
+   PHONE APP
+   ══════════════════════════════════════════ */
+.m-title,.m-more,.m-actionbar,.m-only,.m-back{display:none}
+.sheet-overlay{display:none}
+@media(max-width:768px){
+    html{-webkit-tap-highlight-color:transparent}
+    body{background:var(--subtle);overscroll-behavior-y:none}
+    button,a,.brand-tab,.recipient-item,.data-table tbody tr{touch-action:manipulation}
+    .m-only{display:block}
+
+    /* App header */
+    .topbar{height:calc(52px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 12px 0;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px)}
+    .topbar-logo{height:26px}
+    .topbar-subtitle,.topbar-divider,.btn-signout,.topbar-name,.topbar-date,.sync-state .sync-label{display:none !important}
+    .topbar-right{gap:6px}
+    .sync-state{padding:0;width:22px;height:22px;justify-content:center;background:transparent;border:none}
+    .m-title{display:block;position:absolute;left:50%;transform:translateX(-50%);font-size:15.5px;font-weight:600;color:var(--text);opacity:0;transition:opacity .18s;white-space:nowrap;pointer-events:none}
+    body.scrolled .m-title{opacity:1}
+    .m-more{display:none;width:36px;height:36px;border:none;background:transparent;border-radius:50%;align-items:center;justify-content:center;color:var(--text-2)}
+    .m-more svg{width:22px;height:22px;fill:currentColor}
+    .m-more:active{background:var(--sunken)}
+    body[data-view="quote"] .m-more{display:flex}
+    .topbar-user{width:30px;height:30px;font-size:11px}
+
+    /* Screen layout */
+    .main{padding:14px 16px calc(150px + env(safe-area-inset-bottom))}
+    .page-header{margin-bottom:14px;gap:10px}
+    .page-header h1{font-size:28px;letter-spacing:-.6px}
+    .page-header p{font-size:14px}
+    .page-greeting{font-size:13.5px;margin-bottom:2px}
+    #view-quote .header-actions,#view-email .header-actions{display:none}
+    .header-actions .btn{flex:0 0 auto;height:34px}
+    .m-back{display:inline-flex;align-items:center;gap:2px;border:none;background:none;color:var(--brand);font-size:15px;font-weight:500;padding:0;margin:0 0 8px -4px}
+    .m-back svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+    /* Quote sheet: edge to edge */
+    .quote-card{margin:0 -16px;border:none;border-radius:0;box-shadow:none;background:transparent;overflow:visible}
+    .brand-tabs{position:sticky;top:calc(52px + env(safe-area-inset-top));z-index:50;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:8px 12px;background:rgba(246,248,250,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);overflow:visible}
+    .brand-tab{flex-direction:column;justify-content:center;gap:3px;padding:7px 4px 6px;border:1px solid transparent;border-radius:10px;margin:0;min-width:0}
+    .brand-tab.active{background:#fff;border-color:var(--border);box-shadow:var(--shadow-sm)}
+    .brand-tab-logo{height:20px;max-width:56px}
+    .brand-tab-name{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    .bt-count{font-size:10.5px;line-height:15px;padding:0 6px}
+    .sheet-toolbar,.quote-footer{display:none}
+    .brand-content{padding:12px 12px 4px}
+    .brand-products,.brand-products.two-col{gap:12px}
+    .product-group{border-radius:12px}
+    .pg-head{padding:11px 14px}
+    .pg-head h3{font-size:15px}
+    .pg-table th{padding:6px 14px 5px}
+    .pg-size{padding:0 14px !important;font-size:14px}
+    .pg-table td{height:46px}
+    .price-field{height:46px}
+    .price-input{height:46px;padding-right:14px}
+    .price-input:focus{box-shadow:inset 0 0 0 2px var(--brand);border-radius:6px}
+
+    /* Bottom tab bar */
+    .mobile-bottom-nav{height:calc(56px + env(safe-area-inset-bottom));padding:0 4px env(safe-area-inset-bottom);background:rgba(255,255,255,.94);backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px);align-items:stretch}
+    .mobile-bottom-nav a{justify-content:center;gap:3px;padding:0}
+    .mobile-bottom-nav a svg{width:23px;height:23px}
+    .mobile-bottom-nav a span{font-size:10.5px}
+    .mobile-bottom-nav a:active{opacity:.6}
+
+    /* Action bar above the tabs */
+    .m-actionbar{display:flex;position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom));z-index:890;align-items:center;gap:12px;padding:10px 16px;background:rgba(255,255,255,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border)}
+    .m-actionbar[hidden]{display:none !important}
+    .m-ab-info{flex:1;min-width:0}
+    .m-ab-label{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .m-ab-label b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+    .m-ab-track{height:4px;border-radius:4px;background:var(--border);margin-top:6px;overflow:hidden}
+    .m-ab-track[hidden]{display:none}
+    .m-ab-track span{display:block;height:100%;width:0;background:var(--brand);border-radius:4px;transition:width .25s}
+    .m-ab-btn{height:44px;padding:0 18px;border-radius:12px;font-size:15px;font-weight:600}
+    .btn:active{transform:scale(.97)}
+    body:not([data-view="quote"]):not([data-view="email"]) .main{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+
+    /* Bottom sheets (action sheet + all dialogs) */
+    .sheet-overlay,.modal-overlay,.pm-modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(26,31,54,.4);align-items:flex-end;justify-content:center;padding:0}
+    .sheet-overlay.show{display:flex;animation:fade-in .15s ease}
+    .sheet,.modal,.pm-modal{width:100%;max-width:none;border-radius:16px 16px 0 0;max-height:92vh;padding-bottom:env(safe-area-inset-bottom);animation:sheet-up .26s cubic-bezier(.16,1,.3,1)}
+    .sheet{background:#fff;padding:6px 12px calc(12px + env(safe-area-inset-bottom))}
+    @keyframes sheet-up{from{transform:translateY(100%)}to{transform:none}}
+    .sheet-grabber{width:38px;height:5px;border-radius:3px;background:var(--border-strong);margin:4px auto 10px}
+    .sheet-row{display:flex;align-items:center;gap:14px;width:100%;height:52px;padding:0 12px;border:none;background:transparent;border-radius:10px;font-size:16px;color:var(--text);text-align:left}
+    .sheet-row svg{width:21px;height:21px;stroke:var(--muted);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+    .sheet-row:active{background:var(--subtle)}
+    .sheet-row.danger,.sheet-row.danger svg{color:var(--danger);stroke:var(--danger)}
+    .sheet-cancel{width:100%;height:50px;margin-top:8px;border:none;border-radius:12px;background:var(--subtle);font-size:16px;font-weight:600;color:var(--text)}
+    .modal-footer,.pm-modal-footer{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+    .modal-footer .btn,.pm-modal-footer .btn{flex:1;height:44px;font-size:15px}
+    .input,.pm-field input,.pm-field select,.pm-add-size input{height:44px;font-size:16px}
+    .drawer{width:100%}
+    .pdf-overlay{padding:0}
+    .pdf-modal{border-radius:0;min-height:100%}
+    .toast{bottom:calc(128px + env(safe-area-inset-bottom))}
+
+    /* Review & send */
+    .email-layout{gap:14px}
+    .recipients-panel{border-radius:12px}
+    #recipientsList{max-height:none}
+    .recipient-item{padding:10px}
+    .recipient-delete{opacity:1}
+    .email-preview-card{border-radius:12px}
+    .email-field{grid-template-columns:62px 1fr}
+    .email-body{padding:14px 12px}
+    .email-body-inner{overflow:hidden}
+
+    /* History: rows become list cells */
+    .history-filters{flex-direction:column;align-items:stretch}
+    .history-search{width:100%}
+    .history-seg{display:grid;grid-template-columns:repeat(3,1fr)}
+    .data-table-wrap{border-radius:12px;overflow:hidden}
+    .data-table{min-width:0}
+    .data-table thead{display:none}
+    .data-table tbody tr{display:grid;grid-template-columns:1fr auto;grid-template-areas:"date status" "meta meta";gap:3px 10px;padding:12px 14px;border-bottom:1px solid #eef1f4}
+    .data-table tbody tr:last-child{border-bottom:none}
+    .data-table td{height:auto;padding:0;border:none;white-space:normal}
+    .data-table td:nth-child(1){grid-area:date}
+    .data-table td:nth-child(2){grid-area:status;justify-self:end}
+    .data-table td:nth-child(3),.data-table td:nth-child(4),.data-table td:nth-child(6){display:none}
+    .data-table td:nth-child(5){grid-area:meta;font-size:13px;color:var(--muted);max-width:none}
+
+    /* Trends */
+    .trend-table{min-width:0;table-layout:auto}
+    .trend-table col{width:auto !important}
+    .trend-table th:nth-child(3),.trend-table td:nth-child(3){display:none}
+    .trend-table th,.trend-table td{padding-left:8px;padding-right:8px;height:52px}
+    .trend-table th:first-child,.trend-table td:first-child{padding-left:14px}
+    .trend-table th:last-child,.trend-table td:last-child{padding-right:14px}
+    .trend-table .prod{display:grid;grid-template-columns:auto 1fr;column-gap:7px;align-items:center;white-space:normal;line-height:1.25}
+    .trend-table .prod .size{grid-column:2;font-size:12.5px}
+    .trend-table .spark{width:52px;height:24px}
+    .change-pill{min-width:0;padding:0 5px}
+    .trend-summary{grid-template-columns:1fr 1fr}
+
+    /* Settings list */
+    .m-list{padding:0;overflow:hidden;border-radius:12px}
+    .m-list-row{display:flex;align-items:center;gap:12px;height:52px;padding:0 14px;color:var(--text);font-size:15.5px;cursor:pointer}
+    .m-list-row:not(:last-child){border-bottom:1px solid var(--border)}
+    .m-list-row:active{background:var(--subtle)}
+    .m-list-row span:nth-child(2){flex:1}
+    .m-list-icon{width:30px;height:30px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center}
+    .m-list-icon svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+    .m-list-row.danger{color:var(--danger)}
+    .m-list-row.danger .m-list-icon{background:var(--danger-bg);color:var(--danger)}
+    .m-chev{width:18px;height:18px;stroke:var(--faint);fill:none;stroke-width:2}
+    .card,.settings-card,.pm-list{border-radius:12px}
+    .settings-row{padding:14px 16px}
+    .pm-brand-tabs{display:grid;grid-template-columns:repeat(3,1fr);width:100%}
+    .pm-tab{justify-content:center;padding:0 6px;font-size:13px}
+    .pm-tab-logo{display:none}
+}
+
 @media print{
     .pdf-toolbar,.topbar,.sidebar{box-shadow:none}
     .pdf-modal{box-shadow:none;border-radius:0}
@@ -505,6 +669,7 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
         <img src="logo.avif" alt="HM Distributors" class="topbar-logo" onerror="this.style.display='none'">
         <span class="topbar-divider"></span>
         <span class="topbar-subtitle">Daily Quote</span>
+        <span class="m-title" id="mTitle">Today's quote</span>
     </div>
     <div class="topbar-right">
         <span class="topbar-date tnum" id="topbarDate"></span>
@@ -513,7 +678,8 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
             <svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             <span class="label">Sign out</span>
         </button>
-        <div class="topbar-user" id="topbarUser" title="Signed in">BM</div>
+        <button class="m-more" id="mMore" onclick="openActionSheet()" aria-label="More actions"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
+        <div class="topbar-person"><span class="topbar-name" id="topbarName"></span><div class="topbar-user" id="topbarUser" title="Signed in"></div></div>
     </div>
 </header>
 
@@ -549,6 +715,7 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
         <section class="view active" id="view-quote">
             <div class="page-header">
                 <div>
+                    <div class="page-greeting" id="pageGreeting"></div>
                     <h1>Today's quote <span class="status-pill neutral" id="sentStatus">Draft</span></h1>
                     <div class="page-meta"><span class="tnum" id="quoteDateBadge"></span><span class="sep">·</span><span id="savedState">Not saved yet</span></div>
                 </div>
@@ -599,6 +766,7 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
         <section class="view" id="view-products">
             <div class="page-header">
                 <div>
+                    <button class="m-back m-only" onclick="switchView('prefs')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Settings</button>
                     <h1>Products</h1>
                     <p>The products and sizes that appear on your quote sheet, by brand.</p>
                 </div>
@@ -707,6 +875,11 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
                     <p>Defaults used when building and sending your quote.</p>
                 </div>
             </div>
+            <div class="card settings-card m-only m-list" style="margin-bottom:16px">
+                <a class="m-list-row" onclick="switchView('products')"><span class="m-list-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span>Products</span><svg class="m-chev" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></a>
+                <a class="m-list-row" onclick="document.getElementById('usersCard').scrollIntoView({behavior:'smooth'})"><span class="m-list-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>Users</span><svg class="m-chev" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></a>
+                <a class="m-list-row danger" onclick="logout()"><span class="m-list-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span>Sign out</span></a>
+            </div>
             <div class="card settings-card">
                 <div class="settings-row">
                     <div><div class="sr-label">Company name</div><div class="sr-desc">Shown on the quote sheet.</div></div>
@@ -749,8 +922,7 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
                 <div class="modal-body">
                     <div class="field"><label for="nuName">Name</label><input type="text" class="input" id="nuName" placeholder="René Monteverde" autocomplete="off"></div>
                     <div class="field"><label for="nuUsername">Username</label><input type="text" class="input" id="nuUsername" placeholder="rene" autocomplete="off" autocapitalize="none"><span class="hint">What they type to sign in. Letters, numbers, dots or dashes.</span></div>
-                    <div class="field"><label for="nuEmail">Email</label><input type="email" class="input" id="nuEmail" placeholder="renem@hmdistinc.com" autocomplete="off"></div>
-                    <div class="field"><label for="nuPassword">Password</label><input type="text" class="input" id="nuPassword" placeholder="At least 8 characters" autocomplete="new-password"><span class="hint">Share this with them privately. They sign in with their username and this password.</span></div>
+                    <div class="field"><label for="nuPassword">Password</label><input type="text" class="input" id="nuPassword" placeholder="At least 8 characters" autocomplete="new-password"><span class="hint">Share it with them privately. They sign in with just their username and this password.</span></div>
                     <p class="modal-note" id="nuError" style="color:var(--danger);display:none"></p>
                 </div>
                 <div class="modal-footer">
@@ -878,13 +1050,33 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
     </div>
 </div>
 
+<!-- PHONE ACTION BAR -->
+<div class="m-actionbar" id="mActionbar">
+    <div class="m-ab-info">
+        <div class="m-ab-label" id="mAbLabel"></div>
+        <div class="m-ab-track"><span id="mAbFill"></span></div>
+    </div>
+    <button class="btn btn-primary m-ab-btn" id="mAbBtn"></button>
+</div>
+
+<!-- PHONE ACTION SHEET -->
+<div class="sheet-overlay" id="actionSheet" onclick="if(event.target===this)closeActionSheet()">
+    <div class="sheet" role="dialog" aria-label="Quote actions">
+        <div class="sheet-grabber"></div>
+        <button class="sheet-row" onclick="closeActionSheet();loadLastPrices()"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>Load last prices</button>
+        <button class="sheet-row" onclick="closeActionSheet();saveDraft()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save draft</button>
+        <button class="sheet-row" onclick="closeActionSheet();previewQuote()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Preview PDF</button>
+        <button class="sheet-row danger" onclick="closeActionSheet();if(confirm('Clear all prices on today\'s sheet?'))clearAll()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Clear all prices</button>
+        <button class="sheet-cancel" onclick="closeActionSheet()">Cancel</button>
+    </div>
+</div>
+
 <!-- MOBILE BOTTOM NAV -->
 <nav class="mobile-bottom-nav" id="mobileBottomNav">
     <a onclick="switchView('quote')" class="active" data-mview="quote"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span>Quote</span></a>
     <a onclick="switchView('email')" data-mview="email"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span>Send</span></a>
     <a onclick="switchView('history')" data-mview="history"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg><span>History</span></a>
     <a onclick="switchView('trends')" data-mview="trends"><svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg><span>Trends</span></a>
-    <a onclick="switchView('products')" data-mview="products"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span>Products</span></a>
     <a onclick="switchView('prefs')" data-mview="prefs"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg><span>Settings</span></a>
 </nav>
 
@@ -905,12 +1097,23 @@ const sb = CLOUD_SYNC_ENABLED ? supabase.createClient(SUPABASE_URL, SUPABASE_ANO
 let currentUserId = null;
 let currentUserName = '';
 
-// Set topbar initials immediately from sessionStorage if available (avoids flash)
-const cachedUser = JSON.parse(sessionStorage.getItem('hm_user') || 'null');
-if(cachedUser && cachedUser.initials){
-    document.getElementById('topbarUser').textContent = cachedUser.initials;
-    currentUserName = cachedUser.username || '';
+// Show who is signed in: name + initials in the top bar, greeting on today's quote
+function applyUser(name){
+    if(!name) return;
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+    currentUserName = name;
+    const initials = name.split(/\s+/).filter(Boolean).map(w => w[0]).join('').substring(0,2).toUpperCase();
+    const hour = new Date().getHours();
+    const part = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('topbarUser').textContent = initials;
+    document.getElementById('topbarUser').title = `Signed in as ${name}`;
+    document.getElementById('topbarName').textContent = name;
+    document.getElementById('pageGreeting').textContent = `${part}, ${name.split(/\s+/)[0]}`;
 }
+
+// Apply immediately from sessionStorage if available (avoids flash)
+const cachedUser = JSON.parse(sessionStorage.getItem('hm_user') || 'null');
+if(cachedUser) applyUser(cachedUser.username);
 
 // Supabase is the source of truth for auth
 function setSyncState(state){
@@ -946,16 +1149,19 @@ window.addEventListener('online', () => setSyncState(sb && currentUserId ? 'sync
     }
 
     currentUserId = session.user.id;
-    if(session.user.user_metadata?.name) currentUserName = session.user.user_metadata.name;
+    const metaName = session.user.user_metadata?.name;
+    if(metaName && (!cachedUser || cachedUser.username !== metaName)){
+        applyUser(metaName);
+        const initials = currentUserName.split(/\s+/).filter(Boolean).map(w => w[0]).join('').substring(0,2).toUpperCase();
+        sessionStorage.setItem('hm_user', JSON.stringify({ username: currentUserName, initials, email: session.user.email }));
+    }
 
     // Derive display info from Supabase user if sessionStorage is empty
     if(!cachedUser){
         const emailLocal = (session.user.email || '').split('@')[0];
-        const name = session.user.user_metadata?.name || emailLocal || 'User';
-        currentUserName = name;
-        const initials = name.split(/\s+|(?=[A-Z])/).map(w => w[0]).join('').substring(0,2).toUpperCase();
-        sessionStorage.setItem('hm_user', JSON.stringify({ username: name, initials, email: session.user.email }));
-        document.getElementById('topbarUser').textContent = initials;
+        applyUser(session.user.user_metadata?.name || session.user.user_metadata?.username || emailLocal || 'User');
+        const initials = currentUserName.split(/\s+/).filter(Boolean).map(w => w[0]).join('').substring(0,2).toUpperCase();
+        sessionStorage.setItem('hm_user', JSON.stringify({ username: currentUserName, initials, email: session.user.email }));
     }
 
     // Never pull cloud data over this device's local copy until it has been uploaded
@@ -1626,7 +1832,7 @@ function renderBrandProducts(brandKey){
                 const lastVal = last[inputId];
                 const ghost = parsePrice(lastVal) !== null ? parsePrice(lastVal).toFixed(2) : (lastVal ? escapeHtml(lastVal) : '0.00');
                 const title = lastVal ? ` title="Last sent: ${escapeHtml(lastVal)}"` : '';
-                cells += `<td><div class="price-field"><span class="dollar">$</span><input type="text" class="price-input" id="${inputId}" data-col="${ci}" placeholder="${ghost}"${title} inputmode="decimal" autocomplete="off" aria-label="${escapeHtml(group.name)} ${escapeHtml(size)} ${label}" oninput="updateCount();scheduleAutoSave()"><span class="delta"></span></div></td>`;
+                cells += `<td><div class="price-field"><span class="dollar">$</span><input type="text" class="price-input" id="${inputId}" data-col="${ci}" placeholder="${ghost}"${title} inputmode="decimal" enterkeyhint="next" autocomplete="off" aria-label="${escapeHtml(group.name)} ${escapeHtml(size)} ${label}" oninput="updateCount();scheduleAutoSave()"><span class="delta"></span></div></td>`;
             });
             rows += `<tr><td class="pg-size">${escapeHtml(size)}</td>${cells}</tr>`;
         });
@@ -1644,6 +1850,12 @@ function renderBrandProducts(brandKey){
 function switchBrand(brandKey){
     document.querySelectorAll('.brand-tab').forEach(t => t.classList.toggle('active', t.dataset.brand === brandKey));
     document.querySelectorAll('.brand-content').forEach(c => c.classList.toggle('active', c.id === `brand-${brandKey}`));
+    // On a phone the tabs stay pinned; bring the new brand's first product into view
+    const card = document.querySelector('.quote-card');
+    const pinned = document.querySelector('.brand-tabs');
+    if(isPhone() && card && pinned && pinned.getBoundingClientRect().top <= parseFloat(getComputedStyle(pinned).top) + 1){
+        window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - 52, behavior: 'smooth' });
+    }
 }
 
 function renderProducts(){
@@ -1697,6 +1909,7 @@ function updateCount(){
     document.getElementById('filledTotal').textContent = filledAll;
     document.getElementById('inputsTotal').textContent = totalAll;
     document.getElementById('progressFill').style.width = totalAll ? `${Math.round(filledAll / totalAll * 100)}%` : '0%';
+    updateActionBar();
 }
 
 // Enter / arrow keys move through a price column like a spreadsheet
@@ -1875,6 +2088,58 @@ function printPdf(){
 //  VIEW SWITCHING
 // ══════════════════════════════════════════
 
+let currentView = 'quote';
+function isPhone(){ return window.matchMedia('(max-width: 768px)').matches; }
+
+// Phone bottom bar: progress + the one action that matters on this screen
+function updateActionBar(){
+    const bar = document.getElementById('mActionbar');
+    if(!bar) return;
+    const label = document.getElementById('mAbLabel'), fill = document.getElementById('mAbFill'), btn = document.getElementById('mAbBtn');
+    const inputs = document.querySelectorAll('.price-input').length;
+    const filled = document.querySelectorAll('.price-input.has-value').length;
+    if(currentView === 'quote'){
+        bar.hidden = false;
+        label.innerHTML = `<b>${filled}</b> of ${inputs} prices`;
+        fill.style.width = inputs ? `${Math.round(filled / inputs * 100)}%` : '0%';
+        fill.parentElement.hidden = false;
+        btn.textContent = 'Review & send';
+        btn.onclick = () => switchView('email');
+    } else if(currentView === 'email'){
+        const n = clients.filter(c => c.selected).length;
+        bar.hidden = false;
+        label.innerHTML = `<b>${n}</b> recipient${n === 1 ? '' : 's'} · <b>${filled}</b> prices`;
+        fill.parentElement.hidden = true;
+        btn.textContent = n ? `Send to ${n}` : 'Send quote';
+        btn.onclick = openSendConfirm;
+    } else {
+        bar.hidden = true;
+    }
+}
+
+function openActionSheet(){ document.getElementById('actionSheet').classList.add('show'); }
+function closeActionSheet(){ document.getElementById('actionSheet').classList.remove('show'); }
+
+// Scale the 680px email preview to fit the phone screen
+function fitEmailPreview(){
+    const box = document.getElementById('emailPreviewBody');
+    const email = box && box.firstElementChild;
+    if(!email) return;
+    email.style.transform = ''; email.style.width = ''; box.style.height = '';
+    if(!isPhone()) return;
+    const scale = Math.min(1, box.clientWidth / 680);
+    email.style.width = '680px';
+    email.style.transformOrigin = 'top left';
+    email.style.transform = `scale(${scale})`;
+    box.style.height = `${Math.ceil(email.offsetHeight * scale)}px`;
+}
+window.addEventListener('resize', () => { fitEmailPreview(); updateActionBar(); });
+
+// Small title in the top bar appears once the large title scrolls away
+window.addEventListener('scroll', () => {
+    document.body.classList.toggle('scrolled', window.scrollY > 56);
+}, { passive: true });
+
 function switchView(viewId){
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
@@ -1884,8 +2149,13 @@ function switchView(viewId){
     if(navLink) navLink.classList.add('active');
     // Sync mobile bottom nav active state
     document.querySelectorAll('.mobile-bottom-nav a').forEach(a => a.classList.remove('active'));
-    const mNavLink = document.querySelector(`.mobile-bottom-nav a[data-mview="${viewId}"]`);
+    const mNavLink = document.querySelector(`.mobile-bottom-nav a[data-mview="${viewId === 'products' ? 'prefs' : viewId}"]`);
     if(mNavLink) mNavLink.classList.add('active');
+    currentView = viewId;
+    document.body.dataset.view = viewId;
+    const titles = { quote: "Today's quote", email: 'Review & send', history: 'History', trends: 'Price trends', products: 'Products', prefs: 'Settings' };
+    document.getElementById('mTitle').textContent = titles[viewId] || '';
+    updateActionBar();
     if(viewId === 'email'){ refreshEmailPreview(); updateEmailSubject(); }
     if(viewId === 'products'){ renderProductsList(); }
     if(viewId === 'history'){ renderHistory(); }
@@ -1974,7 +2244,7 @@ function deleteRecipient(idx){
     renderRecipients();
     showToast(svgIcons.trash, `${c.name} removed`);
 }
-function updateRecipientCount(){ document.getElementById('selectedCount').textContent = clients.filter(c => c.selected).length; }
+function updateRecipientCount(){ document.getElementById('selectedCount').textContent = clients.filter(c => c.selected).length; updateActionBar(); }
 
 function updateEmailToField(){
     const field = document.getElementById('emailToField');
@@ -2029,6 +2299,7 @@ function refreshEmailPreview(){
     const selected = clients.filter(c => c.selected);
     const recipientName = selected.length === 1 ? selected[0].name : 'Valued Customer';
     container.innerHTML = buildEmailBody(recipientName, '');
+    requestAnimationFrame(fitEmailPreview);
 }
 
 // Rows for one product: [{size, cols:[value|'' ...]}], skipping sizes with no price
@@ -2719,7 +2990,7 @@ async function loadUsers(){
                 <div class="recipient-avatar">${escapeHtml(initials)}</div>
                 <div class="pm-card-info">
                     <div><div class="pm-card-name">${escapeHtml(u.name)}${u.id === me ? ' <span class="status-pill neutral" style="margin-left:6px">You</span>' : ''}</div>
-                    <div class="pm-card-note">Username <b>${escapeHtml(u.username)}</b> · ${escapeHtml(u.email)}</div></div>
+                    <div class="pm-card-note">Username <b>${escapeHtml(u.username)}</b></div></div>
                     <div class="pm-card-note">${last ? `Last sign-in ${escapeHtml(last.day)}, ${escapeHtml(last.time)}` : 'Never signed in'}</div>
                 </div>
                 <div class="pm-card-actions">${u.id === me ? '' : `<button class="pm-card-btn delete" onclick="removeUser('${u.id}', '${escapeHtml(u.name).replace(/'/g, "\\'")}')" title="Remove user"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`}</div>
@@ -2731,7 +3002,7 @@ async function loadUsers(){
 }
 
 function openAddUser(){
-    ['nuName','nuUsername','nuEmail','nuPassword'].forEach(id => document.getElementById(id).value = '');
+    ['nuName','nuUsername','nuPassword'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('nuError').style.display = 'none';
     document.getElementById('userModal').classList.add('show');
     document.getElementById('nuName').focus();
@@ -2757,7 +3028,6 @@ async function createUser(){
             action: 'create',
             name: document.getElementById('nuName').value,
             username: document.getElementById('nuUsername').value,
-            email: document.getElementById('nuEmail').value,
             password: document.getElementById('nuPassword').value
         });
         closeAddUser();
@@ -2780,6 +3050,7 @@ async function removeUser(id, name){
 }
 
 // ── Init ──
+document.body.dataset.view = 'quote';
 setDate();
 renderProducts();
 renderRecipients();
@@ -2800,7 +3071,7 @@ renderProductsList();
 setQuoteStatus();
 
 // Close overlays on Escape
-document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closePdf(); closePmModal(); closeSendConfirm(); closeHistoryDrawer(); closeAddUser(); } });
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closePdf(); closePmModal(); closeSendConfirm(); closeHistoryDrawer(); closeAddUser(); closeActionSheet(); } });
 </script>
 </body>
 </html>

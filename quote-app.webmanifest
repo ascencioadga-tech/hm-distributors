@@ -1,0 +1,13 @@
+{
+  "name": "HM Distributors Daily Quote",
+  "short_name": "HM Quotes",
+  "start_url": "/quote-tool.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/apple-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

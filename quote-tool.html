@@ -1219,7 +1219,8 @@ function quoteRow(entry){
         recipient_count: entry.recipientCount || 0,
         recipient_names: entry.recipients || [],
         sent_by: currentUserName,
-        data: entry.data || {}
+        // Also kept inside data so History shows the sender before sent_by exists
+        data: { ...(entry.data || {}), sentBy: currentUserName }
     };
 }
 
@@ -1431,7 +1432,7 @@ const Sync = {
                         recipient_count: entry.recipientCount || 0,
                         recipient_names: entry.recipients || [],
                         sent_by: currentUserName,
-                        data: entry.data || {}
+                        data: { ...(entry.data || {}), sentBy: currentUserName }
                     });
                     return;
                 }
@@ -1473,6 +1474,7 @@ const Sync = {
                 }));
                 const { error: insertError } = await writeQuote(r => sb.from('quotes').insert(r), rows);
                 if(insertError) return;
+                renderHistory();
             }
             localStorage.setItem(BACKFILL_KEY, 'true');
         } catch(e){ console.warn('History backfill failed:', e); }
@@ -1494,7 +1496,7 @@ const Sync = {
                     totalProducts: q.total_products,
                     recipientCount: q.recipient_count,
                     recipients: q.recipient_names,
-                    sentBy: q.sent_by || '',
+                    sentBy: q.sent_by || (q.data && q.data.sentBy) || '',
                     data: q.data
                 }));
                 saveToStorage(STORAGE_KEYS.history, history);

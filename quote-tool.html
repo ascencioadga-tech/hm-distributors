@@ -2349,8 +2349,36 @@ function closeSendConfirm(){
 
 function updateEmailSubject(){
     const subj = document.getElementById('emailSubject');
-    if(!subj.value) subj.value = `HM Distributors \u2014 Daily Quote Sheet \u2014 ${getDateStr()}`;
+    const auto = /^HM Distributors \u2014 Daily Quote Sheet \u2014 [A-Z][a-z]+ \d{1,2}, \d{4}$/;
+    // Keep the date current on a page that stayed open overnight
+    if(!subj.value || auto.test(subj.value)) subj.value = `HM Distributors \u2014 Daily Quote Sheet \u2014 ${getDateStr()}`;
 }
+
+// A phone app or tab can stay open for days; when it comes back to the
+// front, save what's typed here and pick up what other devices sent
+const APP_VERSION = '2026-09-30.2';
+let lastCloudLoad = Date.now();
+document.addEventListener('visibilitychange', async () => {
+    if(document.visibilityState !== 'visible' || !currentUserId) return;
+    if(Date.now() - lastCloudLoad < 10 * 60 * 1000) return;
+    lastCloudLoad = Date.now();
+    const local = loadFromStorage(STORAGE_KEYS.draft);
+    if(local && local.prices && Object.values(local.prices).some(v => v)){
+        clearTimeout(cloudDraftTimer);
+        await Sync.saveDraft(local);
+    }
+    // A newer version of the tool was published: load it instead of running old code
+    try {
+        const live = await fetch('quote-tool.html', { cache: 'no-store' }).then(r => r.text());
+        const v = (live.match(/const APP_VERSION = '([^']+)'/) || [])[1];
+        if(v && v !== APP_VERSION){ window.location.reload(); return; }
+    } catch(e){}
+    await Sync.loadAll();
+    updateEmailSubject();
+    setQuoteStatus();
+    const list = document.getElementById('historyList');
+    if(list && list.offsetParent) renderHistory();
+});
 
 function getDateStr(){
     const now = new Date();

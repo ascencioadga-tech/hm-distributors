@@ -1205,6 +1205,36 @@ function loadFromStorage(key){
 //  SYNC MANAGER — Supabase + localStorage
 // ══════════════════════════════════════════
 
+// Sends from Sept 28, 2026 on never reached the cloud history (see writeQuote)
+const BACKFILL_KEY = 'hm_history_backfill:v1';
+const BACKFILL_SINCE = Date.parse('2026-09-28T00:00:00-07:00');
+
+function quoteRow(entry){
+    return {
+        user_id: currentUserId,
+        date_label: entry.date,
+        type: entry.type,
+        price_count: entry.priceCount || 0,
+        total_products: entry.totalProducts || 0,
+        recipient_count: entry.recipientCount || 0,
+        recipient_names: entry.recipients || [],
+        sent_by: currentUserName,
+        data: entry.data || {}
+    };
+}
+
+// sent_by only exists once supabase-migration-shared.sql has run; without the
+// column every history write was rejected, so retry without it
+async function writeQuote(run, row){
+    let res = await run(row);
+    if(res.error && /sent_by/.test(res.error.message || '')){
+        const strip = r => { const { sent_by, ...rest } = r; return rest; };
+        res = await run(Array.isArray(row) ? row.map(strip) : strip(row));
+    }
+    if(res.error) console.warn('Save to history failed:', res.error);
+    return res;
+}
+
 const Sync = {
     // ── Recipients ──
     async saveRecipients(){
@@ -1316,8 +1346,11 @@ const Sync = {
         if(!currentUserId) return null;
         try {
             const { data, error } = await sb.from('current_draft').select('data')
-                .eq('user_id', currentUserId).single();
-            if(!error && data){
+                .eq('user_id', currentUserId).maybeSingle();
+            if(!error){
+                // No draft in the cloud means it was sent (or cleared) on another
+                // device, so this device's leftover copy is stale
+                if(!data){ localStorage.removeItem(STORAGE_KEYS.draft); return null; }
                 saveToStorage(STORAGE_KEYS.draft, data.data);
                 return data.data;
             }
@@ -1392,30 +1425,57 @@ const Sync = {
                     .eq('type', 'draft')
                     .single();
                 if(existing){
-                    await sb.from('quotes').update({
+                    await writeQuote(row => sb.from('quotes').update(row).eq('id', existing.id), {
                         price_count: entry.priceCount || 0,
                         total_products: entry.totalProducts || 0,
                         recipient_count: entry.recipientCount || 0,
                         recipient_names: entry.recipients || [],
                         sent_by: currentUserName,
                         data: entry.data || {}
-                    }).eq('id', existing.id);
+                    });
                     return;
                 }
             }
 
-            await sb.from('quotes').insert({
-                user_id: currentUserId,
-                date_label: entry.date,
-                type: entry.type,
-                price_count: entry.priceCount || 0,
-                total_products: entry.totalProducts || 0,
-                recipient_count: entry.recipientCount || 0,
-                recipient_names: entry.recipients || [],
-                sent_by: currentUserName,
-                data: entry.data || {}
-            });
+            await writeQuote(row => sb.from('quotes').insert(row), quoteRow(entry));
         } catch(e){ console.warn('Sync quote failed:', e); }
+    },
+
+    // Put sent quotes that never reached the cloud into the shared history.
+    // Covers the phone's own list plus the latest send kept in last_sent.
+    async backfillHistory(cloudLastSent){
+        if(!currentUserId || localStorage.getItem(BACKFILL_KEY)) return;
+        try {
+            const local = (loadFromStorage(STORAGE_KEYS.history) || [])
+                .filter(h => h.type === 'sent' && h.data && h.data.timestamp);
+            if(cloudLastSent && cloudLastSent.timestamp && cloudLastSent.prices){
+                const d = cloudLastSent;
+                local.push({
+                    date: d.date, type: 'sent', timestamp: d.timestamp,
+                    priceCount: Object.values(d.prices).filter(v => v).length,
+                    totalProducts: Object.keys(d.prices).length,
+                    recipientCount: (d.recipients || []).length,
+                    recipients: (d.recipients || []).map(r => r.name),
+                    data: d
+                });
+            }
+            const { data: cloud, error } = await sb.from('quotes').select('data').eq('type', 'sent')
+                .order('created_at', { ascending: false }).limit(200);
+            if(error) return;
+            const have = new Set((cloud || []).map(q => q.data && q.data.timestamp));
+            const missing = new Map();
+            local.forEach(h => {
+                if(h.data.timestamp >= BACKFILL_SINCE && !have.has(h.data.timestamp)) missing.set(h.data.timestamp, h);
+            });
+            if(missing.size){
+                const rows = [...missing.values()].map(h => ({
+                    ...quoteRow(h), created_at: new Date(h.data.timestamp).toISOString()
+                }));
+                const { error: insertError } = await writeQuote(r => sb.from('quotes').insert(r), rows);
+                if(insertError) return;
+            }
+            localStorage.setItem(BACKFILL_KEY, 'true');
+        } catch(e){ console.warn('History backfill failed:', e); }
     },
 
     async loadHistory(){
@@ -1513,14 +1573,23 @@ const Sync = {
             restoreFormData(current);
             setQuoteStatus();
         }
-        // Load and restore draft
+        this.backfillHistory(cloudLastSent);
+        // Load and restore draft, unless a quote was sent after it was saved
         const draft = await this.loadDraft();
-        if(draft && draft.prices){
-            const filledCount = Object.values(draft.prices).filter(v => v).length;
-            if(filledCount > 0){
-                restoreFormData(draft);
-                showToast(svgIcons.save, `Draft restored (${filledCount} prices from ${draft.date || 'last session'})`);
-            }
+        const sentAfter = draft && lastSentCache && (lastSentCache.timestamp || 0) > (draft.timestamp || 0);
+        const filledCount = draft && draft.prices ? Object.values(draft.prices).filter(v => v).length : 0;
+        if(filledCount > 0 && !sentAfter){
+            restoreFormData(draft);
+            showToast(svgIcons.save, `Draft restored (${filledCount} prices from ${draft.date || 'last session'})`);
+            return;
+        }
+        // Drop the stale copy the page showed from this device's storage at startup
+        document.querySelectorAll('.price-input, .number-input').forEach(inp => { inp.value = ''; inp.classList.remove('has-value'); });
+        if(lastSentCache && lastSentCache.prices && lastSentCache.date === getDateStr()){
+            // Sent today, possibly from another device: show the prices that went out
+            restoreFormData(lastSentCache);
+        } else {
+            updateCount();
         }
     }
 };

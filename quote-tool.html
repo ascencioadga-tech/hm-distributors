@@ -148,6 +148,11 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
 .sheet-hints{display:flex;align-items:center;gap:14px}
 .sheet-hints kbd{font-family:inherit;font-size:11px;font-weight:600;color:var(--text-2);background:var(--canvas);border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:0 5px;margin:0 2px}
 .legend-ghost{color:var(--faint)}
+.start-banner{display:flex;align-items:center;gap:12px;padding:10px 14px;margin-bottom:12px;border:1px solid var(--border);border-left:3px solid var(--brand);border-radius:8px;background:var(--brand-soft);font-size:13.5px;color:var(--text-2)}
+.start-banner[hidden]{display:none}
+.start-banner b{color:var(--text);font-weight:600}
+.start-banner .sb-text{flex:1;min-width:0}
+.start-banner .btn{flex:0 0 auto;background:var(--canvas);border-color:var(--border-strong);color:var(--text)}
 
 .brand-content{display:none;padding:20px 18px 22px}
 .brand-content.active{display:block}
@@ -566,6 +571,7 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
     /* Action bar above the tabs */
     .m-actionbar{display:flex;position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom));z-index:890;align-items:center;gap:12px;padding:10px 16px;background:rgba(255,255,255,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border)}
     .m-actionbar[hidden]{display:none !important}
+    .start-banner .btn{height:40px;padding:0 14px;font-size:14px}
     .m-ab-info{flex:1;min-width:0}
     .m-ab-label{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .m-ab-label b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
@@ -728,6 +734,11 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
                     <button class="btn btn-primary" onclick="switchView('email')">Review &amp; send
                         <svg class="ic" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
                 </div>
+            </div>
+
+            <div class="start-banner" id="startBanner" hidden>
+                <span class="sb-text" id="startBannerText"></span>
+                <button class="btn btn-sm" id="startBannerBtn"></button>
             </div>
 
             <div class="quote-card">
@@ -1582,6 +1593,7 @@ const Sync = {
         const filledCount = draft && draft.prices ? Object.values(draft.prices).filter(v => v).length : 0;
         if(filledCount > 0 && !sentAfter){
             restoreFormData(draft);
+            setStartBanner(null);
             showToast(svgIcons.save, `Draft restored (${filledCount} prices from ${draft.date || 'last session'})`);
             return;
         }
@@ -1590,8 +1602,10 @@ const Sync = {
         if(lastSentCache && lastSentCache.prices && lastSentCache.date === getDateStr()){
             // Sent today, possibly from another device: show the prices that went out
             restoreFormData(lastSentCache);
+            setStartBanner(null);
         } else {
             updateCount();
+            startFromLast();
         }
     }
 };
@@ -2017,7 +2031,52 @@ function clearAll(){
     document.querySelectorAll('.number-input').forEach(inp => { inp.value = ''; inp.classList.remove('has-value'); });
     updateCount();
     Sync.deleteDraft();
+    localStorage.setItem(BLANK_KEY, getDateStr());
+    setStartBanner(lastSentCache && lastSentCache.date !== getDateStr() ? 'blank' : null);
     showToast(svgIcons.trash,'All prices cleared');
+}
+
+// ── Start each day from the last sent quote ──
+// Most days only a few prices move, so the sheet opens with the last quote
+// already typed in. "Start blank" opts out for the rest of that day.
+const BLANK_KEY = 'hm_start_blank';
+function startedBlankToday(){ return localStorage.getItem(BLANK_KEY) === getDateStr(); }
+
+function setStartBanner(mode){
+    const banner = document.getElementById('startBanner');
+    if(!banner) return;
+    const text = document.getElementById('startBannerText'), btn = document.getElementById('startBannerBtn');
+    const from = lastSentCache && lastSentCache.date ? ` (${escapeHtml(lastSentCache.date)})` : '';
+    if(mode === 'prefilled'){
+        text.innerHTML = `<b>Started from your last quote</b>${from}. Change only what's different, then send.`;
+        btn.textContent = 'Start blank';
+        btn.onclick = startBlank;
+    } else if(mode === 'blank'){
+        text.innerHTML = `<b>Starting from a blank sheet.</b> You can bring back the prices from your last quote${from}.`;
+        btn.textContent = 'Use last prices';
+        btn.onclick = () => { localStorage.removeItem(BLANK_KEY); startFromLast(); };
+    }
+    banner.hidden = !mode;
+}
+
+// Fill an empty sheet with the last sent prices. Returns true if it did.
+function startFromLast(){
+    const last = lastSentCache && lastSentCache.prices;
+    if(!last || !Object.values(last).some(v => v)){ setStartBanner(null); return false; }
+    if(lastSentCache.date === getDateStr()){ setStartBanner(null); return false; }
+    if(startedBlankToday()){ setStartBanner('blank'); return false; }
+    if(document.querySelector('.price-input.has-value')) return false;
+    restoreFormData(lastSentCache);
+    setStartBanner('prefilled');
+    return true;
+}
+
+function startBlank(){
+    localStorage.setItem(BLANK_KEY, getDateStr());
+    document.querySelectorAll('.price-input, .number-input').forEach(inp => { inp.value = ''; inp.classList.remove('has-value'); });
+    updateCount();
+    Sync.deleteDraft();
+    setStartBanner('blank');
 }
 
 async function loadLastPrices(){
@@ -2029,6 +2088,8 @@ async function loadLastPrices(){
         return;
     }
     restoreFormData(data);
+    localStorage.removeItem(BLANK_KEY);
+    setStartBanner(null);
     const source = data.type === 'sent' ? 'last sent quote' : 'last draft';
     showToast(svgIcons.clipboard, `Loaded prices from ${source} (${data.date || 'unknown date'})`);
 }
@@ -2356,7 +2417,7 @@ function updateEmailSubject(){
 
 // A phone app or tab can stay open for days; when it comes back to the
 // front, save what's typed here and pick up what other devices sent
-const APP_VERSION = '2026-09-30.2';
+const APP_VERSION = '2026-11-10.1';
 let lastCloudLoad = Date.now();
 document.addEventListener('visibilitychange', async () => {
     if(document.visibilityState !== 'visible' || !currentUserId) return;
@@ -2587,6 +2648,7 @@ async function sendEmails(){
 
             // Update UI
             lastSentCache = data;
+            setStartBanner(null);
             setQuoteStatus();
             rebuildQuoteView();
             closeSendConfirm();
@@ -3164,8 +3226,10 @@ renderProductsList();
         if(filledCount > 0){
             restoreFormData(draft);
             if(draft.timestamp){ lastSavedAt = draft.timestamp; renderSavedState(); }
+            return;
         }
     }
+    startFromLast();
 })();
 setQuoteStatus();
 

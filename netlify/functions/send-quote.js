@@ -85,7 +85,7 @@ exports.handler = async (event) => {
         for (let i = 0; i < valid.length; i += BATCH_SIZE) {
             const chunk = valid.slice(i, i + BATCH_SIZE);
             const emails = chunk.map(recipient => ({
-                from: 'HM Distributors <quotes@hmdistributors.com>',
+                from: 'Bert Monteverde – HM Distributors <quotes@hmdistributors.com>',
                 reply_to: 'bertm@hmdistinc.com',
                 to: [recipient.email],
                 subject,

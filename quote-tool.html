@@ -152,7 +152,19 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
 .start-banner[hidden]{display:none}
 .start-banner b{color:var(--text);font-weight:600}
 .start-banner .sb-text{flex:1;min-width:0}
+.start-banner .sb-actions{display:flex;gap:8px;flex:0 0 auto}
 .start-banner .btn{flex:0 0 auto;background:var(--canvas);border-color:var(--border-strong);color:var(--text)}
+.start-banner .btn.btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.start-banner .btn[hidden]{display:none}
+.show-all{display:none}
+.change-list{margin-top:10px;border:1px solid var(--border);border-radius:8px;max-height:210px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.change-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 14px;font-size:13.5px}
+.change-row:not(:last-child){border-bottom:1px solid var(--border)}
+.change-row .cl{color:var(--text-2);min-width:0}
+.change-row .cv{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.change-row .cv .was{font-weight:400;color:var(--muted)}
+.change-row .cv.up{color:var(--up)}.change-row .cv.down{color:var(--down)}.change-row .cv.gone{color:var(--muted);font-weight:500}
+.change-more{padding:8px 14px;font-size:13px;color:var(--muted)}
 
 .brand-content{display:none;padding:20px 18px 22px}
 .brand-content.active{display:block}
@@ -571,7 +583,15 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
     /* Action bar above the tabs */
     .m-actionbar{display:flex;position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom));z-index:890;align-items:center;gap:12px;padding:10px 16px;background:rgba(255,255,255,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border)}
     .m-actionbar[hidden]{display:none !important}
-    .start-banner .btn{height:40px;padding:0 14px;font-size:14px}
+    .start-banner{flex-wrap:wrap}
+    .start-banner .sb-text{flex:1 1 100%}
+    .start-banner .sb-actions{flex:1 1 100%}
+    .start-banner .btn{flex:1;height:44px;padding:0 14px;font-size:15px}
+    /* Only the products being quoted; the rest sit behind "Show all" */
+    .brand-content.compact .product-group.is-empty:not(:focus-within){display:none}
+    .show-all{display:block;width:100%;margin-top:12px;height:46px;border:1px dashed var(--border-strong);border-radius:12px;background:transparent;color:var(--muted);font:inherit;font-size:14.5px;font-weight:500}
+    .show-all[hidden]{display:none}
+    .show-all:active{background:var(--subtle)}
     .m-ab-info{flex:1;min-width:0}
     .m-ab-label{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .m-ab-label b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
@@ -738,7 +758,10 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
 
             <div class="start-banner" id="startBanner" hidden>
                 <span class="sb-text" id="startBannerText"></span>
-                <button class="btn btn-sm" id="startBannerBtn"></button>
+                <span class="sb-actions">
+                    <button class="btn btn-sm" id="startBannerBtn"></button>
+                    <button class="btn btn-sm btn-primary" id="startBannerSend" onclick="openSendConfirm()" hidden></button>
+                </span>
             </div>
 
             <div class="quote-card">
@@ -1021,6 +1044,7 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
         </div>
         <div class="modal-body">
             <div class="summary-list" id="sendSummary"></div>
+            <div id="sendChanges"></div>
             <p class="modal-note">Each recipient gets their own email. This can't be undone.</p>
         </div>
         <div class="modal-footer">
@@ -1929,7 +1953,15 @@ function renderBrandProducts(brandKey){
         </div>`;
     });
     html += '</div>';
+    html += `<button type="button" class="show-all" id="showall-${brandKey}" onclick="toggleShowAll('${brandKey}')" hidden></button>`;
     container.innerHTML = html;
+}
+
+// Phone: brands that have prices list only those products until "Show all"
+const showAllBrands = new Set();
+function toggleShowAll(brandKey){
+    showAllBrands.has(brandKey) ? showAllBrands.delete(brandKey) : showAllBrands.add(brandKey);
+    updateCount();
 }
 
 function switchBrand(brandKey){
@@ -1977,13 +2009,23 @@ function updateCount(){
                 }
             }
         });
+        let emptyGroups = 0;
         container.querySelectorAll('.product-group').forEach(group => {
             const gi = group.querySelectorAll('.price-input');
             const gf = [...gi].filter(i => i.value.trim()).length;
+            group.classList.toggle('is-empty', gf === 0);
+            if(gf === 0) emptyGroups++;
             const c = group.querySelector('.pg-count');
             c.textContent = `${gf}/${gi.length}`;
             c.classList.toggle('done', gf === gi.length && gi.length > 0);
         });
+        const showAll = showAllBrands.has(brandKey);
+        container.classList.toggle('compact', filled > 0 && !showAll);
+        const more = document.getElementById(`showall-${brandKey}`);
+        if(more){
+            more.hidden = filled === 0 || emptyGroups === 0;
+            more.textContent = showAll ? 'Show only products with prices' : `Show all products (${emptyGroups} more)`;
+        }
         const badge = document.getElementById(`count-${brandKey}`);
         if(badge){
             badge.textContent = `${filled}/${inputs.length}`;
@@ -1994,6 +2036,7 @@ function updateCount(){
     document.getElementById('filledTotal').textContent = filledAll;
     document.getElementById('inputsTotal').textContent = totalAll;
     document.getElementById('progressFill').style.width = totalAll ? `${Math.round(filledAll / totalAll * 100)}%` : '0%';
+    updateBannerSend();
     updateActionBar();
 }
 
@@ -2042,9 +2085,42 @@ function clearAll(){
 const BLANK_KEY = 'hm_start_blank';
 function startedBlankToday(){ return localStorage.getItem(BLANK_KEY) === getDateStr(); }
 
+// What differs between the sheet and the last sent quote
+function diffFromLast(){
+    const last = lastSentCache && lastSentCache.prices;
+    if(!last) return null;
+    const d = { changed: [], added: [], removed: [], same: 0 };
+    document.querySelectorAll('.price-input').forEach(inp => {
+        const now = inp.value.trim(), before = String(last[inp.id] || '').trim();
+        if(!now && !before) return;
+        const label = (inp.getAttribute('aria-label') || inp.id).replace(/ Price$/, '');
+        const a = parsePrice(now), b = parsePrice(before);
+        if(now && before){
+            if(a !== null && b !== null ? Math.abs(a - b) < 0.005 : now === before) d.same++;
+            else d.changed.push({ label, before, now, dir: a !== null && b !== null ? (a > b ? 'up' : 'down') : '' });
+        }
+        else if(now) d.added.push({ label, now });
+        else d.removed.push({ label, before });
+    });
+    d.total = d.changed.length + d.added.length + d.removed.length;
+    return d;
+}
+
+let startBannerMode = null;
+function updateBannerSend(){
+    const btn = document.getElementById('startBannerSend');
+    if(!btn) return;
+    btn.hidden = startBannerMode !== 'prefilled';
+    if(btn.hidden) return;
+    const d = diffFromLast();
+    const n = d ? d.total : 0;
+    btn.textContent = n ? `Send with ${n} change${n === 1 ? '' : 's'}` : 'Send same prices';
+}
+
 function setStartBanner(mode){
     const banner = document.getElementById('startBanner');
     if(!banner) return;
+    startBannerMode = mode || null;
     const text = document.getElementById('startBannerText'), btn = document.getElementById('startBannerBtn');
     const from = lastSentCache && lastSentCache.date ? ` (${escapeHtml(lastSentCache.date)})` : '';
     if(mode === 'prefilled'){
@@ -2057,6 +2133,7 @@ function setStartBanner(mode){
         btn.onclick = () => { localStorage.removeItem(BLANK_KEY); startFromLast(); };
     }
     banner.hidden = !mode;
+    updateBannerSend();
 }
 
 // Fill an empty sheet with the last sent prices. Returns true if it did.
@@ -2398,10 +2475,37 @@ function openSendConfirm(){
     document.getElementById('sendSummary').innerHTML = `
         <div class="summary-row"><span class="k">Recipients</span><span class="v">${selected.length} · ${escapeHtml(names)}</span></div>
         <div class="summary-row"><span class="k">Prices</span><span class="v tnum">${filled} filled</span></div>
-        <div class="summary-row"><span class="k">Subject</span><span class="v">${escapeHtml(subject)}</span></div>`;
+        <div class="summary-row"><span class="k">Subject</span><span class="v">${escapeHtml(subject)}</span></div>${changesSummaryRow()}`;
+    document.getElementById('sendChanges').innerHTML = changesListHtml();
     document.getElementById('confirmSendBtn').textContent = `Send to ${selected.length} recipient${selected.length === 1 ? '' : 's'}`;
     document.getElementById('sendModal').classList.add('show');
     document.getElementById('confirmSendBtn').focus();
+}
+
+// "2 changed · 1 removed · 7 same" against the last sent quote
+function changesSummaryRow(){
+    const d = diffFromLast();
+    if(!d) return '';
+    const parts = [];
+    if(d.changed.length) parts.push(`${d.changed.length} changed`);
+    if(d.added.length) parts.push(`${d.added.length} new`);
+    if(d.removed.length) parts.push(`${d.removed.length} removed`);
+    const text = d.total ? `${parts.join(' · ')} · ${d.same} same` : 'Same as your last quote';
+    return `<div class="summary-row"><span class="k">vs. last quote</span><span class="v">${text}</span></div>`;
+}
+
+function changesListHtml(){
+    const d = diffFromLast();
+    if(!d || !d.total) return '';
+    const money = v => parsePrice(v) !== null ? '$' + parsePrice(v).toFixed(2) : escapeHtml(v);
+    const rows = [
+        ...d.changed.map(c => `<div class="change-row"><span class="cl">${escapeHtml(c.label)}</span><span class="cv ${c.dir}"><span class="was">${money(c.before)} →</span> ${money(c.now)}</span></div>`),
+        ...d.added.map(c => `<div class="change-row"><span class="cl">${escapeHtml(c.label)}</span><span class="cv"><span class="was">new</span> ${money(c.now)}</span></div>`),
+        ...d.removed.map(c => `<div class="change-row"><span class="cl">${escapeHtml(c.label)}</span><span class="cv gone">removed (was ${money(c.before)})</span></div>`)
+    ];
+    const MAX = 12;
+    const more = rows.length > MAX ? `<div class="change-more">+${rows.length - MAX} more</div>` : '';
+    return `<div class="change-list">${rows.slice(0, MAX).join('')}${more}</div>`;
 }
 
 function closeSendConfirm(){

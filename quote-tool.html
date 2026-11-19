@@ -193,6 +193,8 @@ svg.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;str
 .price-field.has-delta .price-input{padding-top:13px;font-size:13.5px}
 .price-field.has-delta .dollar{top:auto;bottom:6px}
 .price-field .delta:empty{display:none}
+.price-field.is-text .dollar{visibility:hidden}
+.price-field.is-text .price-input{padding-left:6px;font-size:13px;letter-spacing:-.01em}
 .price-field .delta.up{color:var(--up);background:#fff0f3}
 .price-field .delta.down{color:var(--down);background:#e8f7ee}
 .price-field:focus-within .delta{display:none}
@@ -1917,7 +1919,7 @@ function renderBrandProducts(brandKey){
                 const lastVal = last[inputId];
                 const ghost = parsePrice(lastVal) !== null ? parsePrice(lastVal).toFixed(2) : (lastVal ? escapeHtml(lastVal) : '0.00');
                 const title = lastVal ? ` title="Last sent: ${escapeHtml(lastVal)}"` : '';
-                cells += `<td><div class="price-field"><span class="dollar">$</span><input type="text" class="price-input" id="${inputId}" data-col="${ci}" placeholder="${ghost}"${title} inputmode="decimal" enterkeyhint="next" autocomplete="off" aria-label="${escapeHtml(group.name)} ${escapeHtml(size)} ${label}" oninput="updateCount();scheduleAutoSave()"><span class="delta"></span></div></td>`;
+                cells += `<td><div class="price-field"><span class="dollar">$</span><input type="text" class="price-input" id="${inputId}" data-col="${ci}" placeholder="${ghost}"${title} inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="next" autocomplete="off" aria-label="${escapeHtml(group.name)} ${escapeHtml(size)} ${label}" oninput="updateCount();scheduleAutoSave()"><span class="delta"></span></div></td>`;
             });
             rows += `<tr><td class="pg-size">${escapeHtml(size)}</td>${cells}</tr>`;
         });
@@ -1959,6 +1961,8 @@ function updateCount(){
         inputs.forEach(inp => {
             const has = !!inp.value.trim();
             inp.classList.toggle('has-value', has);
+            // Words like SOLD OUT or CALL are allowed; drop the $ for them
+            inp.parentElement.classList.toggle('is-text', has && parsePrice(inp.value) === null);
             if(has) filled++;
             // Change vs. last sent quote
             const delta = inp.parentElement.querySelector('.delta');
@@ -2417,7 +2421,7 @@ function updateEmailSubject(){
 
 // A phone app or tab can stay open for days; when it comes back to the
 // front, save what's typed here and pick up what other devices sent
-const APP_VERSION = '2026-11-19.1';
+const APP_VERSION = '2026-11-20.1';
 let lastCloudLoad = Date.now();
 document.addEventListener('visibilitychange', async () => {
     if(document.visibilityState !== 'visible' || !currentUserId) return;

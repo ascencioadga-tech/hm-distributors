@@ -2417,7 +2417,7 @@ function updateEmailSubject(){
 
 // A phone app or tab can stay open for days; when it comes back to the
 // front, save what's typed here and pick up what other devices sent
-const APP_VERSION = '2026-11-10.1';
+const APP_VERSION = '2026-11-19.1';
 let lastCloudLoad = Date.now();
 document.addEventListener('visibilitychange', async () => {
     if(document.visibilityState !== 'visible' || !currentUserId) return;
@@ -2490,18 +2490,18 @@ function buildEmailBody(recipientName, baseUrl){
     const prefs = loadFromStorage(STORAGE_KEYS.prefs) || {};
     const fob = prefs.fob || 'Nogales, AZ';
 
-    let h = `<table border="0" cellpadding="0" cellspacing="0" width="100%" class="outer-wrap" style="background-color:${SOFT};"><tr><td align="center" style="padding:10px 0;">`;
+    let h = `<table border="0" cellpadding="0" cellspacing="0" width="100%" class="outer-wrap" style="background-color:${SOFT};"><tr><td align="center" style="padding:15px 0;">`;
     h += `<!--[if mso]><table border="0" cellpadding="0" cellspacing="0" width="680"><tr><td><![endif]-->`;
-    h += `<table border="0" cellpadding="0" cellspacing="0" width="680" style="max-width:680px;width:100%;background-color:#ffffff;border:1px solid ${LINE};">`;
+    h += `<table border="0" cellpadding="0" cellspacing="0" width="680" class="sheet" style="max-width:680px;width:100%;background-color:#ffffff;border:1px solid ${LINE};">`;
 
     // Header: logo left, title + date right, green rule beneath
-    h += `<tr><td style="padding:12px 22px 10px;border-bottom:2px solid ${GREEN};"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr>`;
-    h += `<td valign="middle"><img src="${img('logo.png')}" alt="HM Distributors" height="34" style="height:34px;width:auto;display:block;" /></td>`;
-    h += `<td valign="middle" align="right" style="${F}"><div style="font-size:13px;font-weight:bold;color:${INK};">Daily Price Sheet</div><div style="font-size:9.5px;color:${MUTED};margin-top:2px;">${getDateStr()}</div></td>`;
+    h += `<tr><td style="padding:18px 33px 15px;border-bottom:2px solid ${GREEN};"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr>`;
+    h += `<td valign="middle"><img src="${img('logo.png')}" alt="HM Distributors" height="51" style="height:51px;width:auto;display:block;" /></td>`;
+    h += `<td valign="middle" align="right" style="${F}"><div style="font-size:19.5px;font-weight:bold;color:${INK};">Daily Price Sheet</div><div style="font-size:14px;color:${MUTED};margin-top:3px;">${getDateStr()}</div></td>`;
     h += `</tr></table></td></tr>`;
 
     // Greeting
-    h += `<tr><td style="padding:9px 22px 4px;${F}font-size:10px;line-height:14px;color:${BODY};">Good morning, <strong style="color:${INK};">${escapeHtml(recipientName)}</strong>. Here are today&#8217;s prices, FOB ${escapeHtml(fob)}. Please call to confirm availability before placing your order.</td></tr>`;
+    h += `<tr><td style="padding:13.5px 33px 6px;${F}font-size:15px;line-height:21px;color:${BODY};">Good morning, <strong style="color:${INK};">${escapeHtml(recipientName)}</strong>. Here are today&#8217;s prices, FOB ${escapeHtml(fob)}. Please call to confirm availability before placing your order.</td></tr>`;
 
     // Brand sections
     const sections = [];
@@ -2511,17 +2511,17 @@ function buildEmailBody(recipientName, baseUrl){
         const groups = productData[brandKey].map(g => ({ g, rows: filledRowsFor(brandKey, g) })).filter(x => x.rows.length);
         if(!groups.length) return;
 
-        let b = `<tr><td style="padding:8px 22px 0;">`;
+        let b = `<tr><td style="padding:12px 33px 0;">`;
         b += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom:1px solid ${LINE};"><tr>`;
-        b += `<td valign="middle" style="padding:0 0 4px;"><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle" style="padding-right:7px;"><img src="${img(brand.logo)}" alt="" height="16" style="height:16px;width:auto;display:block;" /></td><td valign="middle" style="${F}font-size:10.5px;font-weight:bold;color:${INK};">${brand.name}</td></tr></table></td>`;
+        b += `<td valign="middle" style="padding:0 0 6px;"><table border="0" cellpadding="0" cellspacing="0"><tr><td valign="middle" style="padding-right:10.5px;"><img src="${img(brand.logo)}" alt="" height="24" style="height:24px;width:auto;display:block;" /></td><td valign="middle" style="${F}font-size:16px;font-weight:bold;color:${INK};">${brand.name}</td></tr></table></td>`;
         b += `</tr></table>`;
 
         const perRow = 3;
         for(let r = 0; r < Math.ceil(groups.length / perRow); r++){
-            b += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top:5px;"><tr>`;
+            b += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top:7.5px;"><tr>`;
             for(let c = 0; c < perRow; c++){
                 const gi = r * perRow + c;
-                const pad = c === 0 ? '0 3px 0 0' : c === perRow - 1 ? '0 0 0 3px' : '0 3px';
+                const pad = c === 0 ? '0 4.5px 0 0' : c === perRow - 1 ? '0 0 0 4.5px' : '0 4.5px';
                 if(gi >= groups.length){ b += `<td valign="top" width="33%" style="padding:${pad};"></td>`; continue; }
                 const { g, rows } = groups[gi];
                 const note = g.subheader || g.header || '';
@@ -2529,17 +2529,17 @@ function buildEmailBody(recipientName, baseUrl){
                 b += `<td valign="top" width="33%" style="padding:${pad};">`;
                 b += `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid ${LINE};">`;
                 // Product name with colored dot
-                b += `<tr><td style="padding:4px 7px;border-bottom:1px solid ${LINE};${F}font-size:9px;font-weight:bold;color:${INK};"><span style="display:inline-block;width:6px;height:6px;border-radius:3px;background-color:${dot};vertical-align:middle;margin-right:5px;"></span>${escapeHtml(g.name)}${note ? `<div style="font-weight:normal;color:${MUTED};font-size:7px;line-height:9px;margin-top:1px;padding-left:11px;">${escapeHtml(note)}</div>` : ''}</td></tr>`;
+                b += `<tr><td style="padding:6px 10.5px;border-bottom:1px solid ${LINE};${F}font-size:13.5px;font-weight:bold;color:${INK};"><span style="display:inline-block;width:9px;height:9px;border-radius:4.5px;background-color:${dot};vertical-align:middle;margin-right:7.5px;"></span>${escapeHtml(g.name)}${note ? `<div style="font-weight:normal;color:${MUTED};font-size:10.5px;line-height:13.5px;margin-top:1.5px;padding-left:16.5px;">${escapeHtml(note)}</div>` : ''}</td></tr>`;
                 // Column headers + rows
                 b += `<tr><td style="padding:0;"><table border="0" cellpadding="0" cellspacing="0" width="100%">`;
-                const th = (t, al) => `<td align="${al}" bgcolor="${SOFT}" style="background-color:${SOFT};padding:2px 7px;${F}font-size:6.5px;font-weight:bold;letter-spacing:.5px;text-transform:uppercase;color:${MUTED};border-bottom:1px solid ${LINE};">${t}</td>`;
+                const th = (t, al) => `<td align="${al}" bgcolor="${SOFT}" style="background-color:${SOFT};padding:3px 10.5px;${F}font-size:10px;font-weight:bold;letter-spacing:.5px;text-transform:uppercase;color:${MUTED};border-bottom:1px solid ${LINE};">${t}</td>`;
                 b += `<tr>${th('Size','left')}${cols.map(([, l]) => th(l, 'right')).join('')}</tr>`;
                 rows.forEach((row, i) => {
                     const bb = i === rows.length - 1 ? '' : `border-bottom:1px solid #eef1f4;`;
-                    b += `<tr><td style="padding:2.5px 7px;${bb}${F}font-size:8.5px;color:${BODY};white-space:nowrap;">${escapeHtml(row.size)}</td>`;
+                    b += `<tr><td style="padding:4px 10.5px;${bb}${F}font-size:13px;color:${BODY};white-space:nowrap;">${escapeHtml(row.size)}</td>`;
                     row.vals.forEach(v => {
-                        b += v ? `<td align="right" style="padding:2.5px 7px;${bb}${F}font-size:8.5px;font-weight:bold;color:${GREEN};">${v}</td>`
-                               : `<td align="right" style="padding:2.5px 7px;${bb}${F}font-size:8.5px;color:${FAINT};">&#8212;</td>`;
+                        b += v ? `<td align="right" style="padding:4px 10.5px;${bb}${F}font-size:13px;font-weight:bold;color:${GREEN};">${v}</td>`
+                               : `<td align="right" style="padding:4px 10.5px;${bb}${F}font-size:13px;color:${FAINT};">&#8212;</td>`;
                     });
                     b += `</tr>`;
                 });
@@ -2553,13 +2553,13 @@ function buildEmailBody(recipientName, baseUrl){
     h += sections.join('');
 
     // Call to order
-    h += `<tr><td align="center" style="padding:10px 22px 4px;"><table border="0" cellpadding="0" cellspacing="0" align="center"><tr><td bgcolor="${GREEN}" align="center" style="background-color:${GREEN};padding:5px 16px;border-radius:4px;"><a href="tel:+15202819534" style="${F}font-size:8.5px;font-weight:bold;color:#ffffff;text-decoration:none;">Call to order &#8212; (520) 281-9534</a></td></tr></table></td></tr>`;
+    h += `<tr><td align="center" style="padding:15px 33px 6px;"><table border="0" cellpadding="0" cellspacing="0" align="center"><tr><td bgcolor="${GREEN}" align="center" style="background-color:${GREEN};padding:7.5px 24px;border-radius:6px;"><a href="tel:+15202819534" style="${F}font-size:13px;font-weight:bold;color:#ffffff;text-decoration:none;">Call to order &#8212; (520) 281-9534</a></td></tr></table></td></tr>`;
 
     // Disclaimer + footer
-    h += `<tr><td style="padding:6px 22px 8px;${F}font-size:7px;line-height:10px;color:${MUTED};text-align:center;">All prices are FOB ${escapeHtml(fob)}, informational only and subject to change without notice. Please contact your sales representative to confirm pricing and availability.</td></tr>`;
-    h += `<tr><td bgcolor="${SOFT}" style="background-color:${SOFT};border-top:1px solid ${LINE};padding:8px 22px;text-align:center;${F}">`;
-    h += `<div style="font-size:9px;font-weight:bold;color:${DEEP};">HM Distributors Inc.</div>`;
-    h += `<div style="font-size:7.5px;line-height:11px;color:${MUTED};margin-top:2px;">4 Avenida Acaponeta &#183; Rio Rico, AZ 85648 &nbsp;&#183;&nbsp; Mailing: P.O. Box 548 &#183; Nogales, AZ 85628-0548<br>(520) 281-9534 &#183; quotes@hmdistributors.com</div>`;
+    h += `<tr><td style="padding:9px 33px 12px;${F}font-size:10.5px;line-height:15px;color:${MUTED};text-align:center;">All prices are FOB ${escapeHtml(fob)}, informational only and subject to change without notice. Please contact your sales representative to confirm pricing and availability.</td></tr>`;
+    h += `<tr><td bgcolor="${SOFT}" style="background-color:${SOFT};border-top:1px solid ${LINE};padding:12px 33px;text-align:center;${F}">`;
+    h += `<div style="font-size:13.5px;font-weight:bold;color:${DEEP};">HM Distributors Inc.</div>`;
+    h += `<div style="font-size:11px;line-height:16.5px;color:${MUTED};margin-top:3px;">4 Avenida Acaponeta &#183; Rio Rico, AZ 85648 &nbsp;&#183;&nbsp; Mailing: P.O. Box 548 &#183; Nogales, AZ 85628-0548<br>(520) 281-9534 &#183; quotes@hmdistributors.com</div>`;
     h += `</td></tr>`;
 
     h += `</table>`;
@@ -2585,6 +2585,7 @@ function generateEmailHTML(recipientName){
   @page { margin:0.3cm; }
   body { background:#fff !important; }
   .outer-wrap { padding:0 !important; background:#fff !important; }
+  .sheet { zoom:0.67; }
 }
 </style>
 </head>
